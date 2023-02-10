@@ -1,4 +1,6 @@
 # options specified here will apply to all posts in this folder
+# lots learned from the awesome Danielle Navarro. Specifically, this post:
+# https://blog.djnavarro.net/posts/2022-04-20_porting-to-quarto/
 
 # freeze computational output
 # (see https://quarto.org/docs/projects/code-execution.html#freeze)
@@ -6,3 +8,13 @@ freeze: true
 
 # Enable banner style title blocks
 title-block-banner: true
+
+# Default author
+author:
+  - name: Vasco Brazão
+  
+# Enable CC licence appendix
+license: "CC BY"
+
+# Default fields for citation
+citation: true
