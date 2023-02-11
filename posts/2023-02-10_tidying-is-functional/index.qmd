@@ -3,7 +3,10 @@ title: "I used to think tidying was moral"
 subtitle: It's not. It's functional. Let KC Davis tell you what that means.
 date: "2023-02-10"
 categories: [I used to think]
+image: office.png
 ---
+
+![](office.png){fig-alt="Bird's eye view of messy office. Different piles of papers, boxes, etc. in various corners of the floor, some on the desk as well"}
 
 I've always struggled with tidying. Making my bed, gathering all the dirty clothes from the floor, loading the dishwasher and sanitizing the countertops---I struggle with all this to this day. But I feel better about it, and much more hopeful of finding a balance that works for me. Let me tell you why:
 
