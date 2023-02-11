@@ -6,13 +6,13 @@ about:
   links:
     - icon: twitter
       text: Twitter
-      href: https://twitter.com
+      href: https://twitter.com/vascobrazao
     - icon: linkedin
       text: LinkedIn
-      href: https://linkedin.com
+      href: https://www.linkedin.com/in/vascobrazao/
     - icon: github
       text: Github
-      href: https://github.com
+      href: https://github.com/vbrazao
 ---
 
 One day this will say something about me and/or this blog!
