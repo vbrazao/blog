@@ -1,7 +1,5 @@
 project:
-  type: 
-    website:
-      google-analytics: "G-2XK3PRN887"
+  type: website
   output-dir: docs
 
 website:
@@ -15,6 +13,8 @@ website:
         href: https://twitter.com/vascobrazao
       - icon: linkedin
         href: https://www.linkedin.com/in/vascobrazao/
+  google-analytics: "G-2XK3PRN887"
+
 format:
   html:
     theme: simplex
