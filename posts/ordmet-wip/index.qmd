@@ -1,0 +1,61 @@
+---
+title: "wip"
+draft: true
+---
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+```{r}
+data <- readr::read_csv("MoviesData.csv") %>% 
+  dplyr::filter(ID %in% c(3, 34)) %>% 
+  dplyr::select(-Descrip) %>% 
+  dplyr::rename_with(
+    .cols = dplyr::starts_with("n"),
+    .fn = ~ stringr::str_remove(
+      string = .x,
+      pattern = "n"
+    )
+  ) %>% 
+  dplyr::mutate(
+    ID = forcats::as_factor(ID)
+  ) %>% 
+  tidyr::pivot_longer(
+    cols = -ID,
+    names_to = "rating",
+    values_to = "n"
+  ) %>% 
+  tidyr::uncount(weights = n) %>% 
+  dplyr::mutate(
+    rating = as.numeric(rating)
+  )
+
+data_ord <- data %>% 
+  dplyr::mutate(
+    rating = forcats::as_factor(rating)
+  )
+```
+
+bla
+
+```{r}
+lm(
+  formula = rating ~ ID, 
+  data = data
+) %>% summary()
+
+lmls::lmls(
+  rating ~ ID,
+  ~ ID,
+  data = data
+) %>% summary()
+
+ordinal::clm(
+  formula = rating ~ ID,
+  scale = ~ ID,
+  link = "probit",
+  data = data_ord
+) %>% summary()
+```
