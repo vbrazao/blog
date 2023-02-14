@@ -5,6 +5,9 @@ project:
 website:
   title: "Vasco Brazão"
   navbar:
+    left:
+      - href: https://vbrazao.github.io/website/
+        text: Website
     right:
       - about.qmd
       - icon: github
