@@ -2,7 +2,7 @@
 title: "I used to think tidying was moral"
 subtitle: It's not. It's functional. Let KC Davis tell you what that means.
 date: "2023-02-10"
-categories: [I used to think]
+categories: [i used to think, english]
 image: office.png
 ---
 
