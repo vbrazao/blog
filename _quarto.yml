@@ -11,13 +11,15 @@ website:
         href: https://github.com/vbrazao
       - icon: twitter
         href: https://twitter.com/vascobrazao
+      - icon: mastodon
+        href: https://tech.lgbt/@vascobrazao
       - icon: linkedin
         href: https://www.linkedin.com/in/vascobrazao/
   google-analytics: "G-2XK3PRN887"
 
 format:
   html:
-    theme: simplex
+    theme: litera
     css: styles.css
 
 editor: visual

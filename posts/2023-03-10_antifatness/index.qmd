@@ -1,5 +1,5 @@
 ---
-title: "Anti-fat bias, not 'obesity', is a societal problem worth fighting"
+title: "Anti-fat bias, not 'obesity', is a problem worth fighting"
 subtitle: Here's what changed my mind
 date: "2023-03-10"
 categories: [i used to think, english, health, fat liberation]
@@ -46,7 +46,7 @@ This is simply imagined. There is no consensus at all in the literature, even th
 
 Did you catch it? This is such a common pattern in the literature that I'm honestly angry. Any evidence that weight gain is harmful is obvious and good; any evidence that weight loss is problematic is probably hopelessly confounded by many factors the researchers didn't consider, and also too few people attempt to lose weight anyway (are you shitting me?). Take a look in the fucking research mirror.
 
-But, OK, let's imagine (it's easy, doctors do it!) that there is a crystal clear association between higher weight and higher risk of disease. You cannot then conclude that fat itself causes worse health outcomes, especially given the very strong evidence we have for a significant confounding factor: anti-fatness. Anti-fatness causes stress (from strangers giving you looks, telling you that your body is wrong, policing your food choices since childhood); it causes attempts to diet, which often result in losing weight, gaining it back, and trying to lose it again (called weight cycling or \"yo-yo dieting\"); it causes decreased access to medical care, because doctors refuse treatment or are so judgemental that you postpone a visit despite symptoms. Sounds important; doesn't get measured. 
+But, OK, let's imagine (it's easy, doctors do it!) that there is a robust association between higher weight and higher risk of disease. You cannot then conclude that fat itself causes worse health outcomes, especially given the very strong evidence we have for a significant confounding factor: anti-fatness. Anti-fatness causes stress (from strangers giving you looks, telling you that your body is wrong, policing your food choices since childhood); it causes attempts to diet, which often result in losing weight, gaining it back, and trying to lose it again (called weight cycling or \"yo-yo dieting\"); it causes decreased access to medical care, because doctors refuse treatment or are so judgemental that you postpone a visit despite symptoms. Sounds important; doesn't get measured. 
 
 Another obvious confounder is behavior. We know that getting regular exercise, eating vegetables, and many other behaviors can have a very positive impact on your health. Could it be that the heavier people in your sample also show fewer of these positive behaviors, and it's the behaviors that are driving the difference in health outcomes? Without ruling out confounders, it's irresponsible and unethical to extrapolate that recommending weight loss is a good thing. The thing is, you barely see studies applying this level of skepticism and looking for other causes when they document an association between fatness and health, but you do see those same studies saying that we should keep recommending weight loss.
 
@@ -84,11 +84,11 @@ FUUUUCK. MEE.
 
 So. There is no high-quality evidence that any of the myths above are true, and not for lack of trying. And yet, we act as if they are true. We're so focused on reducing \"obesity\" that we sideline what we, presumably, really want: to increase health and quality of life. Perhaps we can start by acknowledging some truths:
 
-1.  **Truth 1: Hating your body (and yourself) very negatively impacts both your physical and your mental health.** For just some examples, see [this systematic review on weight bias internalization and health](https://onlinelibrary.wiley.com/doi/epdf/10.1111/obr.12701). Or [read about the link between perceiving yourself to be "overweight" and suicidality](https://mural.maynoothuniversity.ie/15237/1/MD-Overweight-suicidality-2020.PDF). It is not a joke. People's lives are on the line.
+1.  **Hating your body (and yourself) very negatively impacts both your physical and your mental health.** For just some examples, see [this systematic review on weight bias internalization and health](https://onlinelibrary.wiley.com/doi/epdf/10.1111/obr.12701). Or [read about the link between perceiving yourself to be "overweight" and suicidality](https://mural.maynoothuniversity.ie/15237/1/MD-Overweight-suicidality-2020.PDF). It is not a joke. People's lives are on the line.
 
-2.  **Truth 2: Being denied healthcare because of weight directly contributes to worse health outcomes for fat people, and it happens all. the. time.** Ask your friends, or read the reporting on medical weight stigma, or search Google Scholar for evidence. It is disgusting. When we are not increasing fat people's feelings of shame, suicidality, and disordered eating with the comments we make, we have doctors creating the very health inequalities they use as evidence of the health risks of \"obesity\". I'm not even talking about the oppression fat people face outside the health system---that much wouldn't fit inside this article whose size I control (*stares intently*).
+2.  **Being denied healthcare because of weight directly contributes to worse health outcomes for fat people, and it happens all. the. time.** Ask your friends, or read the reporting on medical weight stigma, or search Google Scholar for evidence. It is disgusting. When we are not increasing fat people's feelings of shame, suicidality, and disordered eating with the comments we make, we have doctors creating the very health inequalities they use as evidence of the health risks of \"obesity\". I'm not even talking about the oppression fat people face outside the health system---that much wouldn't fit inside this article whose size I control (*stares intently*).
 
-3.  **Truth 3: Dieting, fast weight loss, and weight cycling negatively affect your overall health.** This one is a liittle more contested, since no one cares to measure potentially negative effects of dieting or weight cycling most of the time. But the evidence is becoming more and more clear that repeated weight loss and weight regain, besides not being good for your health, is actually bad for your health. Oops.
+3.  **Dieting, fast weight loss, and weight cycling negatively affect your overall health.** This one is a liittle more contested, since no one cares to measure potentially negative effects of dieting or weight cycling most of the time. But the evidence is becoming more and more clear that repeated weight loss and weight regain, besides not being good for your health, is actually bad for your health. Oops.
 
 To me, this is harrowing. \"Just try to lose weight\", as a medical intervention, has a pathetic track record: it's often excruciatingly hard and psychologically taxing; it almost never works at its direct outcome (long-term weight loss); we're not even sure it could lead to benefits in its real, long-term intended outcome (improved health); and we're pretty sure it contributes directly to physical and psychological harm.
 
@@ -118,7 +118,7 @@ Some ideas on what you can start doing *right now*.
 
 -   Reflect on your life. Have you ever gently suggested your friend \"just needs to lose some weight\"? Have you ever commented on someone's food choices, shamed them for not eating enough salad or whatever you thought was best for them, because they looked too fat to you? Have you ever suggested a specific diet to someone based on their looks? Then, unfortunately, you've done a horrible thing. Truly. You have contributed to someone's internalized anti-fatness, have raised their chances of developing disordered eating, have perpetuated harmful lies that allow society to keep oppressing fat people. If you feel resistance at these statements, I get it. It sucks. Sit with the guilt. Sit with the shame. I'll sit with you. We can cry, too, it's alright. Let the reflections and the emotions till the soil of your mind so you're ready to change. And then...
 
--   Take the time to listen. Listen to one podcast episode about fatness BY A FAT PERSON; read one article about fatness BY A FAT PERSON; buy and read one of the several books Aubrey Gordon has written or recommends; follow one fat activist on Twitter, Instagram, TikTok, whatever. And if you find yourself having quick, knee-jerk reactions when they explain things to you, remember to ~~shut up and~~ I mean take the time to listen. Then go process things for a month or two. It will take time. It will change the way you interpret research. In the meantime...
+-   Take the time to listen. Listen to one podcast episode about fatness BY A FAT PERSON; read one article about fatness BY A FAT PERSON; buy and read one of the several books Aubrey Gordon has written or recommends; follow one fat activist on Twitter, Instagram, TikTok, whatever. And if you find yourself having quick, knee-jerk reactions when they explain things to you, remember to ~~shut up and~~ I mean take the time to listen. Then go process things for a month or two. It will take time.
 
 -   Learn more, go on a research bender! Google \"fat liberation\" and spend some hours understanding the movement better. Go to Google Scholar and dig into the ~~garbage~~ research yourself. Find out what the Health At Every Size movement has been up to. Or use the more structured Resources list below.
 
@@ -158,7 +158,7 @@ I used to think we should fight \"obesity\". Maybe you did too. I am now convinc
 
 This was only the beginning. There's lots to learn, and lots to do. You have a say in whether fat people continue being oppressed. To learn more about the topic, understand why I reached the conclusions I did, and come to your own conclusions, check out some of the resources below:
 
-🎙️ Podcasts
+### 🎙️ Podcasts
 
 -   [Maintenance Phase](https://www.maintenancephase.com/), hosted by Aubrey Gordon and Michael Hobbes, was my first foray into this topic. The podcast is focused on debunking diet and wellness fads from a scientific a social perspective. They have many episodes on specific diet books or gurus, but also more general historical topics of interest. In particular, you might like their episodes on The Body Mass Index, The Obesity Epidemic, and the eternal question Is Being Fat Bad For You?
 
@@ -166,7 +166,7 @@ This was only the beginning. There's lots to learn, and lots to do. You have a s
 
 -   [Unsolicited: Fatties Talk Back](https://unsolicitedftb.libsyn.com/), hosted by Marquisele Mercedes, Caleb Luna, Bryan Guffey, Jordan Underwood, and Da'Shaun Harrison, is fat liberationist podcast through and through. They explore the intersections of fatness, queerness, and race in funny and informative conversations.
 
-📖 Books
+### 📖  Books
 
 -   [Fearing the Black Body](https://www.sabrinastrings.com/books) by Sabrina Strings
 
@@ -178,7 +178,7 @@ This was only the beginning. There's lots to learn, and lots to do. You have a s
 
 -   [Radical Belonging: How to Survive and Thrive in an Unjust World (While Transforming it for the Better)](https://lindobacon.com/radical-belonging-book/) by Lindo Bacon, PhD
 
-💻 Articles
+### 💻  Articles
 
 -   [The Feminist History of Fat Liberation](https://msmagazine.com/2019/10/18/the-feminist-history-of-fat-liberation/) by Sarah Simon
 
@@ -186,13 +186,13 @@ This was only the beginning. There's lots to learn, and lots to do. You have a s
 
 -   [Fat Is Not the Problem---Fat Stigma Is](https://blogs.scientificamerican.com/observations/fat-is-not-the-problem-fat-stigma-is/) by Lindo Bacon and Amee Severson
 
-💎 HAES Health Sheets
+### 💎  HAES Health Sheets
 
 -   I wanted to bring special focus to the [HAES](https://haeshealthsheets.com/)[^10][Health Sheets project](https://haeshealthsheets.com/), where you can find a [Health Sheet Library](library) with different sheets summarizing weight-inclusive medical information on different diseases (e.g., heart disease or diabetes) as well as several other [Resources](https://haeshealthsheets.com/resources/) including scientific papers.
 
 [^10]: Health At Every Size
 
-📹 Tik Tok
+### 📹  TikTok
 
 -   There are many fat liberationist creators on the app. To nudge your For You algorithm, why not [watch this funny-serious video](https://vm.tiktok.com/ZMYhXUkYN/)?
 
@@ -227,3 +227,7 @@ I want you to do your hobbies as if they are just that---hobbies. They don't mak
 ### I still want to lose some weight!
 
 More of a comment than a question, isn't it. Go for it, do what you want. But maybe ask people if they want to talk about weight loss before sharing your journey with them or recommending that they, too, try your new diet. And accept from the start that you will likely regain the weight, and that you can improve your health by focusing on health behaviors (nutrition, exercise, sleep, the boring stuff), but your scale will not tell you whether your health is improving.
+
+::: {.callout-note appearance="minimal"}
+Special thanks to Sasha Boychenko and Sara Todorovikj for suggestions.
+:::
