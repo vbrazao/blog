@@ -15,6 +15,8 @@ website:
         href: https://tech.lgbt/@vascobrazao
       - icon: linkedin
         href: https://www.linkedin.com/in/vascobrazao/
+      - text: "{{< iconify fluent-emoji-flat blue-square height=25 width=25 >}}"
+        href: https://bsky.app/profile/vascobrazao.bsky.social
   google-analytics: "G-2XK3PRN887"
 
 format:
