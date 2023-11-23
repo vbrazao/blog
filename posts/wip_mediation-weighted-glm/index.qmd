@@ -1,0 +1,8 @@
+---
+title: "Adventures in mediation analysis with weighted GLMs"
+subtitle: "subtitle?"
+date: "2023"
+categories: [statistics, mediation, survey, glm]
+draft: true
+---
+
