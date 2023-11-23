@@ -1,0 +1,14 @@
+{
+  "hash": "f5d130c2e25884b722f97bf1f58089ce",
+  "result": {
+    "markdown": "---\ntitle: \"Adventures in mediation analysis with weighted GLMs\"\nsubtitle: \"subtitle?\"\ndate: \"2023\"\ncategories: [statistics, mediation, survey, glm]\ndraft: true\nformat:\n  html:\n    code-fold: true\n---\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(tidyverse)\nlibrary(here)\nlibrary(mediation)\nlibrary(survey)\nlibrary(srvyr)\n\n# directory for the post\npost_folder <- \"wip_mediation-weighted-glm\"\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\n# get synthetic dataset\ndat <- readRDS(here::here(\"posts\", post_folder, \"data_reduced_synth.RDS\"))\n```\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
