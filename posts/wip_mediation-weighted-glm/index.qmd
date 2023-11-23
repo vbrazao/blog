@@ -4,9 +4,14 @@ subtitle: "subtitle?"
 date: "2023"
 categories: [statistics, mediation, survey, glm]
 draft: true
+format:
+  html:
+    code-fold: true
 ---
 
 ```{r setup}
+#| message: false
+
 library(tidyverse)
 library(here)
 library(mediation)
@@ -14,11 +19,11 @@ library(survey)
 library(srvyr)
 
 # directory for the post
-post_folder <- "wip_mediation_weighted_glm"
+post_folder <- "wip_mediation-weighted-glm"
 ```
 
 ```{r data}
 # get synthetic dataset
-dat <- readRDS(here::here(post_folder, "data_reduced_synth.RDS"))
+dat <- readRDS(here::here("posts", post_folder, "data_reduced_synth.RDS"))
 ```
 
