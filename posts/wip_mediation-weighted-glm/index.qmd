@@ -6,3 +6,19 @@ categories: [statistics, mediation, survey, glm]
 draft: true
 ---
 
+```{r setup}
+library(tidyverse)
+library(here)
+library(mediation)
+library(survey)
+library(srvyr)
+
+# directory for the post
+post_folder <- "wip_mediation_weighted_glm"
+```
+
+```{r data}
+# get synthetic dataset
+dat <- readRDS(here::here(post_folder, "data_reduced_synth.RDS"))
+```
+
