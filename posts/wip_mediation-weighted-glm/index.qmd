@@ -1,6 +1,6 @@
 ---
 title: "Adventures in mediation analysis with weighted GLMs"
-subtitle: "subtitle?"
+subtitle: "Race and Social Support as predictors of Intimate Partner Violence victimization in women in the Future of Families dataset"
 date: "2023"
 categories: [statistics, mediation, survey, glm]
 draft: true
@@ -22,8 +22,13 @@ library(srvyr)
 post_folder <- "wip_mediation-weighted-glm"
 ```
 
+This blogpost documents challenges we faced when attempting to run a mediation analysis using the `mediation` package with a binomial mediator and outcome while incorporating sampling weights into the analysis with the help of the `survey` package.
+
+As part of a research program seeking to better understand intimate partner violence (IPV) through an intersectional lens, we wanted to use the [Future of Families & Child Wellbeing Study](https://ffcws.princeton.edu/)[^1] dataset to run a mediation analysis. The data come from a survey with a complex design, and baseline and replicate weights are provided for each participant in the "national" sample. These weights should allow us to make estimates nationally representative. (TO DO! point to the document where people can learn more about the weights <https://ffcws.princeton.edu/sites/g/files/toruqf4356/files/ff_const_wgts.pdf>) Our mediator and outcome variables could reasonably be construed as "binomial outcomes", and this was our preferred approach to fitting the necessary models. However, we encountered several difficulties
+
+[^1]: Previously called the "Fragile Families and Child Wellbeing Study"
+
 ```{r data}
 # get synthetic dataset
 dat <- readRDS(here::here("posts", post_folder, "data_reduced_synth.RDS"))
 ```
-
