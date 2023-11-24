@@ -193,7 +193,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
       <h1 class="title">Adventures in mediation analysis with weighted GLMs</h1>
-            <p class="subtitle lead">subtitle?</p>
+            <p class="subtitle lead">Race and Social Support as predictors of Intimate Partner Violence victimization in women in the Future of Families dataset</p>
                                 <div class="quarto-categories">
                 <div class="quarto-category">statistics</div>
                 <div class="quarto-category">mediation</div>
@@ -227,7 +227,17 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
-    
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#data-and-desired-models" id="toc-data-and-desired-models" class="nav-link active" data-scroll-target="#data-and-desired-models">Data and desired models</a>
+  <ul class="collapse">
+  <li><a href="#creating-the-weighted-dataframe" id="toc-creating-the-weighted-dataframe" class="nav-link" data-scroll-target="#creating-the-weighted-dataframe">Creating the weighted dataframe</a></li>
+  <li><a href="#running-the-weighted-models-and-mediation" id="toc-running-the-weighted-models-and-mediation" class="nav-link" data-scroll-target="#running-the-weighted-models-and-mediation">Running the weighted models and mediation</a></li>
+  </ul></li>
+  </ul>
+</nav>
 </nav>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
@@ -251,6 +261,12 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>post_folder <span class="ot">&lt;-</span> <span class="st">"wip_mediation-weighted-glm"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
+<p>This blogpost documents the challenges we faced when attempting to run a mediation analysis using the <code>mediation</code> package with a binomial mediator and outcome while incorporating sampling weights into the analysis with the help of the <code>survey</code> package.</p>
+<p>As part of a research program seeking to better understand intimate partner violence (IPV) through an intersectional lens, we wanted to use the <a href="https://ffcws.princeton.edu/">Future of Families &amp; Child Wellbeing Study</a><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> dataset to run a mediation analysis. The data come from a survey with a complex design, and baseline and replicate weights are provided for each participant in the “national” sample. These weights should allow us to make estimates nationally representative. (TO DO! point to the document where people can learn more about the weights <a href="https://ffcws.princeton.edu/sites/g/files/toruqf4356/files/ff_const_wgts.pdf" class="uri">https://ffcws.princeton.edu/sites/g/files/toruqf4356/files/ff_const_wgts.pdf</a>) Our mediator and outcome variables could reasonably be construed as “binomial outcomes”, and this was our preferred approach to fitting the necessary models. However, we encountered several difficulties XXX</p>
+<p>This post has the following structure: First, we introduce the data we’ll use for the demonstrations and exemplify how we would like to have run the models (TO DO: rephrase or simply change depending on final structure).</p>
+<section id="data-and-desired-models" class="level1">
+<h1>Data and desired models</h1>
+<p>For demonstrative purposes we created a synthetic dataset using the <code>synthpop</code> package. This dataset mirrors the characteristics of our data without it being possible to identify any real individuals from it.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -258,10 +274,234 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"posts"</span>, post_folder, <span class="st">"data_reduced_synth.RDS"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
+<p>We have three variables that will be used for mediation, <code>race</code> (“White” or “Black”), <code>informal_support</code> (an integer from 0 to 3), and <code>IPV</code> (an integer from 0 to 24). Each person also has a baseline weight, <code>m1natwt</code>, and 33 replicate weights, <code>m1natwt_rep1</code> and so on. Behold:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>   race informal_support IPV   m1natwt m1natwt_rep1 m1natwt_rep2 m1natwt_rep3
+1 Black                3  18  41.13614     37.85516     41.24734     42.44724
+2 Black                3   4  19.97570     22.96839     20.49259     20.21818
+3 Black                3   0  12.24003     12.68406     11.59396     12.10748
+4 Black                3   0 121.76894    129.03618    131.50407    124.49722
+5 White                3  11  85.96230     87.22457     83.79171     91.27752
+6 Black                3   2  98.04827    101.53748      0.00000     99.79310
+  m1natwt_rep4 m1natwt_rep5 m1natwt_rep6 m1natwt_rep7 m1natwt_rep8 m1natwt_rep9
+1     44.39487     43.73881     44.45506     40.57142     40.78370     41.43095
+2     21.76786     20.79500     20.41886     21.54646     19.36423     19.80069
+3     12.00069     13.18730     11.88648     12.80008      0.00000     12.55978
+4    125.08351    115.39091    124.86470      0.00000    131.66747    121.04597
+5     80.11185     88.11595     88.67043     90.75494     91.45559     85.68980
+6     97.24787    102.89133    105.71425    105.91802    102.19711    100.52937
+  m1natwt_rep10 m1natwt_rep11 m1natwt_rep12 m1natwt_rep13 m1natwt_rep14
+1      34.34425      44.46661       0.00000       0.00000      37.94593
+2      19.47093      19.58197      20.42065      19.78305      20.23575
+3      11.89597      12.56892      12.57526      12.47836      11.46254
+4     126.42019     125.73327     120.78219     132.49487     114.30053
+5      86.45096      92.47426      81.41688      99.84825      79.96129
+6     103.41740      95.16078      97.53283      98.28993     103.28411
+  m1natwt_rep15 m1natwt_rep16 m1natwt_rep17 m1natwt_rep18 m1natwt_rep19
+1      41.50523      43.69954      41.31135      39.22795      42.50257
+2      21.36903      20.48008      20.91415      20.30889      21.36875
+3      12.59188      12.65551      11.98436      12.49196      12.09257
+4     127.66466     124.08061     125.39723     130.57684     134.18793
+5      85.80882      87.77487      89.85811      84.30115      95.09169
+6     105.16373     102.85249      97.12798     107.91775     102.52666
+  m1natwt_rep20 m1natwt_rep21 m1natwt_rep22 m1natwt_rep23 m1natwt_rep24
+1      42.02170      46.58911      41.82341      45.53830      42.27204
+2      19.87386      21.06265      20.41880      23.67257      20.81135
+3      13.70510      13.18920      12.23701      12.59980      12.74326
+4     122.83195       0.00000     124.68690     119.24700     128.60410
+5      89.03872      90.58102      90.92682     102.89832      93.30130
+6     107.20479     100.78193      95.96693      97.10217     101.69630
+  m1natwt_rep25 m1natwt_rep26 m1natwt_rep27 m1natwt_rep28 m1natwt_rep29
+1      42.28968      43.25393      40.67841       0.00000      42.64928
+2      21.42606      21.32215      19.58435      20.62730      21.86095
+3      13.78494      12.39277      13.22096      11.71815      13.12761
+4     128.66008     124.02149     126.49405     123.43700     141.58299
+5      94.10433      86.57666      88.45363      82.06447      89.72732
+6      99.66428     101.72647      96.58415      95.98499     100.43622
+  m1natwt_rep30 m1natwt_rep31 m1natwt_rep32 m1natwt_rep33
+1      42.28931      42.82657      43.13633      44.10038
+2      20.91533      20.08396      20.84812      20.38860
+3      12.33747      11.22335      12.79405      13.22079
+4     135.33669     126.14429     131.47270     125.73920
+5      97.44034      91.89236      94.17548       0.00000
+6       0.00000     105.47424      96.22710      95.11009</code></pre>
+</div>
+</div>
+<p>We’ll need to run two models — the first predicting the mediator, the second predicting the outcome — and feed these models into <code>mediation::mediate()</code>.</p>
+<section id="creating-the-weighted-dataframe" class="level2">
+<h2 class="anchored" data-anchor-id="creating-the-weighted-dataframe">Creating the weighted dataframe</h2>
+<p>We fit the models using <code>survey::svyglm</code> in order to be able to take the weights into account. First, we need to tell <code>survey</code> that our data is weighted, which we do with the help of the <code>srvyr</code> package. Our first attempt looked like this:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dat_weights <span class="ot">&lt;-</span> dat <span class="sc">|&gt;</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  srvyr<span class="sc">::</span><span class="fu">as_survey_rep</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">repweights =</span> dplyr<span class="sc">::</span><span class="fu">contains</span>(<span class="st">"_rep"</span>),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">weights =</span> m1natwt,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">combined_weights =</span> <span class="cn">TRUE</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>However, coming across this <a href="https://stats.stackexchange.com/questions/409463/duplicating-stata-survey-design-using-svrepdesign-from-survey-package-in-r">CrossValidated question</a> and confirming with the Fragile Families guide to using the weights showed us that the code above fails to tell <code>survey</code> that we want to use jackknife variance estimation. From the <a href="https://fragilefamilies.princeton.edu/sites/fragilefamilies/files/using_the_fragile_families_weights_waves_1_6.pdf">guide (PDF)</a>, p.&nbsp;2:</p>
+<blockquote class="blockquote">
+<p>As described in the weights construction memo, the replicate weights require using jackknife estimation of standard errors.</p>
+</blockquote>
+<p>Woop.</p>
+<p>So, to properly apply the weights, we run this code block:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dat_weights <span class="ot">&lt;-</span> dat <span class="sc">|&gt;</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  srvyr<span class="sc">::</span><span class="fu">as_survey_rep</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">repweights =</span> dplyr<span class="sc">::</span><span class="fu">contains</span>(<span class="st">"_rep"</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">weights =</span> m1natwt,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">combined_weights =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">"JKn"</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">scales =</span> <span class="dv">1</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">rscales =</span> <span class="dv">1</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">mse =</span> <span class="cn">TRUE</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="running-the-weighted-models-and-mediation" class="level2">
+<h2 class="anchored" data-anchor-id="running-the-weighted-models-and-mediation">Running the weighted models and mediation</h2>
+<p>With the weighted dataframe in hand, we can use <code>survey::svyglm</code> to fit our GLMs predicting <code>informal_support</code> and <code>IPV</code>.</p>
+<p>Our informal support variable is the sum of three items for which each mother could get a 1 or a 0 (indicating that she did or did not have access to that form of support). As such, it seems sensible to model it as a binomial outcome — each mother has a certain number of “successes” out of three possible trials.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model_m <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svyglm</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">cbind</span>(informal_support, <span class="dv">3</span> <span class="sc">-</span> informal_support) <span class="sc">~</span> race,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> dat_weights,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_m)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+survey::svyglm(formula = cbind(informal_support, 3 - informal_support) ~ 
+    race, design = dat_weights, family = "binomial")
+
+Survey design:
+Called via srvyr
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   3.6891     0.2778   13.28 2.48e-14 ***
+raceBlack    -1.7317     0.3972   -4.36 0.000133 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 3897.896)
+
+Number of Fisher Scoring iterations: 6</code></pre>
+</div>
+</div>
+<p>We get the following warning many times:</p>
+<pre><code>Warning: non-integer #successes in a binomial glm!</code></pre>
+<p>This is <code>survey</code>’s way of asking us to specify the family as “quasibinomial” instead of “binomial”, since our outcome is a proportion (weighted by the number of trials) and not binary. However, if we do that, <code>mediation</code> will not work with our models.</p>
+<p>Our IPV variable is the sum of twelve items for which each mother could get a score of 0, 1, or 2 (indicating how often she experienced a given form of violence from her partner). As such, it also seems sensible to model it as a binomial outcome — each mother has a certain number of “successes” out of 24 possible “trials”.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>model_y <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svyglm</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">cbind</span>(IPV, <span class="dv">24</span> <span class="sc">-</span> IPV) <span class="sc">~</span> race <span class="sc">+</span> informal_support,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> dat_weights,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+survey::svyglm(formula = cbind(IPV, 24 - IPV) ~ race + informal_support, 
+    design = dat_weights, family = "binomial")
+
+Survey design:
+Called via srvyr
+
+Coefficients:
+                 Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)      -1.49683    0.29495  -5.075 1.89e-05 ***
+raceBlack         0.12070    0.16796   0.719  0.47794    
+informal_support -0.24940    0.08928  -2.794  0.00899 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 6994.641)
+
+Number of Fisher Scoring iterations: 5</code></pre>
+</div>
+</div>
+<p>(Here again we suppressed the warning that would have otherwise popped up.)</p>
+<p>Finally, our mediation:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>med_out <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> <span class="dv">1000</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support"</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>weights taken as sampling weights, not total number of trials</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in mediation::mediate(model.m = model_m, model.y = model_y, sims =
+1000, : treatment and control values do not match factor levels; using White and
+Black as control and treatment, respectively</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(med_out)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Causal Mediation Analysis 
+
+Quasi-Bayesian Confidence Intervals
+
+                          Estimate 95% CI Lower 95% CI Upper p-value   
+ACME (control)            0.003893     0.000349         0.01   0.004 **
+ACME (treated)            0.004129     0.000425         0.01   0.004 **
+ADE (control)             0.015631    -0.031644         0.06   0.454   
+ADE (treated)             0.015867    -0.032804         0.06   0.454   
+Total Effect              0.019760    -0.026668         0.06   0.346   
+Prop. Mediated (control)  0.094405    -1.042873         1.98   0.350   
+Prop. Mediated (treated)  0.108976    -1.009035         1.97   0.350   
+ACME (average)            0.004011     0.000382         0.01   0.004 **
+ADE (average)             0.015749    -0.032133         0.06   0.454   
+Prop. Mediated (average)  0.101690    -1.026043         1.98   0.350   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Sample Size Used: 1955 
 
 
+Simulations: 1000 </code></pre>
+</div>
+</div>
+<p>A small but statistically significant mediation effect! The warning about weights not being taken as total number of trials makes me nervous, but then again, we did give the models sampling weights, so maybe it’s ok?</p>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">https://creativecommons.org/licenses/by-nc/4.0/</a></div></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{brazão2023,
+
+</section>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Previously called the “Fragile Families and Child Wellbeing Study”<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>Another option, which we won’t go into, would be to take the responses to the items themselves and use a multi-level ordinal model with item as the random grouping factor.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">https://creativecommons.org/licenses/by-nc/4.0/</a></div></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{brazão2023,
   author = {Vasco Brazão},
   title = {Adventures in Mediation Analysis with Weighted {GLMs}},
   date = {2023-01-01},
