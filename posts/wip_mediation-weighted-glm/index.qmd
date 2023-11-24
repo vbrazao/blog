@@ -22,13 +22,121 @@ library(srvyr)
 post_folder <- "wip_mediation-weighted-glm"
 ```
 
-This blogpost documents challenges we faced when attempting to run a mediation analysis using the `mediation` package with a binomial mediator and outcome while incorporating sampling weights into the analysis with the help of the `survey` package.
+This blogpost documents the challenges we faced when attempting to run a mediation analysis using the `mediation` package with a binomial mediator and outcome while incorporating sampling weights into the analysis with the help of the `survey` package.
 
-As part of a research program seeking to better understand intimate partner violence (IPV) through an intersectional lens, we wanted to use the [Future of Families & Child Wellbeing Study](https://ffcws.princeton.edu/)[^1] dataset to run a mediation analysis. The data come from a survey with a complex design, and baseline and replicate weights are provided for each participant in the "national" sample. These weights should allow us to make estimates nationally representative. (TO DO! point to the document where people can learn more about the weights <https://ffcws.princeton.edu/sites/g/files/toruqf4356/files/ff_const_wgts.pdf>) Our mediator and outcome variables could reasonably be construed as "binomial outcomes", and this was our preferred approach to fitting the necessary models. However, we encountered several difficulties
+As part of a research program seeking to better understand intimate partner violence (IPV) through an intersectional lens, we wanted to use the [Future of Families & Child Wellbeing Study](https://ffcws.princeton.edu/)[^1] dataset to run a mediation analysis. The data come from a survey with a complex design, and baseline and replicate weights are provided for each participant in the "national" sample. These weights should allow us to make estimates nationally representative. (TO DO! point to the document where people can learn more about the weights <https://ffcws.princeton.edu/sites/g/files/toruqf4356/files/ff_const_wgts.pdf>) Our mediator and outcome variables could reasonably be construed as "binomial outcomes", and this was our preferred approach to fitting the necessary models. However, we encountered several difficulties XXX
 
 [^1]: Previously called the "Fragile Families and Child Wellbeing Study"
+
+This post has the following structure: First, we introduce the data we'll use for the demonstrations and exemplify how we would like to have run the models (TO DO: rephrase or simply change depending on final structure).
+
+# Data and desired models
+
+For demonstrative purposes we created a synthetic dataset using the `synthpop` package. This dataset mirrors the characteristics of our data without it being possible to identify any real individuals from it.
 
 ```{r data}
 # get synthetic dataset
 dat <- readRDS(here::here("posts", post_folder, "data_reduced_synth.RDS"))
 ```
+
+We have three variables that will be used for mediation, `race` ("White" or "Black"), `informal_support` (an integer from 0 to 3), and `IPV` (an integer from 0 to 24). Each person also has a baseline weight, `m1natwt`, and 33 replicate weights, `m1natwt_rep1` and so on. Behold:
+
+```{r data.head}
+head(dat)
+```
+
+We'll need to run two models --- the first predicting the mediator, the second predicting the outcome --- and feed these models into `mediation::mediate()`.
+
+## Creating the weighted dataframe
+
+We fit the models using `survey::svyglm` in order to be able to take the weights into account. First, we need to tell `survey` that our data is weighted, which we do with the help of the `srvyr` package. Our first attempt looked like this:
+
+``` r
+dat_weights <- dat |> 
+  srvyr::as_survey_rep(
+    repweights = dplyr::contains("_rep"),
+    weights = m1natwt,
+    combined_weights = TRUE
+  )
+```
+
+However, coming across this [CrossValidated question](https://stats.stackexchange.com/questions/409463/duplicating-stata-survey-design-using-svrepdesign-from-survey-package-in-r) and confirming with the Fragile Families guide to using the weights showed us that the code above fails to tell `survey` that we want to use jackknife variance estimation. From the [guide (PDF)](https://fragilefamilies.princeton.edu/sites/fragilefamilies/files/using_the_fragile_families_weights_waves_1_6.pdf), p. 2:
+
+> As described in the weights construction memo, the replicate weights require using jackknife estimation of standard errors.
+
+Woop.
+
+So, to properly apply the weights, we run this code block:
+
+```{r data.weights}
+dat_weights <- dat |> 
+  srvyr::as_survey_rep(
+    repweights = dplyr::contains("_rep"),
+    weights = m1natwt,
+    combined_weights = TRUE,
+    type = "JKn",
+    scales = 1,
+    rscales = 1,
+    mse = TRUE
+)
+```
+
+## Running the weighted models and mediation
+
+With the weighted dataframe in hand, we can use `survey::svyglm` to fit our GLMs predicting `informal_support` and `IPV`.
+
+Our informal support variable is the sum of three items for which each mother could get a 1 or a 0 (indicating that she did or did not have access to that form of support). As such, it seems sensible to model it as a binomial outcome --- each mother has a certain number of "successes" out of three possible trials.
+
+```{r model.m.ideal}
+#| warning: false
+
+model_m <- survey::svyglm(
+  formula = cbind(informal_support, 3 - informal_support) ~ race,
+  design = dat_weights,
+  family = "binomial"
+)
+
+summary(model_m)
+```
+
+We get the following warning many times:
+
+```         
+Warning: non-integer #successes in a binomial glm!
+```
+
+This is `survey`'s way of asking us to specify the family as "quasibinomial" instead of "binomial", since our outcome is a proportion (weighted by the number of trials) and not binary. However, if we do that, `mediation` will not work with our models.
+
+Our IPV variable is the sum of twelve items for which each mother could get a score of 0, 1, or 2 (indicating how often she experienced a given form of violence from her partner). As such, it also seems sensible to model it as a binomial outcome --- each mother has a certain number of "successes" out of 24 possible "trials".[^2]
+
+[^2]: Another option, which we won't go into, would be to take the responses to the items themselves and use a multi-level ordinal model with item as the random grouping factor.
+
+```{r model.y.ideal}
+#| warning: false
+
+model_y <- survey::svyglm(
+  formula = cbind(IPV, 24 - IPV) ~ race + informal_support,
+  design = dat_weights,
+  family = "binomial"
+)
+
+summary(model_y)
+```
+
+(Here again we suppressed the warning that would have otherwise popped up.)
+
+Finally, our mediation:
+
+```{r}
+med_out <- mediation::mediate(
+  model.m = model_m,
+  model.y = model_y,
+  sims = 1000,
+  treat = "race",
+  mediator = "informal_support"
+)
+
+summary(med_out)
+```
+
+A small but statistically significant mediation effect! The warning about weights not being taken as total number of trials makes me nervous, but then again, we did give the models sampling weights, so maybe it's ok?
