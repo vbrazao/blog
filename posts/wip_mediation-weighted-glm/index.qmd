@@ -23,6 +23,8 @@ library(here)
 library(mediation)
 library(survey)
 library(srvyr)
+library(gt)
+library(MASS)
 
 
 # directory for the post (to change once post goes live)
@@ -50,13 +52,15 @@ dat <- readRDS(here::here("posts", post_folder, "data_reduced_synth.RDS")) |>
     informal_support_prop = informal_support/3,
     informal_support_max = 3,
     informal_support_binary = ifelse(informal_support == 3, 1, 0),
+    informal_support_ordinal = forcats::as_factor(informal_support) |> 
+      forcats::fct_relevel("0", "1", "2", "3"),
     IPV_prop = IPV/24,
     IPV_max = 25,
     IPV_binary = ifelse(IPV > 0, 1, 0)
   )
 ```
 
-We have three variables that will be used for mediation, `race` ("White" or "Black"), `informal_support` (an integer from 0 to 3), and `IPV` (an integer from 0 to 24). We manually create `_prop` and `_max` variables for informal support and IPV, so that we can use the proportion as an outcome in our GLMs and use the `weights` argument to specify the number of trials. We also create `informal_support_binary`, which classifies women as having high access to informal support (takes the value 1) when they score 3 out of 3, and low access (takes the value 0) when they score less than 3, as well as `IPV_binary`, which classifies women as having experienced some form of IPV (takes the value 1) if they score more than 0 and as not having experienced IPV (takes the value 0) if they score exactly 0. These binarized variables will become useful later on.
+We have three variables that will be used for mediation, `race` ("White" or "Black"), `informal_support` (an integer from 0 to 3), and `IPV` (an integer from 0 to 24). We manually create `_prop` and `_max` variables for informal support and IPV, so that we can use the proportion as an outcome in our GLMs and use the `weights` argument to specify the number of trials. We also create `informal_support_binary`, which classifies women as having high access to informal support (takes the value 1) when they score 3 out of 3, and low access (takes the value 0) when they score less than 3, as well as `IPV_binary`, which classifies women as having experienced some form of IPV (takes the value 1) if they score more than 0 and as not having experienced IPV (takes the value 0) if they score exactly 0. These binarized variables will become useful later on. Finally, we create the ordered factor `informal_support_ordinal`, to be used in ordinal models later on.
 
 Each person also has a baseline weight, `m1natwt`, and 33 replicate weights, `m1natwt_rep1` and so on. Behold:
 
@@ -333,3 +337,118 @@ summary(med_3.1)
 ```
 
 This approach runs, but we are still left wondering whether we can trust the estimates.
+
+## Issue 4: Ordinal mediator and binomial outcome don't work together.
+
+Because we would prefer not to binarize the social support variable in order to keep all the information that we can, we also explored using an ordinal mediator model. `mediate()` works with ordinal models fit with `MASS::polr`, so we attempted that.
+
+```{r unweighted.mediation.polr}
+#| error: true
+
+model_m_4 <- MASS::polr(
+  formula = informal_support_ordinal ~ race,
+  data = dat,
+  Hess = TRUE
+)
+
+model_y_4 <- glm(
+  formula = cbind(IPV, IPV_max - IPV) ~ race + informal_support_ordinal,
+  data = dat,
+  family = "binomial"
+)
+
+med_4 <- mediation::mediate(
+  model.m = model_m_4,
+  model.y = model_y_4,
+  sims = n_sims,
+  treat = "race",
+  mediator = "informal_support_ordinal"
+)
+```
+
+The first issue arises, but it's easy to fix. Again, from the [documentation of the mediate function](https://rdrr.io/cran/mediation/man/mediate.html):
+
+> The quasi-Bayesian approximation (King et al. 2000) cannot be used if 'model.m' is of class 'rq' or 'gam', or if 'model.y' is of class 'gam', 'polr' or 'bayespolr'. In these cases, either an error message is returned or use of the nonparametric bootstrap is forced. Users should note that use of the nonparametric bootstrap often requires significant computing time, especially when 'sims' is set to a large value.
+
+We can get around this by setting the argument `boot` to `TRUE`.
+
+```{r unweighted.mediation.polr.boot}
+#| error: true
+
+med_4 <- mediation::mediate(
+  model.m = model_m_4,
+  model.y = model_y_4,
+  sims = n_sims,
+  treat = "race",
+  mediator = "informal_support_ordinal",
+  boot = TRUE
+)
+```
+
+Now we get a different problem. It seems the `boot` package is having trouble with the way we set up our outcome model --- hopefully using the other implementation will take care of that.
+
+```{r unweighted.mediation.polr.fail}
+#| error: true
+
+model_y_4.1 <- glm(
+  formula = IPV_prop ~ race + informal_support_ordinal,
+  weights = IPV_max,
+  data = dat,
+  family = "binomial"
+)
+
+med_4 <- mediation::mediate(
+  model.m = model_m_4,
+  model.y = model_y_4.1,
+  sims = n_sims,
+  treat = "race",
+  mediator = "informal_support_ordinal",
+  boot = TRUE
+)
+```
+
+Finally, we reach a dead-end. It seems once again the `mediate` function is taking the prior weights we fed into our `glm` as sample weight and complaining that our ordinal model doesn't have the same sample weights. If we are willing to throw away some information, we can make it all work with a binary outcome, thusly:
+
+```{r unweighted.mediation.polr.binary}
+model_y_4.2 <- glm(
+  formula = IPV_binary ~ race + informal_support_ordinal,
+  data = dat,
+  family = "binomial"
+)
+
+med_4 <- mediation::mediate(
+  model.m = model_m_4,
+  model.y = model_y_4.2,
+  sims = n_sims,
+  treat = "race",
+  mediator = "informal_support_ordinal",
+  boot = TRUE
+)
+
+summary(med_4)
+```
+
+This runs, although the bootstrap adds significantly to computing time and we had to binarize IPV to achieve it.
+
+## Issue 5: Reconciling svyglm() svypolr() models
+
+With this partial success, we checked to see if we could also run this latest mediation on the weighted data.
+
+```{r weighted.olr.fail}
+#| error: true
+
+model_m_5 <- survey::svyolr(
+  formula = informal_support_ordinal ~ race,
+  design = dat_weights
+)
+```
+
+This throws an error, which [this StackOverflow post](https://stackoverflow.com/questions/28916377/r-error-with-polr-initial-value-in-vmmin-is-not-finite?rq=2) can help us solve. We can help the function by providing plausible start values for the coefficients intercepts/thresholds. We have one coefficient and three thresholds (from 0 to 1, from 1 to 2, and from 2 to 3), and we know they should be relatively close to zero as well as in ascending order (for the threshold). With the syntax `start = c(coefficients, thresholds)` we can make it work:
+
+```{r weighted.olr.success}
+model_m_5 <- survey::svyolr(
+  formula = informal_support_ordinal ~ race,
+  design = dat_weights,
+  start = c(0, -1, 0, 1)
+)
+```
