@@ -430,7 +430,7 @@ summary(med_4)
 
 This runs, although the bootstrap adds significantly to computing time and we had to binarize IPV to achieve it.
 
-## Issue 5: Reconciling svyglm() svypolr() models
+## Issue 5: Reconciling svyglm() and svypolr() models
 
 With this partial success, we checked to see if we could also run this latest mediation on the weighted data.
 
