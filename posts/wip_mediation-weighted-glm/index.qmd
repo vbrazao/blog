@@ -110,7 +110,7 @@ model_m_1 <- survey::svyglm(
   family = "binomial"
 )
 
-summary(model_m)
+summary(model_m_1)
 ```
 
 We get the following warning many times:
@@ -135,7 +135,7 @@ model_y_1 <- survey::svyglm(
   family = "binomial"
 )
 
-summary(model_y)
+summary(model_y_1)
 ```
 
 (Here again we suppressed the warning that would have otherwise popped up.)
