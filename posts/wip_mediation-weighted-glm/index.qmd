@@ -6,7 +6,7 @@ categories: [statistics, mediation, survey, glm]
 draft: true
 format:
   html:
-    code-fold: true
+    code-fold: show
 ---
 
 ```{r setup}
