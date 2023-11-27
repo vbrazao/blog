@@ -39,6 +39,7 @@ For demonstrative purposes we created a synthetic dataset using the `synthpop` p
 ```{r data}
 # get synthetic dataset
 dat <- readRDS(here::here("posts", post_folder, "data_reduced_synth.RDS")) |> 
+  # create other variables we will need
   dplyr::mutate(
     informal_support_prop = informal_support/3,
     informal_support_max = 3,
@@ -161,6 +162,8 @@ A small but statistically significant mediation effect! The warning about weight
 We knew that we would eventually perform a sensitivity analysis where all models would be run without using the sampling weights. Running the previous steps with the `glm` resulted in an issue:
 
 ```{r unweighted.mediation.ideal.fail}
+#| error: true
+
 model_m_2 <- glm(
   formula = informal_support_prop ~ race,
   weights = informal_support_max,
@@ -221,6 +224,8 @@ Thus, until the package author clarifies whether this implementation results in 
 Next, we attempted to run everything with the same binomial outcome and a binary mediator.
 
 ```{r unweighted.binary.outcome.fail}
+#| error: true
+
 model_m_3 <- glm(
   formula = informal_support_binary ~ race,
   data = dat,
