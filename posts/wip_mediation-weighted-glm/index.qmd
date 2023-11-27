@@ -1,6 +1,6 @@
 ---
-title: "Adventures in mediation analysis with weighted GLMs"
-subtitle: "Race and Social Support as predictors of Intimate Partner Violence victimization in women in the Future of Families dataset"
+title: "Adventures in mediation analysis with weighted GLMs (temporary title)"
+subtitle: "subtitle TBD"
 author: Vasco Brazão, Priya Devendran
 date: "2023"
 categories: [statistics, mediation, survey, glm]
