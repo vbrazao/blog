@@ -19,6 +19,7 @@ library(mediation)
 library(survey)
 library(srvyr)
 
+
 # directory for the post (to change once post goes live)
 post_folder <- "wip_mediation-weighted-glm"
 ```
@@ -53,7 +54,8 @@ We have three variables that will be used for mediation, `race` ("White" or "Bla
 Each person also has a baseline weight, `m1natwt`, and 33 replicate weights, `m1natwt_rep1` and so on. Behold:
 
 ```{r data.head}
-head(dat)
+head(dat) |> 
+  gt::gt()
 ```
 
 We'll need to run two models --- the first predicting the mediator, the second predicting the outcome --- and feed these models into `mediation::mediate()`.
