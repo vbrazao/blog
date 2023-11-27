@@ -9,7 +9,7 @@
 <meta name="author" content="Vasco Brazão, Priya Devendran">
 <meta name="dcterms.date" content="2023-01-01">
 
-<title>Vasco Brazão - Adventures in mediation analysis with weighted GLMs</title>
+<title>Vasco Brazão - Adventures in mediation analysis with weighted GLMs (temporary title)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -193,8 +193,8 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Adventures in mediation analysis with weighted GLMs</h1>
-            <p class="subtitle lead">Race and Social Support as predictors of Intimate Partner Violence victimization in women in the Future of Families dataset</p>
+      <h1 class="title">Adventures in mediation analysis with weighted GLMs (temporary title)</h1>
+            <p class="subtitle lead">subtitle TBD</p>
                                 <div class="quarto-categories">
                 <div class="quarto-category">statistics</div>
                 <div class="quarto-category">mediation</div>
@@ -244,6 +244,8 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   <li><a href="#bonus-finding-you-can-specify-a-mediator-that-is-not-technically-the-variable-that-your-mediator-model-predicts" id="toc-bonus-finding-you-can-specify-a-mediator-that-is-not-technically-the-variable-that-your-mediator-model-predicts" class="nav-link" data-scroll-target="#bonus-finding-you-can-specify-a-mediator-that-is-not-technically-the-variable-that-your-mediator-model-predicts">Bonus finding: you can specify a mediator that is not technically the variable that your mediator model predicts</a></li>
   </ul></li>
   <li><a href="#issue-3-using-a-binary-mediator-and-a-binomial-outcome-works-with-cbindsuccesses-failures-but-not-with-proportion-as-outcome-and-weights-argument-specified" id="toc-issue-3-using-a-binary-mediator-and-a-binomial-outcome-works-with-cbindsuccesses-failures-but-not-with-proportion-as-outcome-and-weights-argument-specified" class="nav-link" data-scroll-target="#issue-3-using-a-binary-mediator-and-a-binomial-outcome-works-with-cbindsuccesses-failures-but-not-with-proportion-as-outcome-and-weights-argument-specified">Issue 3: Using a binary mediator and a binomial outcome — works with cbind(successes, failures) but not with proportion as outcome and weights argument specified</a></li>
+  <li><a href="#issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together." id="toc-issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together." class="nav-link" data-scroll-target="#issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together.">Issue 4: Ordinal mediator and binomial outcome don’t work together.</a></li>
+  <li><a href="#issue-5-reconciling-svyglm-and-svypolr-models" id="toc-issue-5-reconciling-svyglm-and-svypolr-models" class="nav-link" data-scroll-target="#issue-5-reconciling-svyglm-and-svypolr-models">Issue 5: Reconciling svyglm() and svypolr() models</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -257,6 +259,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 
 
 
+<p>This blogpost documents the challenges we faced when attempting to run a mediation analysis using the <code>mediation</code> package with a binomial mediator and outcome while incorporating sampling weights into the analysis with the help of the <code>survey</code> package.</p>
 <div class="cell">
 <details open="">
 <summary>Code</summary>
@@ -266,17 +269,18 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mediation)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survey)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(srvyr)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># directory for the post (to change once post goes live)</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>post_folder <span class="ot">&lt;-</span> <span class="st">"wip_mediation-weighted-glm"</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># number of simulations for mediation analysis</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>n_sims <span class="ot">&lt;-</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># directory for the post (to change once post goes live)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>post_folder <span class="ot">&lt;-</span> <span class="st">"wip_mediation-weighted-glm"</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># number of simulations for mediation analysis</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>n_sims <span class="ot">&lt;-</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>This blogpost documents the challenges we faced when attempting to run a mediation analysis using the <code>mediation</code> package with a binomial mediator and outcome while incorporating sampling weights into the analysis with the help of the <code>survey</code> package.</p>
-<p>As part of a research program seeking to better understand intimate partner violence (IPV) through an intersectional lens, we wanted to use the <a href="https://ffcws.princeton.edu/">Future of Families &amp; Child Wellbeing Study</a><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> dataset to run a mediation analysis. The data come from a survey with a complex design, and baseline and replicate weights are provided for each participant in the “national” sample. These weights should allow us to make estimates nationally representative. (TO DO! point to the document where people can learn more about the weights <a href="https://ffcws.princeton.edu/sites/g/files/toruqf4356/files/ff_const_wgts.pdf" class="uri">https://ffcws.princeton.edu/sites/g/files/toruqf4356/files/ff_const_wgts.pdf</a>) Our mediator and outcome variables could reasonably be construed as “binomial outcomes”, and this was our preferred approach to fitting the necessary models. However, we encountered several difficulties XXX</p>
+<p>As part of a research program seeking to better understand intimate partner violence (IPV) through an intersectional lens, we wanted to use the <a href="https://ffcws.princeton.edu/">Future of Families &amp; Child Wellbeing Study</a><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> dataset to run a mediation analysis. The data come from a survey with a complex design, and baseline and replicate weights are provided for each participant in the “national” sample. These weights should allow us to make estimates nationally representative. (TO DO! point to the document where people can learn more about the weights <a href="https://ffcws.princeton.edu/sites/g/files/toruqf4356/files/ff_const_wgts.pdf" class="uri">https://ffcws.princeton.edu/sites/g/files/toruqf4356/files/ff_const_wgts.pdf</a>) Our mediator and outcome variables could reasonably be construed as binomial outcomes, and this was our preferred approach to fitting the necessary models. However, we encountered several difficulties XXX</p>
 <p>This post has the following structure: First, we introduce the data we’ll use for the demonstrations and exemplify how we would like to have run the models (TO DO: rephrase or simply change depending on final structure).</p>
 <section id="background" class="level1">
 <h1>Background</h1>
@@ -291,13 +295,15 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">informal_support_prop =</span> informal_support<span class="sc">/</span><span class="dv">3</span>,</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">informal_support_max =</span> <span class="dv">3</span>,</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">informal_support_binary =</span> <span class="fu">ifelse</span>(informal_support <span class="sc">==</span> <span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">IPV_prop =</span> IPV<span class="sc">/</span><span class="dv">24</span>,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">IPV_max =</span> <span class="dv">25</span>,</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">IPV_binary =</span> <span class="fu">ifelse</span>(IPV <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">informal_support_ordinal =</span> forcats<span class="sc">::</span><span class="fu">as_factor</span>(informal_support) <span class="sc">|&gt;</span> </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>      forcats<span class="sc">::</span><span class="fu">fct_relevel</span>(<span class="st">"0"</span>, <span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">IPV_prop =</span> IPV<span class="sc">/</span><span class="dv">24</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">IPV_max =</span> <span class="dv">25</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">IPV_binary =</span> <span class="fu">ifelse</span>(IPV <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>We have three variables that will be used for mediation, <code>race</code> (“White” or “Black”), <code>informal_support</code> (an integer from 0 to 3), and <code>IPV</code> (an integer from 0 to 24). We manually create <code>_prop</code> and <code>_max</code> variables for informal support and IPV, so that we can use the proportion as an outcome in our GLMs and use the <code>weights</code> argument to specify the number of trials. We also create <code>informal_support_binary</code>, which classifies women as having high access to informal support (takes the value 1) when they score 3 out of 3, and low access (takes the value 0) when they score less than 3, as well as <code>IPV_binary</code>, which classifies women as having experienced some form of IPV (takes the value 1) if they score more than 0 and as not having experienced IPV (takes the value 0) if they score exactly 0. These binarized variables will become useful later on.</p>
+<p>We have three variables that will be used for mediation, <code>race</code> (“White” or “Black”), <code>informal_support</code> (an integer from 0 to 3), and <code>IPV</code> (an integer from 0 to 24). We manually create <code>_prop</code> and <code>_max</code> variables for informal support and IPV, so that we can use the proportion as an outcome in our GLMs and use the <code>weights</code> argument to specify the number of trials. We also create <code>informal_support_binary</code>, which classifies women as having high access to informal support (takes the value 1) when they score 3 out of 3, and low access (takes the value 0) when they score less than 3, as well as <code>IPV_binary</code>, which classifies women as having experienced some form of IPV (takes the value 1) if they score more than 0 and as not having experienced IPV (takes the value 0) if they score exactly 0. These binarized variables will become useful later on. Finally, we create the ordered factor <code>informal_support_ordinal</code>, to be used in ordinal models later on.</p>
 <p>Each person also has a baseline weight, <code>m1natwt</code>, and 33 replicate weights, <code>m1natwt_rep1</code> and so on. Behold:</p>
 <div class="cell">
 <details open="">
@@ -307,12 +313,12 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 </details>
 <div class="cell-output-display">
 
-<div id="xapupmzbwm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="wkcauldmag" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-:where(#xapupmzbwm) .gt_table {
+:where(#wkcauldmag) .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -337,7 +343,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-left-color: #D3D3D3;
 }
 
-:where(#xapupmzbwm) .gt_heading {
+:where(#wkcauldmag) .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -349,12 +355,12 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-right-color: #D3D3D3;
 }
 
-:where(#xapupmzbwm) .gt_caption {
+:where(#wkcauldmag) .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-:where(#xapupmzbwm) .gt_title {
+:where(#wkcauldmag) .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -366,7 +372,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-bottom-width: 0;
 }
 
-:where(#xapupmzbwm) .gt_subtitle {
+:where(#wkcauldmag) .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -378,13 +384,13 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-top-width: 0;
 }
 
-:where(#xapupmzbwm) .gt_bottom_border {
+:where(#wkcauldmag) .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-:where(#xapupmzbwm) .gt_col_headings {
+:where(#wkcauldmag) .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -399,7 +405,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-right-color: #D3D3D3;
 }
 
-:where(#xapupmzbwm) .gt_col_heading {
+:where(#wkcauldmag) .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -419,7 +425,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   overflow-x: hidden;
 }
 
-:where(#xapupmzbwm) .gt_column_spanner_outer {
+:where(#wkcauldmag) .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -431,15 +437,15 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   padding-right: 4px;
 }
 
-:where(#xapupmzbwm) .gt_column_spanner_outer:first-child {
+:where(#wkcauldmag) .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-:where(#xapupmzbwm) .gt_column_spanner_outer:last-child {
+:where(#wkcauldmag) .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-:where(#xapupmzbwm) .gt_column_spanner {
+:where(#wkcauldmag) .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -451,7 +457,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   width: 100%;
 }
 
-:where(#xapupmzbwm) .gt_group_heading {
+:where(#wkcauldmag) .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -477,7 +483,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   text-align: left;
 }
 
-:where(#xapupmzbwm) .gt_empty_group_heading {
+:where(#wkcauldmag) .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -492,15 +498,15 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   vertical-align: middle;
 }
 
-:where(#xapupmzbwm) .gt_from_md > :first-child {
+:where(#wkcauldmag) .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-:where(#xapupmzbwm) .gt_from_md > :last-child {
+:where(#wkcauldmag) .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-:where(#xapupmzbwm) .gt_row {
+:where(#wkcauldmag) .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -519,7 +525,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   overflow-x: hidden;
 }
 
-:where(#xapupmzbwm) .gt_stub {
+:where(#wkcauldmag) .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -532,7 +538,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   padding-right: 5px;
 }
 
-:where(#xapupmzbwm) .gt_stub_row_group {
+:where(#wkcauldmag) .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -546,11 +552,11 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   vertical-align: top;
 }
 
-:where(#xapupmzbwm) .gt_row_group_first td {
+:where(#wkcauldmag) .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-:where(#xapupmzbwm) .gt_summary_row {
+:where(#wkcauldmag) .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -560,16 +566,16 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   padding-right: 5px;
 }
 
-:where(#xapupmzbwm) .gt_first_summary_row {
+:where(#wkcauldmag) .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-:where(#xapupmzbwm) .gt_first_summary_row.thick {
+:where(#wkcauldmag) .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-:where(#xapupmzbwm) .gt_last_summary_row {
+:where(#wkcauldmag) .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -579,7 +585,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-bottom-color: #D3D3D3;
 }
 
-:where(#xapupmzbwm) .gt_grand_summary_row {
+:where(#wkcauldmag) .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -589,7 +595,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   padding-right: 5px;
 }
 
-:where(#xapupmzbwm) .gt_first_grand_summary_row {
+:where(#wkcauldmag) .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -599,11 +605,11 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-top-color: #D3D3D3;
 }
 
-:where(#xapupmzbwm) .gt_striped {
+:where(#wkcauldmag) .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-:where(#xapupmzbwm) .gt_table_body {
+:where(#wkcauldmag) .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -612,7 +618,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-bottom-color: #D3D3D3;
 }
 
-:where(#xapupmzbwm) .gt_footnotes {
+:where(#wkcauldmag) .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -626,7 +632,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-right-color: #D3D3D3;
 }
 
-:where(#xapupmzbwm) .gt_footnote {
+:where(#wkcauldmag) .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -635,7 +641,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   padding-right: 5px;
 }
 
-:where(#xapupmzbwm) .gt_sourcenotes {
+:where(#wkcauldmag) .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -649,7 +655,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-right-color: #D3D3D3;
 }
 
-:where(#xapupmzbwm) .gt_sourcenote {
+:where(#wkcauldmag) .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -657,64 +663,64 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   padding-right: 5px;
 }
 
-:where(#xapupmzbwm) .gt_left {
+:where(#wkcauldmag) .gt_left {
   text-align: left;
 }
 
-:where(#xapupmzbwm) .gt_center {
+:where(#wkcauldmag) .gt_center {
   text-align: center;
 }
 
-:where(#xapupmzbwm) .gt_right {
+:where(#wkcauldmag) .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-:where(#xapupmzbwm) .gt_font_normal {
+:where(#wkcauldmag) .gt_font_normal {
   font-weight: normal;
 }
 
-:where(#xapupmzbwm) .gt_font_bold {
+:where(#wkcauldmag) .gt_font_bold {
   font-weight: bold;
 }
 
-:where(#xapupmzbwm) .gt_font_italic {
+:where(#wkcauldmag) .gt_font_italic {
   font-style: italic;
 }
 
-:where(#xapupmzbwm) .gt_super {
+:where(#wkcauldmag) .gt_super {
   font-size: 65%;
 }
 
-:where(#xapupmzbwm) .gt_footnote_marks {
+:where(#wkcauldmag) .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-:where(#xapupmzbwm) .gt_asterisk {
+:where(#wkcauldmag) .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-:where(#xapupmzbwm) .gt_indent_1 {
+:where(#wkcauldmag) .gt_indent_1 {
   text-indent: 5px;
 }
 
-:where(#xapupmzbwm) .gt_indent_2 {
+:where(#wkcauldmag) .gt_indent_2 {
   text-indent: 10px;
 }
 
-:where(#xapupmzbwm) .gt_indent_3 {
+:where(#wkcauldmag) .gt_indent_3 {
   text-indent: 15px;
 }
 
-:where(#xapupmzbwm) .gt_indent_4 {
+:where(#wkcauldmag) .gt_indent_4 {
   text-indent: 20px;
 }
 
-:where(#xapupmzbwm) .gt_indent_5 {
+:where(#wkcauldmag) .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -762,6 +768,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="informal_support_prop">informal_support_prop</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="informal_support_max">informal_support_max</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="informal_support_binary">informal_support_binary</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="informal_support_ordinal">informal_support_ordinal</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="IPV_prop">IPV_prop</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="IPV_max">IPV_max</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="IPV_binary">IPV_binary</th>
@@ -808,6 +815,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <td headers="informal_support_prop" class="gt_row gt_right">1</td>
 <td headers="informal_support_max" class="gt_row gt_right">3</td>
 <td headers="informal_support_binary" class="gt_row gt_right">1</td>
+<td headers="informal_support_ordinal" class="gt_row gt_center">3</td>
 <td headers="IPV_prop" class="gt_row gt_right">0.75000000</td>
 <td headers="IPV_max" class="gt_row gt_right">25</td>
 <td headers="IPV_binary" class="gt_row gt_right">1</td></tr>
@@ -851,6 +859,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <td headers="informal_support_prop" class="gt_row gt_right">1</td>
 <td headers="informal_support_max" class="gt_row gt_right">3</td>
 <td headers="informal_support_binary" class="gt_row gt_right">1</td>
+<td headers="informal_support_ordinal" class="gt_row gt_center">3</td>
 <td headers="IPV_prop" class="gt_row gt_right">0.16666667</td>
 <td headers="IPV_max" class="gt_row gt_right">25</td>
 <td headers="IPV_binary" class="gt_row gt_right">1</td></tr>
@@ -894,6 +903,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <td headers="informal_support_prop" class="gt_row gt_right">1</td>
 <td headers="informal_support_max" class="gt_row gt_right">3</td>
 <td headers="informal_support_binary" class="gt_row gt_right">1</td>
+<td headers="informal_support_ordinal" class="gt_row gt_center">3</td>
 <td headers="IPV_prop" class="gt_row gt_right">0.00000000</td>
 <td headers="IPV_max" class="gt_row gt_right">25</td>
 <td headers="IPV_binary" class="gt_row gt_right">0</td></tr>
@@ -937,6 +947,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <td headers="informal_support_prop" class="gt_row gt_right">1</td>
 <td headers="informal_support_max" class="gt_row gt_right">3</td>
 <td headers="informal_support_binary" class="gt_row gt_right">1</td>
+<td headers="informal_support_ordinal" class="gt_row gt_center">3</td>
 <td headers="IPV_prop" class="gt_row gt_right">0.00000000</td>
 <td headers="IPV_max" class="gt_row gt_right">25</td>
 <td headers="IPV_binary" class="gt_row gt_right">0</td></tr>
@@ -980,6 +991,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <td headers="informal_support_prop" class="gt_row gt_right">1</td>
 <td headers="informal_support_max" class="gt_row gt_right">3</td>
 <td headers="informal_support_binary" class="gt_row gt_right">1</td>
+<td headers="informal_support_ordinal" class="gt_row gt_center">3</td>
 <td headers="IPV_prop" class="gt_row gt_right">0.45833333</td>
 <td headers="IPV_max" class="gt_row gt_right">25</td>
 <td headers="IPV_binary" class="gt_row gt_right">1</td></tr>
@@ -1023,6 +1035,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <td headers="informal_support_prop" class="gt_row gt_right">1</td>
 <td headers="informal_support_max" class="gt_row gt_right">3</td>
 <td headers="informal_support_binary" class="gt_row gt_right">1</td>
+<td headers="informal_support_ordinal" class="gt_row gt_center">3</td>
 <td headers="IPV_prop" class="gt_row gt_right">0.08333333</td>
 <td headers="IPV_max" class="gt_row gt_right">25</td>
 <td headers="IPV_binary" class="gt_row gt_right">1</td></tr>
@@ -1152,9 +1165,19 @@ Number of Fisher Scoring iterations: 5</code></pre>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_prop"</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(med_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>weights taken as sampling weights, not total number of trials</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in mediation::mediate(model.m = model_m_1, model.y = model_y_1, :
+treatment and control values do not match factor levels; using White and Black
+as control and treatment, respectively</code></pre>
+</div>
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(med_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -1163,16 +1186,16 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                          Estimate 95% CI Lower 95% CI Upper p-value   
-ACME (control)            0.00915      0.00140         0.02   0.008 **
-ACME (treated)            0.00986      0.00155         0.03   0.008 **
-ADE (control)             0.01164     -0.01656         0.04   0.434   
-ADE (treated)             0.01236     -0.01873         0.04   0.434   
-Total Effect              0.02150     -0.00743         0.05   0.160   
-Prop. Mediated (control)  0.34164     -2.71001         5.18   0.164   
-Prop. Mediated (treated)  0.39209     -2.44215         5.10   0.164   
-ACME (average)            0.00950      0.00146         0.02   0.008 **
-ADE (average)             0.01200     -0.01764         0.04   0.434   
-Prop. Mediated (average)  0.36686     -2.52904         5.14   0.164   
+ACME (control)            0.00940      0.00130         0.02   0.002 **
+ACME (treated)            0.01008      0.00164         0.03   0.002 **
+ADE (control)             0.01088     -0.01959         0.04   0.472   
+ADE (treated)             0.01156     -0.02089         0.04   0.472   
+Total Effect              0.02096     -0.01254         0.05   0.194   
+Prop. Mediated (control)  0.34562     -3.13835         3.58   0.196   
+Prop. Mediated (treated)  0.39336     -2.81335         3.36   0.196   
+ACME (average)            0.00974      0.00147         0.03   0.002 **
+ADE (average)             0.01122     -0.02024         0.04   0.472   
+Prop. Mediated (average)  0.36949     -2.97585         3.50   0.196   
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1189,27 +1212,27 @@ Simulations: 1000 </code></pre>
 <div class="cell">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>model_m_2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> informal_support_prop <span class="sc">~</span> race,</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">weights =</span> informal_support_max,</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>model_y_2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> IPV_prop <span class="sc">~</span> race <span class="sc">+</span> informal_support_prop,</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">weights =</span> IPV_max,</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>med_2 <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_2,</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_2,</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_prop"</span></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>model_m_2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> informal_support_prop <span class="sc">~</span> race,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">weights =</span> informal_support_max,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>model_y_2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> IPV_prop <span class="sc">~</span> race <span class="sc">+</span> informal_support_prop,</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">weights =</span> IPV_max,</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>med_2 <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_2,</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_2,</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_prop"</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-error">
 <pre><code>Error in mediation::mediate(model.m = model_m_2, model.y = model_y_2, : weights on outcome and mediator models not identical</code></pre>
@@ -1219,27 +1242,27 @@ Simulations: 1000 </code></pre>
 <div class="cell">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>model_m_2<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">cbind</span>(informal_support, informal_support_max <span class="sc">-</span> informal_support) <span class="sc">~</span> race,</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>model_y_2<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">cbind</span>(IPV, IPV_max <span class="sc">-</span> IPV) <span class="sc">~</span> race <span class="sc">+</span> informal_support_prop,</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>med_2<span class="fl">.1</span> <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_2<span class="fl">.1</span>,</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_2<span class="fl">.1</span>,</span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_prop"</span></span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(med_2<span class="fl">.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>model_m_2<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">cbind</span>(informal_support, informal_support_max <span class="sc">-</span> informal_support) <span class="sc">~</span> race,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>model_y_2<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">cbind</span>(IPV, IPV_max <span class="sc">-</span> IPV) <span class="sc">~</span> race <span class="sc">+</span> informal_support_prop,</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>med_2<span class="fl">.1</span> <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_2<span class="fl">.1</span>,</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_2<span class="fl">.1</span>,</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_prop"</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(med_2<span class="fl">.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -1248,16 +1271,16 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                          Estimate 95% CI Lower 95% CI Upper p-value    
-ACME (control)            0.00295      0.00155         0.00  &lt;2e-16 ***
-ACME (treated)            0.00325      0.00174         0.00  &lt;2e-16 ***
-ADE (control)             0.01300      0.00753         0.02  &lt;2e-16 ***
-ADE (treated)             0.01330      0.00773         0.02  &lt;2e-16 ***
-Total Effect              0.01625      0.01033         0.02  &lt;2e-16 ***
-Prop. Mediated (control)  0.17915      0.09359         0.32  &lt;2e-16 ***
-Prop. Mediated (treated)  0.19802      0.10554         0.34  &lt;2e-16 ***
-ACME (average)            0.00310      0.00165         0.00  &lt;2e-16 ***
-ADE (average)             0.01315      0.00763         0.02  &lt;2e-16 ***
-Prop. Mediated (average)  0.18859      0.09990         0.33  &lt;2e-16 ***
+ACME (control)            0.00298      0.00153         0.00  &lt;2e-16 ***
+ACME (treated)            0.00328      0.00167         0.01  &lt;2e-16 ***
+ADE (control)             0.01301      0.00781         0.02  &lt;2e-16 ***
+ADE (treated)             0.01332      0.00799         0.02  &lt;2e-16 ***
+Total Effect              0.01629      0.01077         0.02  &lt;2e-16 ***
+Prop. Mediated (control)  0.18167      0.09439         0.31  &lt;2e-16 ***
+Prop. Mediated (treated)  0.20106      0.10556         0.33  &lt;2e-16 ***
+ACME (average)            0.00313      0.00161         0.00  &lt;2e-16 ***
+ADE (average)             0.01317      0.00790         0.02  &lt;2e-16 ***
+Prop. Mediated (average)  0.19137      0.09987         0.32  &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1278,25 +1301,25 @@ Simulations: 1000 </code></pre>
 <div class="cell">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>model_m_2<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> informal_support_prop <span class="sc">~</span> race,</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>model_y_2<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> IPV_prop <span class="sc">~</span> race <span class="sc">+</span> informal_support_prop,</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>med_2<span class="fl">.2</span> <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_2<span class="fl">.2</span>,</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_2<span class="fl">.2</span>,</span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_prop"</span></span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(med_2<span class="fl">.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>model_m_2<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> informal_support_prop <span class="sc">~</span> race,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>model_y_2<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> IPV_prop <span class="sc">~</span> race <span class="sc">+</span> informal_support_prop,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>med_2<span class="fl">.2</span> <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_2<span class="fl">.2</span>,</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_2<span class="fl">.2</span>,</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_prop"</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(med_2<span class="fl">.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -1305,10 +1328,10 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                Estimate 95% CI Lower 95% CI Upper p-value    
-ACME            0.00313      0.00147         0.01  &lt;2e-16 ***
-ADE             0.01338      0.00107         0.03   0.034 *  
-Total Effect    0.01652      0.00419         0.03   0.010 ** 
-Prop. Mediated  0.18473      0.07048         0.67   0.010 ** 
+ACME            0.00318      0.00144         0.01  &lt;2e-16 ***
+ADE             0.01335      0.00040         0.03   0.044 *  
+Total Effect    0.01653      0.00400         0.03   0.006 ** 
+Prop. Mediated  0.18929      0.07482         0.82   0.006 ** 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1326,27 +1349,27 @@ Simulations: 1000 </code></pre>
 <div class="cell">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model_m_2<span class="fl">.3</span> <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">cbind</span>(informal_support, informal_support_max <span class="sc">-</span> informal_support) <span class="sc">~</span> race,</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>model_y_2<span class="fl">.3</span> <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">cbind</span>(IPV, IPV_max <span class="sc">-</span> IPV) <span class="sc">~</span> race <span class="sc">+</span> informal_support,</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>med_2<span class="fl">.3</span> <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_2<span class="fl">.3</span>,</span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_2<span class="fl">.3</span>,</span>
-<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
-<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
-<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support"</span></span>
-<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(med_2<span class="fl">.3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>model_m_2<span class="fl">.3</span> <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">cbind</span>(informal_support, informal_support_max <span class="sc">-</span> informal_support) <span class="sc">~</span> race,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>model_y_2<span class="fl">.3</span> <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">cbind</span>(IPV, IPV_max <span class="sc">-</span> IPV) <span class="sc">~</span> race <span class="sc">+</span> informal_support,</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>med_2<span class="fl">.3</span> <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_2<span class="fl">.3</span>,</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_2<span class="fl">.3</span>,</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support"</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(med_2<span class="fl">.3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -1355,16 +1378,16 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                          Estimate 95% CI Lower 95% CI Upper p-value    
-ACME (control)           0.001138     0.000591         0.00  &lt;2e-16 ***
-ACME (treated)           0.001247     0.000646         0.00  &lt;2e-16 ***
-ADE (control)            0.017191     0.010056         0.02  &lt;2e-16 ***
-ADE (treated)            0.017300     0.010109         0.02  &lt;2e-16 ***
-Total Effect             0.018439     0.011206         0.03  &lt;2e-16 ***
-Prop. Mediated (control) 0.061480     0.030037         0.11  &lt;2e-16 ***
-Prop. Mediated (treated) 0.067300     0.033598         0.12  &lt;2e-16 ***
-ACME (average)           0.001193     0.000619         0.00  &lt;2e-16 ***
-ADE (average)            0.017246     0.010082         0.02  &lt;2e-16 ***
-Prop. Mediated (average) 0.064390     0.031955         0.11  &lt;2e-16 ***
+ACME (control)           0.001145     0.000618         0.00  &lt;2e-16 ***
+ACME (treated)           0.001255     0.000670         0.00  &lt;2e-16 ***
+ADE (control)            0.017318     0.009654         0.02  &lt;2e-16 ***
+ADE (treated)            0.017428     0.009738         0.02  &lt;2e-16 ***
+Total Effect             0.018573     0.011080         0.03  &lt;2e-16 ***
+Prop. Mediated (control) 0.060760     0.031654         0.12  &lt;2e-16 ***
+Prop. Mediated (treated) 0.066722     0.035463         0.13  &lt;2e-16 ***
+ACME (average)           0.001200     0.000643         0.00  &lt;2e-16 ***
+ADE (average)            0.017373     0.009696         0.02  &lt;2e-16 ***
+Prop. Mediated (average) 0.063741     0.033583         0.13  &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1374,7 +1397,7 @@ Sample Size Used: 1955
 Simulations: 1000 </code></pre>
 </div>
 </div>
-<p>Looking at the last three rows (Average Causal Mediated Effect (average), Average Direct Effect (average), and Proportion Mediated (average)), results seem different than the ones estimated in <code>med_2.1</code> (which used <code>informal_support_prop</code> as mediator) and <code>med.2.2</code> (which used linear proability models). But looking closer, you’ll notice that the estimates related to the mediator, namely of the Average Causal Mediated Effect and the Proportion Mediated just seem to be divided by three!</p>
+<p>Looking at the last three rows (Average Causal Mediated Effect (average), Average Direct Effect (average), and Proportion Mediated (average)), the results seem different than the ones estimated in <code>med_2.1</code> (which used <code>informal_support_prop</code> as mediator) and <code>med.2.2</code> (which used linear proability models). But looking closer, you’ll notice that the estimates related to the mediator, namely of the Average Causal Mediated Effect and the Proportion Mediated just seem to be divided by three!</p>
 <p>My assumption about how that came to be: When we use <code>informal_support_prop</code>, which can only take values on the <span class="math inline">\((0, 1)\)</span> interval, the ACME estimates correspond to the change in probability of IPV associated with going from 0 to 1 on the mediator and thus span the full range of the mediator. When we use <code>informal_support</code>, which takes values in the set <span class="math inline">\(\{0, 1, 2, 3\}\)</span>, the estimates also correspond to the increase in probability of IPV associated with an increase of 1 on the mediator (e.g., from 0 to 1), but this is only <span class="math inline">\(\frac{1}{3}\)</span> of the total possible way. Thus, applying this effect three times would be equivalent to moving from 0 to 3 on the mediator scale, the same as moving from 0 to 1 when the mediator is a proportion.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
 </section>
 </section>
@@ -1384,26 +1407,26 @@ Simulations: 1000 </code></pre>
 <div class="cell">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>model_m_3 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> informal_support_binary <span class="sc">~</span> race,</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>model_y_3 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> IPV_prop <span class="sc">~</span> race <span class="sc">+</span> informal_support_binary,</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">weights =</span> IPV_max,</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>med_3 <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_3,</span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_3,</span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_binary"</span></span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>model_m_3 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> informal_support_binary <span class="sc">~</span> race,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>model_y_3 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> IPV_prop <span class="sc">~</span> race <span class="sc">+</span> informal_support_binary,</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">weights =</span> IPV_max,</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>med_3 <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_3,</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_3,</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_binary"</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-error">
 <pre><code>Error in mediation::mediate(model.m = model_m_3, model.y = model_y_3, : weights on outcome and mediator models not identical</code></pre>
@@ -1413,21 +1436,21 @@ Simulations: 1000 </code></pre>
 <div class="cell">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>model_y_3<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">cbind</span>(IPV, IPV_max <span class="sc">-</span> IPV) <span class="sc">~</span> race <span class="sc">+</span> informal_support_binary,</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>med_3<span class="fl">.1</span> <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_3,</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_3<span class="fl">.1</span>,</span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_binary"</span></span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(med_3<span class="fl">.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model_y_3<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">cbind</span>(IPV, IPV_max <span class="sc">-</span> IPV) <span class="sc">~</span> race <span class="sc">+</span> informal_support_binary,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>med_3<span class="fl">.1</span> <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_3,</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_3<span class="fl">.1</span>,</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_binary"</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(med_3<span class="fl">.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -1436,16 +1459,16 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                          Estimate 95% CI Lower 95% CI Upper p-value    
-ACME (control)            0.00346      0.00163         0.01  &lt;2e-16 ***
-ACME (treated)            0.00381      0.00181         0.01  &lt;2e-16 ***
-ADE (control)             0.01246      0.00684         0.02  &lt;2e-16 ***
-ADE (treated)             0.01281      0.00705         0.02  &lt;2e-16 ***
-Total Effect              0.01627      0.01047         0.02  &lt;2e-16 ***
-Prop. Mediated (control)  0.21108      0.10893         0.36  &lt;2e-16 ***
-Prop. Mediated (treated)  0.23342      0.12215         0.39  &lt;2e-16 ***
-ACME (average)            0.00363      0.00172         0.01  &lt;2e-16 ***
-ADE (average)             0.01264      0.00695         0.02  &lt;2e-16 ***
-Prop. Mediated (average)  0.22225      0.11576         0.38  &lt;2e-16 ***
+ACME (control)            0.00342      0.00157         0.01  &lt;2e-16 ***
+ACME (treated)            0.00376      0.00174         0.01  &lt;2e-16 ***
+ADE (control)             0.01234      0.00705         0.02  &lt;2e-16 ***
+ADE (treated)             0.01268      0.00720         0.02  &lt;2e-16 ***
+Total Effect              0.01610      0.01034         0.02  &lt;2e-16 ***
+Prop. Mediated (control)  0.21212      0.10930         0.37  &lt;2e-16 ***
+Prop. Mediated (treated)  0.23349      0.12086         0.39  &lt;2e-16 ***
+ACME (average)            0.00359      0.00165         0.01  &lt;2e-16 ***
+ADE (average)             0.01251      0.00713         0.02  &lt;2e-16 ***
+Prop. Mediated (average)  0.22281      0.11487         0.38  &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1456,6 +1479,198 @@ Simulations: 1000 </code></pre>
 </div>
 </div>
 <p>This approach runs, but we are still left wondering whether we can trust the estimates.</p>
+</section>
+<section id="issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together." class="level2">
+<h2 class="anchored" data-anchor-id="issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together.">Issue 4: Ordinal mediator and binomial outcome don’t work together.</h2>
+<p>Because we would prefer not to binarize the social support variable in order to keep all the information that we can, we also explored using an ordinal mediator model. <code>mediate()</code> works with ordinal models fit with <code>MASS::polr</code>, so we attempted that.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>model_m_4 <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">polr</span>(</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> informal_support_ordinal <span class="sc">~</span> race,</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Hess =</span> <span class="cn">TRUE</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>model_y_4 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="fu">cbind</span>(IPV, IPV_max <span class="sc">-</span> IPV) <span class="sc">~</span> race <span class="sc">+</span> informal_support_ordinal,</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>med_4 <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_4,</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_4,</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_ordinal"</span></span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in UseMethod("isSymmetric"): no applicable method for 'isSymmetric' applied to an object of class "c('double', 'numeric')"</code></pre>
+</div>
+</div>
+<p>The first issue arises, but it’s easy to fix. Again, from the <a href="https://rdrr.io/cran/mediation/man/mediate.html">documentation of the mediate function</a>:</p>
+<blockquote class="blockquote">
+<p>The quasi-Bayesian approximation (King et al.&nbsp;2000) cannot be used if ‘model.m’ is of class ‘rq’ or ‘gam’, or if ‘model.y’ is of class ‘gam’, ‘polr’ or ‘bayespolr’. In these cases, either an error message is returned or use of the nonparametric bootstrap is forced. Users should note that use of the nonparametric bootstrap often requires significant computing time, especially when ‘sims’ is set to a large value.</p>
+</blockquote>
+<p>We can get around this by setting the argument <code>boot</code> to <code>TRUE</code>.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>med_4 <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_4,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_4,</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_ordinal"</span>,</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">boot =</span> <span class="cn">TRUE</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in cbind(IPV, IPV_max - IPV): object 'IPV' not found</code></pre>
+</div>
+</div>
+<p>Now we get a different problem. It seems the <code>boot</code> package is having trouble with the way we set up our outcome model — hopefully using the other implementation will take care of that.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>model_y_4<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> IPV_prop <span class="sc">~</span> race <span class="sc">+</span> informal_support_ordinal,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">weights =</span> IPV_max,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>med_4 <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_4,</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_4<span class="fl">.1</span>,</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_ordinal"</span>,</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">boot =</span> <span class="cn">TRUE</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in mediation::mediate(model.m = model_m_4, model.y = model_y_4.1, : weights on outcome and mediator models not identical</code></pre>
+</div>
+</div>
+<p>Finally, we reach a dead-end. It seems once again the <code>mediate</code> function is taking the prior weights we fed into our <code>glm</code> as sample weight and complaining that our ordinal model doesn’t have the same sample weights. If we are willing to throw away some information, we can make it all work with a binary outcome, thusly:</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>model_y_4<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> IPV_binary <span class="sc">~</span> race <span class="sc">+</span> informal_support_ordinal,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat,</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>med_4 <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_4,</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_4<span class="fl">.2</span>,</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_ordinal"</span>,</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">boot =</span> <span class="cn">TRUE</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(med_4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Causal Mediation Analysis 
+
+Nonparametric Bootstrap Confidence Intervals with the Percentile Method
+
+                          Estimate 95% CI Lower 95% CI Upper p-value  
+ACME (control)            0.001466    -0.000482         0.01   0.084 .
+ACME (treated)            0.001422    -0.000490         0.01   0.088 .
+ADE (control)             0.012595    -0.026208         0.05   0.538  
+ADE (treated)             0.012551    -0.025740         0.05   0.538  
+Total Effect              0.014017    -0.022355         0.06   0.436  
+Prop. Mediated (control)  0.104567    -1.654967         1.80   0.484  
+Prop. Mediated (treated)  0.101433    -1.686065         1.81   0.488  
+ACME (average)            0.001444    -0.000486         0.01   0.086 .
+ADE (average)             0.012573    -0.025974         0.05   0.538  
+Prop. Mediated (average)  0.103000    -1.670516         1.80   0.486  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Sample Size Used: 1955 
+
+
+Simulations: 1000 </code></pre>
+</div>
+</div>
+<p>This runs, although the bootstrap adds significantly to computing time and we had to binarize IPV to achieve it.</p>
+</section>
+<section id="issue-5-reconciling-svyglm-and-svypolr-models" class="level2">
+<h2 class="anchored" data-anchor-id="issue-5-reconciling-svyglm-and-svypolr-models">Issue 5: Reconciling svyglm() and svypolr() models</h2>
+<p>With this partial success, we checked to see if we could also run this latest mediation on the weighted data.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>model_m_5 <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svyolr</span>(</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> informal_support_ordinal <span class="sc">~</span> race,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> dat_weights</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in optim(s0, fmin, gmin, method = "BFGS", ...): initial value in 'vmmin' is not finite</code></pre>
+</div>
+</div>
+<p>This throws an error, which <a href="https://stackoverflow.com/questions/28916377/r-error-with-polr-initial-value-in-vmmin-is-not-finite?rq=2">this StackOverflow post</a> can help us solve. We can help the function by providing plausible start values for the coefficients and the intercepts/thresholds. We have one coefficient and three thresholds (from 0 to 1, from 1 to 2, and from 2 to 3), and we know they should be relatively close to zero as well as that the thresholds should be in ascending order. With the syntax <code>start = c(coefficients, thresholds)</code> we can make it work:</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>model_m_5 <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svyolr</span>(</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> informal_support_ordinal <span class="sc">~</span> race,</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> dat_weights,</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_m_5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+svyolr(formula = informal_support_ordinal ~ race, design = dat_weights, 
+    start = c(0, -1, 0, 1))
+
+Coefficients:
+             Value Std. Error  t value
+raceBlack -1.62481  0.3874065 -4.19407
+
+Intercepts:
+    Value    Std. Error t value 
+0|1  -4.5463   0.3580   -12.6979
+1|2  -3.7384   0.2741   -13.6376
+2|3  -3.0236   0.2458   -12.3027</code></pre>
+</div>
+</div>
+<p>Ok, moving on.</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>model_y_5 <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svyglm</span>(</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> IPV_binary <span class="sc">~</span> race <span class="sc">+</span> informal_support_ordinal,</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> dat_weights,</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>med_5 <span class="ot">&lt;-</span> mediation<span class="sc">::</span><span class="fu">mediate</span>(</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.m =</span> model_m_5,</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">model.y =</span> model_y_5,</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">sims =</span> n_sims,</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> <span class="st">"race"</span>,</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediator =</span> <span class="st">"informal_support_ordinal"</span>,</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">boot =</span> <span class="cn">TRUE</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in mediation::mediate(model.m = model_m_5, model.y = model_y_5, : weights on outcome and mediator models not identical</code></pre>
+</div>
+</div>
+<p>Not this again 😭. (TO BE CONTINUED)</p>
 
 
 </section>
@@ -1471,13 +1686,15 @@ Simulations: 1000 </code></pre>
 </ol>
 </section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">https://creativecommons.org/licenses/by-nc/4.0/</a></div></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{brazão2023,
   author = {Vasco Brazão and Vasco Brazão, Priya Devendran},
-  title = {Adventures in Mediation Analysis with Weighted {GLMs}},
+  title = {Adventures in Mediation Analysis with Weighted {GLMs}
+    (Temporary Title)},
   date = {2023-01-01},
   langid = {en}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-brazão2023" class="csl-entry quarto-appendix-citeas" role="doc-biblioentry">
 Vasco Brazão, and Vasco Brazão, Priya Devendran. 2023. <span>“Adventures
-in Mediation Analysis with Weighted GLMs.”</span> January 1, 2023.
+in Mediation Analysis with Weighted GLMs (Temporary Title).”</span>
+January 1, 2023.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {

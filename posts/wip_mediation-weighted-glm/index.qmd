@@ -150,6 +150,8 @@ summary(model_y_1)
 Finally, our mediation:
 
 ```{r mediation.ideal}
+#| warning: true
+
 med_1 <- mediation::mediate(
   model.m = model_m_1,
   model.y = model_y_1,
@@ -443,7 +445,7 @@ model_m_5 <- survey::svyolr(
 )
 ```
 
-This throws an error, which [this StackOverflow post](https://stackoverflow.com/questions/28916377/r-error-with-polr-initial-value-in-vmmin-is-not-finite?rq=2) can help us solve. We can help the function by providing plausible start values for the coefficients intercepts/thresholds. We have one coefficient and three thresholds (from 0 to 1, from 1 to 2, and from 2 to 3), and we know they should be relatively close to zero as well as in ascending order (for the threshold). With the syntax `start = c(coefficients, thresholds)` we can make it work:
+This throws an error, which [this StackOverflow post](https://stackoverflow.com/questions/28916377/r-error-with-polr-initial-value-in-vmmin-is-not-finite?rq=2) can help us solve. We can help the function by providing plausible start values for the coefficients and the intercepts/thresholds. We have one coefficient and three thresholds (from 0 to 1, from 1 to 2, and from 2 to 3), and we know they should be relatively close to zero as well as that the thresholds should be in ascending order. With the syntax `start = c(coefficients, thresholds)` we can make it work:
 
 ```{r weighted.olr.success}
 model_m_5 <- survey::svyolr(
@@ -476,4 +478,4 @@ med_5 <- mediation::mediate(
 )
 ```
 
-Not this again 😭.
+Not this again 😭. (TO BE CONTINUED)
