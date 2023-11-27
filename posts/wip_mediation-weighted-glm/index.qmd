@@ -35,7 +35,7 @@ As part of a research program seeking to better understand intimate partner viol
 
 This post has the following structure: First, we introduce the data we'll use for the demonstrations and exemplify how we would like to have run the models (TO DO: rephrase or simply change depending on final structure).
 
-# Background: Data and desired models
+# Background
 
 For demonstrative purposes we created a synthetic dataset using the `synthpop` package. This dataset mirrors the characteristics of our data without it being possible to identify any real individuals from it.
 
@@ -98,7 +98,7 @@ dat_weights <- dat |>
 )
 ```
 
-## Running the weighted models and mediation
+# Running the weighted models and mediation
 
 With the weighted dataframe in hand, we can use `survey::svyglm` to fit our GLMs predicting `informal_support` and `IPV`.
 
