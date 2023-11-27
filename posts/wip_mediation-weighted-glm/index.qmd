@@ -1,9 +1,12 @@
 ---
 title: "Adventures in mediation analysis with weighted GLMs"
 subtitle: "Race and Social Support as predictors of Intimate Partner Violence victimization in women in the Future of Families dataset"
+author: Vasco Brazão, Priya Devendran
 date: "2023"
 categories: [statistics, mediation, survey, glm]
 draft: true
+execute: 
+  warning: false
 format:
   html:
     code-fold: show
@@ -102,8 +105,6 @@ With the weighted dataframe in hand, we can use `survey::svyglm` to fit our GLMs
 Our informal support variable is the sum of three items for which each mother could get a 1 or a 0 (indicating that she did or did not have access to that form of support). As such, it seems sensible to model it as a binomial outcome --- each mother has a certain number of "successes" out of three possible trials.
 
 ```{r model.m.ideal}
-#| warning: false
-
 model_m_1 <- survey::svyglm(
   formula = informal_support_prop ~ race,
   weights = informal_support_max,
@@ -127,8 +128,6 @@ Our IPV variable is the sum of twelve items for which each mother could get a sc
 [^2]: Another option, which we won't go into, would be to take the responses to the items themselves and use a multi-level ordinal model with item as the random grouping factor.
 
 ```{r model.y.ideal}
-#| warning: false
-
 model_y_1 <- survey::svyglm(
   formula = IPV_prop ~ race + informal_support_prop,
   weights = IPV_max,
@@ -155,11 +154,11 @@ med_out_1 <- mediation::mediate(
 summary(med_out_1)
 ```
 
-A small but statistically significant mediation effect! The warning about weights not being taken as total number of trials makes me nervous, but then again, we did give the models sampling weights, so maybe it's ok?
+A small but statistically significant mediation effect! The warning about weights not being taken as total number of trials makes us nervous, but then again, we did give the models sampling weights, so maybe it's ok?
 
 ## Issue 2: Mediation with \"multiple-trial binomial mediator\" runs for weighted but not for unweighted models?
 
-We knew that we would eventually perform a sensitivity analysis where all models would be run without using the sampling weights. Running the previous steps with the `glm` resulted in an issue:
+We knew that we would eventually perform a sensitivity analysis where all models would be run without using the sampling weights. Running the previous steps with the `glm` command resulted in an issue:
 
 ```{r unweighted.mediation.ideal.fail}
 #| error: true
