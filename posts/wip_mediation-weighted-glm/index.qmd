@@ -12,13 +12,14 @@ format:
 ```{r setup}
 #| message: false
 
+# load the packages we will use
 library(tidyverse)
 library(here)
 library(mediation)
 library(survey)
 library(srvyr)
 
-# directory for the post
+# directory for the post (to change once post goes live)
 post_folder <- "wip_mediation-weighted-glm"
 ```
 
@@ -30,16 +31,26 @@ As part of a research program seeking to better understand intimate partner viol
 
 This post has the following structure: First, we introduce the data we'll use for the demonstrations and exemplify how we would like to have run the models (TO DO: rephrase or simply change depending on final structure).
 
-# Data and desired models
+# Background: Data and desired models
 
 For demonstrative purposes we created a synthetic dataset using the `synthpop` package. This dataset mirrors the characteristics of our data without it being possible to identify any real individuals from it.
 
 ```{r data}
 # get synthetic dataset
-dat <- readRDS(here::here("posts", post_folder, "data_reduced_synth.RDS"))
+dat <- readRDS(here::here("posts", post_folder, "data_reduced_synth.RDS")) |> 
+  dplyr::mutate(
+    informal_support_prop = informal_support/3,
+    informal_support_max = 3,
+    informal_support_binary = ifelse(informal_support == 3, 1, 0),
+    IPV_prop = IPV/24,
+    IPV_max = 25,
+    IPV_binary = ifelse(IPV > 0, 1, 0)
+  )
 ```
 
-We have three variables that will be used for mediation, `race` ("White" or "Black"), `informal_support` (an integer from 0 to 3), and `IPV` (an integer from 0 to 24). Each person also has a baseline weight, `m1natwt`, and 33 replicate weights, `m1natwt_rep1` and so on. Behold:
+We have three variables that will be used for mediation, `race` ("White" or "Black"), `informal_support` (an integer from 0 to 3), and `IPV` (an integer from 0 to 24). We manually create `_prop` and `_max` variables for informal support and IPV, so that we can use the proportion as an outcome in our GLMs and use the `weights` argument to specify the number of trials. We also create `informal_support_binary`, which classifies women as having high access to informal support (takes the value 1) when they score 3 out of 3, and low access (takes the value 0) when they score less than 3, as well as `IPV_binary`, which classifies women as having experienced some form of IPV (takes the value 1) if they score more than 0 and as not having experienced IPV (takes the value 0) if they score exactly 0. These binarized variables will become useful later on.
+
+Each person also has a baseline weight, `m1natwt`, and 33 replicate weights, `m1natwt_rep1` and so on. Behold:
 
 ```{r data.head}
 head(dat)
@@ -47,9 +58,9 @@ head(dat)
 
 We'll need to run two models --- the first predicting the mediator, the second predicting the outcome --- and feed these models into `mediation::mediate()`.
 
-## Creating the weighted dataframe
+## Issue 1: Correctly applying the Fragile Families weights
 
-We fit the models using `survey::svyglm` in order to be able to take the weights into account. First, we need to tell `survey` that our data is weighted, which we do with the help of the `srvyr` package. Our first attempt looked like this:
+We fit the models using `survey::svyglm` in order to be able to take the weights into account. First, we need to tell `survey` that our data is weighted, which we do with the help of the `srvyr` package for tidyverse-like convenience. Our first attempt looked like this:
 
 ``` r
 dat_weights <- dat |> 
@@ -64,9 +75,9 @@ However, coming across this [CrossValidated question](https://stats.stackexchang
 
 > As described in the weights construction memo, the replicate weights require using jackknife estimation of standard errors.
 
-Woop.
+Woops.
 
-So, to properly apply the weights, we run this code block:
+So, to properly apply the weights, we run this code block instead:
 
 ```{r data.weights}
 dat_weights <- dat |> 
@@ -90,8 +101,9 @@ Our informal support variable is the sum of three items for which each mother co
 ```{r model.m.ideal}
 #| warning: false
 
-model_m <- survey::svyglm(
-  formula = cbind(informal_support, 3 - informal_support) ~ race,
+model_m_1 <- survey::svyglm(
+  formula = informal_support_prop ~ race,
+  weights = informal_support_max,
   design = dat_weights,
   family = "binomial"
 )
@@ -114,8 +126,9 @@ Our IPV variable is the sum of twelve items for which each mother could get a sc
 ```{r model.y.ideal}
 #| warning: false
 
-model_y <- survey::svyglm(
-  formula = cbind(IPV, 24 - IPV) ~ race + informal_support,
+model_y_1 <- survey::svyglm(
+  formula = IPV_prop ~ race + informal_support_prop,
+  weights = IPV_max,
   design = dat_weights,
   family = "binomial"
 )
@@ -127,16 +140,125 @@ summary(model_y)
 
 Finally, our mediation:
 
-```{r}
-med_out <- mediation::mediate(
-  model.m = model_m,
-  model.y = model_y,
+```{r mediation.ideal}
+med_out_1 <- mediation::mediate(
+  model.m = model_m_1,
+  model.y = model_y_1,
+  sims = 1000,
+  treat = "race",
+  mediator = "informal_support_prop"
+)
+
+summary(med_out_1)
+```
+
+A small but statistically significant mediation effect! The warning about weights not being taken as total number of trials makes me nervous, but then again, we did give the models sampling weights, so maybe it's ok?
+
+## Issue 2: Mediation with \"multiple-trial binomial mediator\" runs for weighted but not for unweighted models?
+
+We knew that we would eventually perform a sensitivity analysis where all models would be run without using the sampling weights. Running the previous steps with the `glm` resulted in an issue:
+
+```{r unweighted.mediation.ideal.fail}
+model_m_2 <- glm(
+  formula = informal_support_prop ~ race,
+  weights = informal_support_max,
+  data = dat,
+  family = "binomial"
+)
+
+model_y_2 <- glm(
+  formula = IPV_prop ~ race + informal_support_prop,
+  weights = IPV_max,
+  data = dat,
+  family = "binomial"
+)
+
+med_out_2 <- mediation::mediate(
+  model.m = model_m_2,
+  model.y = model_y_2,
+  sims = 1000,
+  treat = "race",
+  mediator = "informal_support_prop"
+)
+```
+
+It seems like `mediation::mediate` is taking the weights we pass to the GLM function (which correspond to total number of trials, not to sampling weights) as sampling weights, and complaining when it notices that these weights are not the same for the mediator and outcome models. Vasco perhaps clumsily posted this as an [issue on the mediation package Github](https://github.com/kosukeimai/mediation/issues/59), but at least for now there has been no answer. We can work around this by using an alternative way of specifying the same GLM model --- instead of using a proportion as an outcome and passing the number of trials through the `weights` argument, we can instead use a vector of "successes" and "failures" (which corresponds to the total number of trials minus the number of successes) as the outcome:
+
+```{r unweighted.mediation.ideal.workaround}
+model_m_2.1 <- glm(
+  formula = cbind(informal_support, informal_support_max - informal_support) ~ race,
+  data = dat,
+  family = "binomial"
+)
+
+model_y_2.1 <- glm(
+  formula = cbind(IPV, IPV_max - IPV) ~ race + informal_support,
+  data = dat,
+  family = "binomial"
+)
+
+med_out_2.1 <- mediation::mediate(
+  model.m = model_m_2.1,
+  model.y = model_y_2.1,
   sims = 1000,
   treat = "race",
   mediator = "informal_support"
 )
 
-summary(med_out)
+summary(med_out_2.1)
 ```
 
-A small but statistically significant mediation effect! The warning about weights not being taken as total number of trials makes me nervous, but then again, we did give the models sampling weights, so maybe it's ok?
+Success! But at the cost of suspicion. The [documentation for the `mediate` function](https://www.rdocumentation.org/packages/mediation/versions/4.5.0/topics/mediate) warns us that (emphasis added):
+
+> As of version 4.0, the mediator model can be of either 'lm', 'glm' (or \`bayesglm'), 'polr' (or \`bayespolr'), 'gam', 'rq', \`survreg', or \`merMod' class, corresponding respectively to the linear regression models, generalized linear models, ordered response models, generalized additive models, quantile regression models, parametric duration models, or multilevel models.. For binary response models, the 'mediator' must be a numeric variable with values 0 or 1 as opposed to a factor. Quasi-likelihood-based inferences are not allowed for the mediator model because the functional form must be exactly specified for the estimation algorithm to work. **The 'binomial' family can only be used for binary response mediators and cannot be used for multiple-trial responses**. This is due to conflicts between how the latter type of models are implemented in [**`glm`**](https://www.rdocumentation.org/link/glm?package=mediation&version=4.5.0) and how 'mediate' is currently written.
+
+Thus, until the package author clarifies whether this implementation results in correct estimates, we are cautious about trusting them.
+
+## Issue 3: ?
+
+Next, we attempted to run everything with the same binomial outcome and a binary mediator.
+
+```{r unweighted.binary.outcome.fail}
+model_m_3 <- glm(
+  formula = informal_support_binary ~ race,
+  data = dat,
+  family = "binomial"
+)
+
+model_y_3 <- glm(
+  formula = IPV_prop ~ race + informal_support_binary,
+  weights = IPV_max,
+  data = dat,
+  family = "binomial"
+)
+
+med_out_3 <- mediation::mediate(
+  model.m = model_m_3,
+  model.y = model_y_3,
+  sims = 1000,
+  treat = "race",
+  mediator = "informal_support_binary"
+)
+```
+
+Once again we find that `mediate` complains about different weights on mediator and outcome models, even though, according to the documentation, it works with a binary mediator and a binomial outcome. We then try using the vector of successes and failures specification for the outcome model:
+
+```{r unweighted.binary.outcome.success}
+model_y_3.1 <- glm(
+  formula = cbind(IPV, IPV_max - IPV) ~ race + informal_support_binary,
+  data = dat,
+  family = "binomial"
+)
+
+med_out_3.1 <- mediation::mediate(
+  model.m = model_m_3,
+  model.y = model_y_3.1,
+  sims = 1000,
+  treat = "race",
+  mediator = "informal_support_binary"
+)
+
+summary(med_out_3.1)
+```
+
+This approach runs, but we are still left wondering whether we can trust the estimates.
