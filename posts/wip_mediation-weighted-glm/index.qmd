@@ -25,6 +25,9 @@ library(srvyr)
 
 # directory for the post (to change once post goes live)
 post_folder <- "wip_mediation-weighted-glm"
+
+# number of simulations for mediation analysis
+n_sims <- 1000
 ```
 
 This blogpost documents the challenges we faced when attempting to run a mediation analysis using the `mediation` package with a binomial mediator and outcome while incorporating sampling weights into the analysis with the help of the `survey` package.
@@ -146,7 +149,7 @@ Finally, our mediation:
 med_1 <- mediation::mediate(
   model.m = model_m_1,
   model.y = model_y_1,
-  sims = 1000,
+  sims = n_sims,
   treat = "race",
   mediator = "informal_support_prop"
 )
@@ -180,7 +183,7 @@ model_y_2 <- glm(
 med_2 <- mediation::mediate(
   model.m = model_m_2,
   model.y = model_y_2,
-  sims = 1000,
+  sims = n_sims,
   treat = "race",
   mediator = "informal_support_prop"
 )
@@ -204,7 +207,7 @@ model_y_2.1 <- glm(
 med_2.1 <- mediation::mediate(
   model.m = model_m_2.1,
   model.y = model_y_2.1,
-  sims = 1000,
+  sims = n_sims,
   treat = "race",
   mediator = "informal_support_prop"
 )
@@ -236,7 +239,7 @@ model_y_2.2 <- lm(
 med_2.2 <- mediation::mediate(
   model.m = model_m_2.2,
   model.y = model_y_2.2,
-  sims = 1000,
+  sims = n_sims,
   treat = "race",
   mediator = "informal_support_prop"
 )
@@ -266,7 +269,7 @@ model_y_2.3 <- glm(
 med_2.3 <- mediation::mediate(
   model.m = model_m_2.3,
   model.y = model_y_2.3,
-  sims = 1000,
+  sims = n_sims,
   treat = "race",
   mediator = "informal_support"
 )
@@ -303,7 +306,7 @@ model_y_3 <- glm(
 med_3 <- mediation::mediate(
   model.m = model_m_3,
   model.y = model_y_3,
-  sims = 1000,
+  sims = n_sims,
   treat = "race",
   mediator = "informal_support_binary"
 )
@@ -321,7 +324,7 @@ model_y_3.1 <- glm(
 med_3.1 <- mediation::mediate(
   model.m = model_m_3,
   model.y = model_y_3.1,
-  sims = 1000,
+  sims = n_sims,
   treat = "race",
   mediator = "informal_support_binary"
 )
