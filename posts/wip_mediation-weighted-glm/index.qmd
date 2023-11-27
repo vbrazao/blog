@@ -458,6 +458,8 @@ summary(model_m_5)
 Ok, moving on.
 
 ```{r weighted.mediation.olr.fail}
+#| error: true
+
 model_y_5 <- survey::svyglm(
   formula = IPV_binary ~ race + informal_support_ordinal,
   design = dat_weights,
