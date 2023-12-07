@@ -517,6 +517,20 @@ Good to know!
 Let's set `rescale = FALSE` in the `svyglm` model and try our luck:
 
 ```{r weighted.mediation.olr.rescaleF.fail}
+#| error: true
+model_y_5.1 <- survey::svyglm(
+  formula = IPV_binary ~ race + informal_support_ordinal,
+  design = dat_weights,
+  family = "binomial",
+  rescale = FALSE
+)
+```
+
+This is perplexing, but [someone else on Stack Overflow](https://stackoverflow.com/questions/66465401/error-with-svyglm-function-in-survey-package-in-r-all-variables-must-be-in-des) a couple of years ago encountered a similar problem, where object ".survey.prob.weights" was not found when `rescale` was set to `FALSE`. After looking at the [source code](https://rdrr.io/rforge/survey/src/R/surveyrep.R) and the [accepted answer by user xilliam](https://stackoverflow.com/a/66474985/12296038) to the Stack Overflow post, we try to assign the prior weights contained in the survey design object to an object named `pwts` in the global environment, and that makes `svyglm()` happy again.
+
+```{r}
+pwts <- dat_weights$pweights
+
 model_y_5.1 <- survey::svyglm(
   formula = IPV_binary ~ race + informal_support_ordinal,
   design = dat_weights,
@@ -524,6 +538,15 @@ model_y_5.1 <- survey::svyglm(
   rescale = FALSE
 )
 
+# remove pwts from the global environment
+rm(list = "pwts")
+```
+
+However, we can't be sure if this correctly solves the problem or introduces new errors. To ask the package maintainer (or anyone else who might know) more directly, Vasco posed this problem in a new Stack Overflow post. XXX LINK MISSING
+
+Now we try to run the mediation.
+
+```{r}
 med_5 <- mediation::mediate(
   model.m = model_m_5,
   model.y = model_y_5.1,
@@ -533,5 +556,3 @@ med_5 <- mediation::mediate(
   boot = TRUE
 )
 ```
-
-<https://stackoverflow.com/questions/66465401/error-with-svyglm-function-in-survey-package-in-r-all-variables-must-be-in-des>
