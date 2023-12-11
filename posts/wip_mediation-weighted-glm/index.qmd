@@ -56,7 +56,10 @@ dat <- readRDS(here::here("posts", post_folder, "data_reduced_synth.RDS")) |>
       forcats::fct_relevel("0", "1", "2", "3"),
     IPV_prop = IPV/24,
     IPV_max = 25,
-    IPV_binary = ifelse(IPV > 0, 1, 0)
+    IPV_binary = ifelse(IPV > 0, 1, 0),
+    IPV_ordinal = forcats::as_factor(IPV) |> 
+      forcats::fct_expand("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24") |> 
+      forcats::fct_relevel("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24")
   )
 ```
 
@@ -556,3 +559,26 @@ med_5 <- mediation::mediate(
   boot = TRUE
 )
 ```
+
+Somehow it is not working again. What if the outcome model was ordinal as well, just for fun?
+
+```{r}
+model_y_5.2 <- survey::svyolr(
+  formula = IPV_ordinal ~ race + informal_support_ordinal,
+  design = dat_weights,
+  start = c(0, 0, 0, 0, seq(from = -1, to = 1, length.out = 24))
+)
+
+med_5 <- mediation::mediate(
+  model.m = model_m_5,
+  model.y = model_y_5.2,
+  sims = n_sims,
+  treat = "race",
+  mediator = "informal_support_ordinal",
+  boot = TRUE
+)
+```
+
+Ok, we give up here.
+
+## Issue 6: To robustSE or not to robustSE?
