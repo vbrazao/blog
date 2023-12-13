@@ -550,6 +550,8 @@ However, we can't be sure if this correctly solves the problem or introduces new
 Now we try to run the mediation.
 
 ```{r}
+#| error: true
+
 med_5 <- mediation::mediate(
   model.m = model_m_5,
   model.y = model_y_5.1,
@@ -563,6 +565,8 @@ med_5 <- mediation::mediate(
 Somehow it is not working again. What if the outcome model was ordinal as well, just for fun?
 
 ```{r}
+#| error: true
+
 model_y_5.2 <- survey::svyolr(
   formula = IPV_ordinal ~ race + informal_support_ordinal,
   design = dat_weights,
@@ -645,7 +649,6 @@ We can see that the results are very similar, and in fact running the mediations
 What about if we use weighted models?
 
 ```{r}
-#| warning: false
 
 model_m_6.1 <- survey::svyglm(
   formula = informal_support_binary ~ race,
