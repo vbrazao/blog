@@ -70,6 +70,10 @@ dat <- readRDS(here::here("posts", post_folder, "data_reduced_synth.RDS")) |>
     IPV_ordinal = forcats::as_factor(IPV) |> 
       forcats::fct_expand("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24") |> 
       forcats::fct_relevel("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24")
+  ) |> 
+  dplyr::relocate(
+    !dplyr::starts_with("m1"),
+    .before = "m1natwt"
   )
 ```
 
