@@ -46,13 +46,11 @@ post_folder <- "wip_mediation-weighted-glm"
 n_sims <- 1000
 ```
 
-As part of a research program seeking to better understand intimate partner violence (IPV) through an intersectional lens, we wanted to use the [Future of Families & Child Wellbeing Study](https://ffcws.princeton.edu/)[^1] dataset to run a mediation analysis. The data come from a survey with a complex design, and baseline and replicate weights are provided for each participant in the "national" sample. These weights should allow us to make estimates nationally representative. (TO DO! point to the document where people can learn more about the weights <https://ffcws.princeton.edu/sites/g/files/toruqf4356/files/ff_const_wgts.pdf>) Our mediator and outcome variables could reasonably be construed as binomial outcomes, and this was our preferred approach to fitting the necessary models. However, we encountered several difficulties XXX
+As part of a research program seeking to better understand intimate partner violence (IPV) through an intersectional lens, we wanted to use the [Future of Families & Child Wellbeing Study](https://ffcws.princeton.edu/)[^1] dataset to run a mediation analysis. The data come from a survey with a complex design, and baseline and replicate weights are provided for each participant in the "national" sample.[^2] These weights should allow us to make estimates nationally representative. Our mediator and outcome variables could reasonably be construed as binomial outcomes, and this was our preferred approach to fitting the necessary models. However, we encountered several difficulties along the way, and attempt to document and make sense of them here.
 
-[^1]: Previously called the "Fragile Families and Child Wellbeing Study"
+[^1]: Previously called the "Fragile Families and Child Wellbeing Study".
 
-This post has the following structure: First, we introduce the data we'll use for the demonstrations and exemplify how we would like to have run the models (TO DO: rephrase or simply change depending on final structure).
-
-# Background
+[^2]: For more information about the weights, have a look at the [methodology document linked here](https://ffcws.princeton.edu/sites/g/files/toruqf4356/files/ff_const_wgts.pdf).
 
 For demonstrative purposes we created a synthetic dataset using the `synthpop` package. This dataset mirrors the characteristics of our data without it being possible to identify any real individuals from it.
 
@@ -75,7 +73,7 @@ dat <- readRDS(here::here("posts", post_folder, "data_reduced_synth.RDS")) |>
   )
 ```
 
-We have three variables that will be used for mediation, `race` ("White" or "Black"), `informal_support` (an integer from 0 to 3), and `IPV` (an integer from 0 to 24). We manually create `_prop` and `_max` variables for informal support and IPV, so that we can use the proportion as an outcome in our GLMs and use the `weights` argument to specify the number of trials. We also create `informal_support_binary`, which classifies women as having high access to informal support (takes the value 1) when they score 3 out of 3, and low access (takes the value 0) when they score less than 3, as well as `IPV_binary`, which classifies women as having experienced some form of IPV (takes the value 1) if they score more than 0 and as not having experienced IPV (takes the value 0) if they score exactly 0. These binarized variables will become useful later on. Finally, we create the ordered factor `informal_support_ordinal`, to be used in ordinal models later on.
+We have three variables that will be used for mediation, `race` ("White" or "Black"), `informal_support` (an integer from 0 to 3), and `IPV` (an integer from 0 to 24). We manually create `_prop` and `_max` variables for informal support and IPV, so that we can use the proportion as an outcome in our GLMs and use the `weights` argument to specify the number of trials. We also create `informal_support_binary`, which classifies women as having high access to informal support (takes the value 1) when they score 3 out of 3, and low access (takes the value 0) when they score less than 3, as well as `IPV_binary`, which classifies women as having experienced some form of IPV (takes the value 1) if they score more than 0 and as not having experienced IPV (takes the value 0) if they score exactly 0. These binarized variables will become useful later on. Finally, we create the ordered factors `informal_support_ordinal` and `IPV_ordinal` to be used in ordinal models later on.
 
 Each person also has a baseline weight, `m1natwt`, and 33 replicate weights, `m1natwt_rep1` and so on. Behold:
 
@@ -145,9 +143,9 @@ Warning: non-integer #successes in a binomial glm!
 
 This is `survey`'s way of asking us to specify the family as "quasibinomial" instead of "binomial", since our outcome is a proportion (weighted by the number of trials) and not binary. However, if we do that, `mediation` will not work with our models.
 
-Our IPV variable is the sum of twelve items for which each mother could get a score of 0, 1, or 2 (indicating how often she experienced a given form of violence from her partner). As such, it also seems sensible to model it as a binomial outcome --- each mother has a certain number of "successes" out of 24 possible "trials".[^2]
+Our IPV variable is the sum of twelve items for which each mother could get a score of 0, 1, or 2 (indicating how often she experienced a given form of violence from her partner). As such, it also seems sensible to model it as a binomial outcome --- each mother has a certain number of "successes" out of 24 possible "trials".[^3]
 
-[^2]: Another option, which we won't go into, would be to take the responses to the items themselves and use a multi-level ordinal model with item as the random grouping factor.
+[^3]: Another option, which we won't go into, would be to take the responses to the items themselves and use a multi-level ordinal model with item as the random grouping factor.
 
 ```{r model.y.ideal}
 model_y_1 <- survey::svyglm(
@@ -300,9 +298,9 @@ summary(med_2.3)
 
 Looking at the last three rows (Average Causal Mediated Effect (average), Average Direct Effect (average), and Proportion Mediated (average)), the results seem different than the ones estimated in `med_2.1` (which used `informal_support_prop` as mediator) and `med.2.2` (which used linear proability models). But looking closer, you'll notice that the estimates related to the mediator, namely of the Average Causal Mediated Effect and the Proportion Mediated just seem to be divided by three!
 
-My assumption about how that came to be: When we use `informal_support_prop`, which can only take values on the $(0, 1)$ interval, the ACME estimates correspond to the change in probability of IPV associated with going from 0 to 1 on the mediator and thus span the full range of the mediator. When we use `informal_support`, which takes values in the set $\{0, 1, 2, 3\}$, the estimates also correspond to the increase in probability of IPV associated with an increase of 1 on the mediator (e.g., from 0 to 1), but this is only $\frac{1}{3}$ of the total possible way. Thus, applying this effect three times would be equivalent to moving from 0 to 3 on the mediator scale, the same as moving from 0 to 1 when the mediator is a proportion.[^3]
+My assumption about how that came to be: When we use `informal_support_prop`, which can only take values on the $(0, 1)$ interval, the ACME estimates correspond to the change in probability of IPV associated with going from 0 to 1 on the mediator and thus span the full range of the mediator. When we use `informal_support`, which takes values in the set $\{0, 1, 2, 3\}$, the estimates also correspond to the increase in probability of IPV associated with an increase of 1 on the mediator (e.g., from 0 to 1), but this is only $\frac{1}{3}$ of the total possible way. Thus, applying this effect three times would be equivalent to moving from 0 to 3 on the mediator scale, the same as moving from 0 to 1 when the mediator is a proportion.[^4]
 
-[^3]: Of course, the effects mentioned here are not really the effects of moving from X to Y on the mediator, but the mediated effect that changing from Race = "White" to Race = "Black" has on the probability of IPV *through its effect on the mediator*.
+[^4]: Of course, the effects mentioned here are not really the effects of moving from X to Y on the mediator, but the mediated effect that changing from Race = "White" to Race = "Black" has on the probability of IPV *through its effect on the mediator*.
 
 ## Issue 3: Using a binary mediator and a binomial outcome --- works with cbind(successes, failures) but not with proportion as outcome and weights argument specified
 
@@ -708,9 +706,9 @@ summary(med_6.6)
 
 While the estimates are similar, the confidence intervals are *much* tighter when `boot` or `robustSE` are set to `TRUE`, and suddenly all estimates are significant! What gives?
 
-First, an [answer by Thomas Lumley](https://stackoverflow.com/a/75128332/12296038) (maintainer of the `survey` package) on Stack Overflow suggests that bootstrapping doesn't work well with these survey-weighted models, although his answer does not fully map to our situation. In [another answer](https://stackoverflow.com/a/56317510/12296038), this time about applying robust standard errors with the `sandwich` package[^4], Lumley is clearer: "For `svyglm` models, `vcov()` already produces the appropriate sandwich estimator, and I don't think the"sandwich" package knows enough about the internals of the object to get it right." A few years prior, Achim Zeileis, maintainer of the `sandwich` package, had given [a different perspective](https://stackoverflow.com/a/28840854/12296038) which also boils down to **do not use `sandwich`** **on models fit with `survey`**.
+First, an [answer by Thomas Lumley](https://stackoverflow.com/a/75128332/12296038) (maintainer of the `survey` package) on Stack Overflow suggests that bootstrapping doesn't work well with these survey-weighted models, although his answer does not fully map to our situation. In [another answer](https://stackoverflow.com/a/56317510/12296038), this time about applying robust standard errors with the `sandwich` package[^5], Lumley is clearer: "For `svyglm` models, `vcov()` already produces the appropriate sandwich estimator, and I don't think the"sandwich" package knows enough about the internals of the object to get it right." A few years prior, Achim Zeileis, maintainer of the `sandwich` package, had given [a different perspective](https://stackoverflow.com/a/28840854/12296038) which also boils down to **do not use `sandwich`** **on models fit with `survey`**.
 
-[^4]: Which Lumley apparently has also worked on!
+[^5]: Which Lumley apparently has also worked on!
 
 There you have it, `boot = FALSE` and `robustSE = FALSE` is the way to go.
 
@@ -756,6 +754,6 @@ mediation:::print.summary.mediate(summary(med_6.5))
 untrace(mediation:::print.summary.mediate)
 ```
 
-The interim solution is to print the summary twice, once with the original function for expected p-value behavior, and another time with the edited function for confidence-interval consistency. Someone more well-versed might want to take a shot at adapting the code so that the behavior is maintained for the p-values[^5] and fixed for the confidence intervals.
+The interim solution is to print the summary twice, once with the original function for expected p-value behavior, and another time with the edited function for confidence-interval consistency. Someone more well-versed might want to take a shot at adapting the code so that the behavior is maintained for the p-values[^6] and fixed for the confidence intervals.
 
-[^5]: Perhaps taking into account user2554330's [insight in another answer](https://stackoverflow.com/a/64830084) about how p-values are stored and printed.
+[^6]: Perhaps taking into account user2554330's [insight in another answer](https://stackoverflow.com/a/64830084) about how p-values are stored and printed.
