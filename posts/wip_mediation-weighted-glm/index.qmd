@@ -12,7 +12,19 @@ format:
     code-fold: show
 ---
 
-This blogpost documents the challenges we faced when attempting to run a mediation analysis using the `mediation` package with a binomial mediator and outcome while incorporating sampling weights into the analysis with the help of the `survey` package.
+This blogpost documents the challenges we faced when attempting to run a mediation analysis using the `mediation` package with a binomial mediator and outcome while incorporating sampling weights into the analysis with the help of the `survey` package. Issues and solutions are summarized below. Click the issue number to jump straight to the relevant section of the post.
+
+::: callout-note
+## Issues and solutions
+
+[Issue 1: Correctly applying the Fragile Families weights].\
+Solution: ...
+
+[Issue 2: Mediation with "multiple-trial binomial mediator" runs for weighted but not for unweighted models?].\
+Solution: ...
+:::
+
+# Background
 
 ```{r setup}
 #| message: false
@@ -696,7 +708,7 @@ summary(med_6.6)
 
 While the estimates are similar, the confidence intervals are *much* tighter when `boot` or `robustSE` are set to `TRUE`, and suddenly all estimates are significant! What gives?
 
-First, an [answer by Thomas Lumley](https://stackoverflow.com/a/75128332/12296038) (maintainer of the `survey` package) on Stack Overflow suggests that bootstrapping doesn't work well with these survey-weighted models, although his answer does not fully map to our situation. In [another answer](https://stackoverflow.com/a/56317510/12296038), this time about applying robust standard errors with the `sandwich` package[^4], Lumley is clearer: "For `svyglm` models, `vcov()` already produces the appropriate sandwich estimator, and I don't think the "sandwich" package knows enough about the internals of the object to get it right." A few years prior, Achim Zeileis, maintainer of the `sandwich` package, had given [a different perspective](https://stackoverflow.com/a/28840854/12296038) which also boils down to **do not use `sandwich`** **on models fit with `survey`**.
+First, an [answer by Thomas Lumley](https://stackoverflow.com/a/75128332/12296038) (maintainer of the `survey` package) on Stack Overflow suggests that bootstrapping doesn't work well with these survey-weighted models, although his answer does not fully map to our situation. In [another answer](https://stackoverflow.com/a/56317510/12296038), this time about applying robust standard errors with the `sandwich` package[^4], Lumley is clearer: "For `svyglm` models, `vcov()` already produces the appropriate sandwich estimator, and I don't think the"sandwich" package knows enough about the internals of the object to get it right." A few years prior, Achim Zeileis, maintainer of the `sandwich` package, had given [a different perspective](https://stackoverflow.com/a/28840854/12296038) which also boils down to **do not use `sandwich`** **on models fit with `survey`**.
 
 [^4]: Which Lumley apparently has also worked on!
 
