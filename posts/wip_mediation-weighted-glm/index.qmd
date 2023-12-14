@@ -52,6 +52,12 @@ This blogpost documents the challenges we faced when attempting to run a mediati
 **Description**: `mediate()` can work via boostrap or quasi-Bayesian approximation, and has an option to calculate "robust standard errors" for the latter. Which options work with survey-weighted GLMs?
 
 **Solution**: Bootstrapping should probably not be used. `robustSE` should be set to `FALSE`. If `marginaleffects` is used for comparisons, `vcov` should be set to `vcov(model)` or `NULL`, as the `sandwich` package does not correctly compute robust standard errors for models fit with `survey`.
+
+[Issue 7: Boundaries of the confidence intervals are rounded differently]
+
+**Description**: When you apply `summary()` to an object produced by `mediate()`, the upper bound of the confidence intervals is rounded to only two decimal places, whereas there are more decimal places for the lower bound.
+
+**Solution**: We can modify the function `print.summary.mediate()` to get around this problem, although the current solution then messes with how the p-values are reported.
 :::
 
 # Background
