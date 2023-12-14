@@ -67,6 +67,7 @@ library(survey)
 library(srvyr)
 library(gt)
 library(MASS)
+library(marginaleffects)
 
 
 # directory for the post (to change once post goes live)
@@ -740,11 +741,41 @@ summary(med_6.6)
 
 While the estimates are similar, the confidence intervals are *much* tighter when `boot` or `robustSE` are set to `TRUE`, and suddenly all estimates are significant! What gives?
 
-First, an [answer by Thomas Lumley](https://stackoverflow.com/a/75128332/12296038) (maintainer of the `survey` package) on Stack Overflow suggests that bootstrapping doesn't work well with these survey-weighted models, although his answer does not fully map to our situation. In [another answer](https://stackoverflow.com/a/56317510/12296038), this time about applying robust standard errors with the `sandwich` package[^5], Lumley is clearer: "For `svyglm` models, `vcov()` already produces the appropriate sandwich estimator, and I don't think the"sandwich" package knows enough about the internals of the object to get it right." A few years prior, Achim Zeileis, maintainer of the `sandwich` package, had given [a different perspective](https://stackoverflow.com/a/28840854/12296038) which also boils down to **do not use `sandwich`** **on models fit with `survey`**.
+First, an [answer by Thomas Lumley](https://stackoverflow.com/a/75128332/12296038) (maintainer of the `survey` package) on Stack Overflow suggests that bootstrapping doesn't work well with these survey-weighted models, although his answer does not fully map to our situation. In [another answer](https://stackoverflow.com/a/56317510/12296038), this time about applying robust standard errors with the `sandwich` package[^5], Lumley is clearer: "For `svyglm` models, `vcov()` already produces the appropriate sandwich estimator, and I don't think the "sandwich" package knows enough about the internals of the object to get it right." A few years prior, Achim Zeileis, maintainer of the `sandwich` package, had given [a different perspective](https://stackoverflow.com/a/28840854/12296038) which also boils down to **do not use `sandwich`** **on models fit with `survey`**.
 
 [^5]: Which Lumley apparently has also worked on!
 
 There you have it, `boot = FALSE` and `robustSE = FALSE` is the way to go.
+
+### Bonus: this goes for using `marginaleffects` as well
+
+Often we are not interested in mediation, but rather would like a clean and interpretable way to report results from our GLMs. One could not be faulted for preferring to do this on the predicted probabilities scale rather than dealing with odds-ratios and other headaches. For this, the `marginaleffects` package can be of enormous help.
+
+For example, we can examine the predicted probability of experiencing IPV for Black and White women:
+
+```{r}
+marginaleffects::avg_predictions(
+  model = model_y_6.1,
+  variables = "race"
+)
+```
+
+And then compare the probabilities themselves, for which we again have the option of "correcting" the standard errors via the `vcov` argument. Look at the difference in the confidence intervals and p-values spit out when we don't or do specify `vcov = "HC"`:
+
+```{r}
+marginaleffects::avg_comparisons(
+  model = model_y_6.1,
+  variables = "race"
+) |> gt::gt()
+
+marginaleffects::avg_comparisons(
+  model = model_y_6.1,
+  variables = "race",
+  vcov = "HC"
+) |> gt::gt()
+```
+
+The estimates are the same, but the standard error (wrongly) becomes minuscule if we apply the "correction" for heteroskedasticity without realizing that `sandwich` does not work properly on models fit with `survey`.
 
 ## Issue 7: Boundaries of the confidence intervals are rounded differently
 
