@@ -22,7 +22,8 @@ Description: We need to specify jackknife estimation of standard errors for `sur
 Solution: Besides specifying the `weights` and `repweights` arguments, we also have to specify `combined_weights = TRUE`, `type = "JKn"`, `scales = 1`, `rscales = 1`, and `mse = TRUE`.
 
 [Issue 2: Mediation with "multiple-trial binomial mediator" runs for weighted but not for unweighted models?].\
-Solution: ...
+Description: When using binomial GLMs for the mediator and outcome models, `mediate()` complains: "`weights on outcome and mediator models not identical`".\
+Solution: The problem occurs when we specify the GLMs with a proportion as the outcome and the total number of trials given in the `weights` argument, if the number of trials is different for both models. We can overcome this by specifying the outcome as `cbind(n_successes, n_failures)`. However, according to the package documentation, `mediate()` should not accept multiple-trial binomial mediators in the first place, leaving us with some doubts about whether all the estimates are calculated correctly in this case.
 :::
 
 # Background
