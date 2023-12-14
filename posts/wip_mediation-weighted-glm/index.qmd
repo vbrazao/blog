@@ -18,7 +18,8 @@ This blogpost documents the challenges we faced when attempting to run a mediati
 ## Issues and solutions
 
 [Issue 1: Correctly applying the Fragile Families weights].\
-Solution: ...
+Description: We need to specify jackknife estimation of standard errors for `survey` to properly handle our replicate weights.\
+Solution: Besides specifying the `weights` and `repweights` arguments, we also have to specify `combined_weights = TRUE`, `type = "JKn"`, `scales = 1`, `rscales = 1`, and `mse = TRUE`.
 
 [Issue 2: Mediation with "multiple-trial binomial mediator" runs for weighted but not for unweighted models?].\
 Solution: ...
