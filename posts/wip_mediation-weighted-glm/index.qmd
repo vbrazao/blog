@@ -638,6 +638,8 @@ Ok, we give up here.
 
 ## Issue 6: Options and choices to boot --- To robustSE or not to robustSE?
 
+IDEA: Make function that retrieves some quantities (like total effect + ci + p-value) from the mediation models as well as the boot and robustSE options and outputs a table that makes it easy to see the differences. helper function get_results() can be looped over however many models there are.
+
 For now, we've ignored an optional setting to `mediate()`: the `robustSE` argument defaults to `FALSE`, and, according to [the documentation](https://www.rdocumentation.org/packages/mediation/versions/4.5.0/topics/mediate), "If 'TRUE', heteroskedasticity-consistent standard errors will be used in quasi-Bayesian simulations. Ignored if 'boot' is 'TRUE' or neither 'model.m' nor 'model.y' has a method for **`vcovHC`** in the **`sandwich`** package." So we have three options:
 
 1.  `boot = TRUE` and, automatically, `robustSE = FALSE`
