@@ -244,9 +244,12 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   <li><a href="#bonus-finding-you-can-specify-a-mediator-that-is-not-technically-the-variable-that-your-mediator-model-predicts" id="toc-bonus-finding-you-can-specify-a-mediator-that-is-not-technically-the-variable-that-your-mediator-model-predicts" class="nav-link" data-scroll-target="#bonus-finding-you-can-specify-a-mediator-that-is-not-technically-the-variable-that-your-mediator-model-predicts">Bonus finding: you can specify a mediator that is not technically the variable that your mediator model predicts</a></li>
   </ul></li>
   <li><a href="#issue-3-using-a-binary-mediator-and-a-binomial-outcome-works-with-cbindsuccesses-failures-but-not-with-proportion-as-outcome-and-weights-argument-specified" id="toc-issue-3-using-a-binary-mediator-and-a-binomial-outcome-works-with-cbindsuccesses-failures-but-not-with-proportion-as-outcome-and-weights-argument-specified" class="nav-link" data-scroll-target="#issue-3-using-a-binary-mediator-and-a-binomial-outcome-works-with-cbindsuccesses-failures-but-not-with-proportion-as-outcome-and-weights-argument-specified">Issue 3: Using a binary mediator and a binomial outcome — works with cbind(successes, failures) but not with proportion as outcome and weights argument specified</a></li>
-  <li><a href="#issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together." id="toc-issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together." class="nav-link" data-scroll-target="#issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together.">Issue 4: Ordinal mediator and binomial outcome don’t work together.</a></li>
-  <li><a href="#issue-5-reconciling-svyglm-and-svyolr-models" id="toc-issue-5-reconciling-svyglm-and-svyolr-models" class="nav-link" data-scroll-target="#issue-5-reconciling-svyglm-and-svyolr-models">Issue 5: Reconciling svyglm() and svyolr() models</a></li>
-  <li><a href="#issue-6-options-and-choices-to-boot-to-robustse-or-not-to-robustse" id="toc-issue-6-options-and-choices-to-boot-to-robustse-or-not-to-robustse" class="nav-link" data-scroll-target="#issue-6-options-and-choices-to-boot-to-robustse-or-not-to-robustse">Issue 6: Options and choices to boot — To robustSE or not to robustSE?</a></li>
+  <li><a href="#issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together" id="toc-issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together" class="nav-link" data-scroll-target="#issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together">Issue 4: Ordinal mediator and binomial outcome don’t work together</a></li>
+  <li><a href="#issue-5-mediate-is-not-compatible-with-svyolr-models" id="toc-issue-5-mediate-is-not-compatible-with-svyolr-models" class="nav-link" data-scroll-target="#issue-5-mediate-is-not-compatible-with-svyolr-models">Issue 5: mediate() is not compatible with svyolr() models</a></li>
+  <li><a href="#issue-6-options-and-choices-to-boot-to-robustse-or-not-to-robustse" id="toc-issue-6-options-and-choices-to-boot-to-robustse-or-not-to-robustse" class="nav-link" data-scroll-target="#issue-6-options-and-choices-to-boot-to-robustse-or-not-to-robustse">Issue 6: Options and choices to boot — To robustSE or not to robustSE?</a>
+  <ul class="collapse">
+  <li><a href="#bonus-this-goes-for-using-marginaleffects-as-well" id="toc-bonus-this-goes-for-using-marginaleffects-as-well" class="nav-link" data-scroll-target="#bonus-this-goes-for-using-marginaleffects-as-well">Bonus: this goes for using <code>marginaleffects</code> as well</a></li>
+  </ul></li>
   <li><a href="#issue-7-boundaries-of-the-confidence-intervals-are-rounded-differently" id="toc-issue-7-boundaries-of-the-confidence-intervals-are-rounded-differently" class="nav-link" data-scroll-target="#issue-7-boundaries-of-the-confidence-intervals-are-rounded-differently">Issue 7: Boundaries of the confidence intervals are rounded differently</a></li>
   </ul></li>
   </ul>
@@ -261,7 +264,42 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 
 
 
-<p>This blogpost documents the challenges we faced when attempting to run a mediation analysis using the <code>mediation</code> package with a binomial mediator and outcome while incorporating sampling weights into the analysis with the help of the <code>survey</code> package.</p>
+<p>This blogpost documents the challenges we faced when attempting to run a mediation analysis using the <code>mediation</code> package with a binomial mediator and outcome while incorporating sampling weights into the analysis with the help of the <code>survey</code> package. Issues and solutions are summarized below. Click the issue number to jump straight to the relevant section of the post.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Issues and solutions: summary
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><a href="#issue-1-correctly-applying-the-fragile-families-weights">Issue 1: Correctly applying the Fragile Families weights</a></p>
+<p><strong>Description</strong>: We need to specify jackknife estimation of standard errors for <code>survey</code> to properly handle our replicate weights.</p>
+<p><strong>Solution</strong>: Besides specifying the <code>weights</code> and <code>repweights</code> arguments, we also have to specify <code>combined_weights = TRUE</code>, <code>type = "JKn"</code>, <code>scales = 1</code>, <code>rscales = 1</code>, and <code>mse = TRUE</code>.</p>
+<p><a href="#issue-2-mediation-with-multiple-trial-binomial-mediator-runs-for-weighted-but-not-for-unweighted-models">Issue 2: Mediation with “multiple-trial binomial mediator” runs for weighted but not for unweighted models?</a></p>
+<p><strong>Description</strong>: When using multiple-trial binomial GLMs for the mediator and outcome models, <code>mediate()</code> complains: “<code>weights on outcome and mediator models not identical</code>”.</p>
+<p><strong>Solution</strong>: The problem occurs when we specify the GLMs with a proportion as the outcome and the total number of trials given in the <code>weights</code> argument, if the number of trials is different for both models. We can overcome this by specifying the outcome as <code>cbind(successes, failures)</code>. However, according to the package documentation, <code>mediate()</code> should not accept multiple-trial binomial mediators in the first place, leaving us with some doubts about whether all the estimates are calculated correctly in this case.</p>
+<p><a href="#issue-3-using-a-binary-mediator-and-a-binomial-outcome-works-with-cbindsuccesses-failures-but-not-with-proportion-as-outcome-and-weights-argument-specified">Issue 3: Using a binary mediator and a binomial outcome — works with cbind(successes, failures) but not with proportion as outcome and weights argument specified</a></p>
+<p><strong>Description</strong>: When using a single trial binomial GLM for the mediator model and a multiple-trial binomial GLM for the outcome model, <code>mediate()</code> complains: “<code>weights on outcome and mediator models not identical</code>”.</p>
+<p><strong>Solution</strong>: As in Issue 2, the issue is solved by using the <code>cbind(successes, failures)</code> specification for the outcome model.</p>
+<p><a href="#issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together">Issue 4: Ordinal mediator and binomial outcome don’t work together</a></p>
+<p><strong>Description</strong>: When the mediator model is ordinal (fit with <code>MASS::polr()</code>, <code>mediate()</code> will not work with a binomial outcome model either way it’s specified.</p>
+<p><strong>Solution</strong>: No solution was found, other than using an ordinal mediator model with a binary outcome model.</p>
+<p><a href="#issue-5-mediate-is-not-compatible-with-svyolr-models">Issue 5: mediate() is not compatible with svyolr() models</a></p>
+<p><strong>Description</strong>: It seems that <code>mediate()</code> simply won’t work with models fit with <code>survey::svyolr()</code>.</p>
+<p><strong>Solution</strong>: No solution was found.</p>
+<p><a href="#issue-6-options-and-choices-to-boot-to-robustse-or-not-to-robustse">Issue 6: Options and choices to boot — To robustSE or not to robustSE?</a></p>
+<p><strong>Description</strong>: <code>mediate()</code> can work via boostrap or quasi-Bayesian approximation, and has an option to calculate “robust standard errors” for the latter. Which options work with survey-weighted GLMs?</p>
+<p><strong>Solution</strong>: Bootstrapping should probably not be used. <code>robustSE</code> should be set to <code>FALSE</code>. If <code>marginaleffects</code> is used for comparisons, <code>vcov</code> should be set to <code>vcov(model)</code> or <code>NULL</code>, as the <code>sandwich</code> package does not correctly compute robust standard errors for models fit with <code>survey</code>.</p>
+<p><a href="#issue-7-boundaries-of-the-confidence-intervals-are-rounded-differently">Issue 7: Boundaries of the confidence intervals are rounded differently</a></p>
+<p><strong>Description</strong>: When you apply <code>summary()</code> to an object produced by <code>mediate()</code>, the upper bound of the confidence intervals is rounded to only two decimal places, whereas there are more decimal places for the lower bound.</p>
+<p><strong>Solution</strong>: We can modify the function <code>print.summary.mediate()</code> to get around this problem, although the current solution then messes with how the p-values are reported.</p>
+</div>
+</div>
+<section id="background" class="level1">
+<h1>Background</h1>
 <div class="cell">
 <details open="">
 <summary>Code</summary>
@@ -273,19 +311,17 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(srvyr)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(marginaleffects)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># directory for the post (to change once post goes live)</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>post_folder <span class="ot">&lt;-</span> <span class="st">"wip_mediation-weighted-glm"</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># number of simulations for mediation analysis</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>n_sims <span class="ot">&lt;-</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># directory for the post (to change once post goes live)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>post_folder <span class="ot">&lt;-</span> <span class="st">"wip_mediation-weighted-glm"</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># number of simulations for mediation analysis</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>n_sims <span class="ot">&lt;-</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>As part of a research program seeking to better understand intimate partner violence (IPV) through an intersectional lens, we wanted to use the <a href="https://ffcws.princeton.edu/">Future of Families &amp; Child Wellbeing Study</a><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> dataset to run a mediation analysis. The data come from a survey with a complex design, and baseline and replicate weights are provided for each participant in the “national” sample. These weights should allow us to make estimates nationally representative. (TO DO! point to the document where people can learn more about the weights <a href="https://ffcws.princeton.edu/sites/g/files/toruqf4356/files/ff_const_wgts.pdf" class="uri">https://ffcws.princeton.edu/sites/g/files/toruqf4356/files/ff_const_wgts.pdf</a>) Our mediator and outcome variables could reasonably be construed as binomial outcomes, and this was our preferred approach to fitting the necessary models. However, we encountered several difficulties XXX</p>
-<p>This post has the following structure: First, we introduce the data we’ll use for the demonstrations and exemplify how we would like to have run the models (TO DO: rephrase or simply change depending on final structure).</p>
-<section id="background" class="level1">
-<h1>Background</h1>
+<p>As part of a research program seeking to better understand intimate partner violence (IPV) through an intersectional lens, we wanted to use the <a href="https://ffcws.princeton.edu/">Future of Families &amp; Child Wellbeing Study</a><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> dataset to run a mediation analysis. The data come from a survey with a complex design, and baseline and replicate weights are provided for each participant in the “national” sample.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> These weights should allow us to make estimates nationally representative. Our mediator and outcome variables could reasonably be construed as binomial outcomes, and this was our preferred approach to fitting the necessary models. However, we encountered several difficulties along the way, and attempt to document and make sense of them here.</p>
 <p>For demonstrative purposes we created a synthetic dataset using the <code>synthpop</code> package. This dataset mirrors the characteristics of our data without it being possible to identify any real individuals from it.</p>
 <div class="cell">
 <details open="">
@@ -305,10 +341,14 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">IPV_ordinal =</span> forcats<span class="sc">::</span><span class="fu">as_factor</span>(IPV) <span class="sc">|&gt;</span> </span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>      forcats<span class="sc">::</span><span class="fu">fct_expand</span>(<span class="st">"0"</span>, <span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>, <span class="st">"4"</span>, <span class="st">"5"</span>, <span class="st">"6"</span>, <span class="st">"7"</span>, <span class="st">"8"</span>, <span class="st">"9"</span>, <span class="st">"10"</span>, <span class="st">"11"</span>, <span class="st">"12"</span>, <span class="st">"13"</span>, <span class="st">"14"</span>, <span class="st">"15"</span>, <span class="st">"16"</span>, <span class="st">"17"</span>, <span class="st">"18"</span>, <span class="st">"19"</span>, <span class="st">"20"</span>, <span class="st">"21"</span>, <span class="st">"22"</span>, <span class="st">"23"</span>, <span class="st">"24"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>      forcats<span class="sc">::</span><span class="fu">fct_relevel</span>(<span class="st">"0"</span>, <span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>, <span class="st">"4"</span>, <span class="st">"5"</span>, <span class="st">"6"</span>, <span class="st">"7"</span>, <span class="st">"8"</span>, <span class="st">"9"</span>, <span class="st">"10"</span>, <span class="st">"11"</span>, <span class="st">"12"</span>, <span class="st">"13"</span>, <span class="st">"14"</span>, <span class="st">"15"</span>, <span class="st">"16"</span>, <span class="st">"17"</span>, <span class="st">"18"</span>, <span class="st">"19"</span>, <span class="st">"20"</span>, <span class="st">"21"</span>, <span class="st">"22"</span>, <span class="st">"23"</span>, <span class="st">"24"</span>)</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">relocate</span>(</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span>dplyr<span class="sc">::</span><span class="fu">starts_with</span>(<span class="st">"m1"</span>),</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">.before =</span> <span class="st">"m1natwt"</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>We have three variables that will be used for mediation, <code>race</code> (“White” or “Black”), <code>informal_support</code> (an integer from 0 to 3), and <code>IPV</code> (an integer from 0 to 24). We manually create <code>_prop</code> and <code>_max</code> variables for informal support and IPV, so that we can use the proportion as an outcome in our GLMs and use the <code>weights</code> argument to specify the number of trials. We also create <code>informal_support_binary</code>, which classifies women as having high access to informal support (takes the value 1) when they score 3 out of 3, and low access (takes the value 0) when they score less than 3, as well as <code>IPV_binary</code>, which classifies women as having experienced some form of IPV (takes the value 1) if they score more than 0 and as not having experienced IPV (takes the value 0) if they score exactly 0. These binarized variables will become useful later on. Finally, we create the ordered factor <code>informal_support_ordinal</code>, to be used in ordinal models later on.</p>
+<p>We have three variables that will be used for mediation, <code>race</code> (“White” or “Black”), <code>informal_support</code> (an integer from 0 to 3), and <code>IPV</code> (an integer from 0 to 24). We manually create <code>_prop</code> and <code>_max</code> variables for informal support and IPV, so that we can use the proportion as an outcome in our GLMs and use the <code>weights</code> argument to specify the number of trials. We also create <code>informal_support_binary</code>, which classifies women as having high access to informal support (takes the value 1) when they score 3 out of 3, and low access (takes the value 0) when they score less than 3, as well as <code>IPV_binary</code>, which classifies women as having experienced some form of IPV (takes the value 1) if they score more than 0 and as not having experienced IPV (takes the value 0) if they score exactly 0. These binarized variables will become useful later on. Finally, we create the ordered factors <code>informal_support_ordinal</code> and <code>IPV_ordinal</code> to be used in ordinal models later on.</p>
 <p>Each person also has a baseline weight, <code>m1natwt</code>, and 33 replicate weights, <code>m1natwt_rep1</code> and so on. Behold:</p>
 <div class="cell">
 <details open="">
@@ -318,12 +358,12 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 </details>
 <div class="cell-output-display">
 
-<div id="ueqsijoxgi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="rqxbngkzij" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-:where(#ueqsijoxgi) .gt_table {
+:where(#rqxbngkzij) .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -348,7 +388,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-left-color: #D3D3D3;
 }
 
-:where(#ueqsijoxgi) .gt_heading {
+:where(#rqxbngkzij) .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -360,12 +400,12 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-right-color: #D3D3D3;
 }
 
-:where(#ueqsijoxgi) .gt_caption {
+:where(#rqxbngkzij) .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-:where(#ueqsijoxgi) .gt_title {
+:where(#rqxbngkzij) .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -377,7 +417,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-bottom-width: 0;
 }
 
-:where(#ueqsijoxgi) .gt_subtitle {
+:where(#rqxbngkzij) .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -389,13 +429,13 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-top-width: 0;
 }
 
-:where(#ueqsijoxgi) .gt_bottom_border {
+:where(#rqxbngkzij) .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-:where(#ueqsijoxgi) .gt_col_headings {
+:where(#rqxbngkzij) .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -410,7 +450,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-right-color: #D3D3D3;
 }
 
-:where(#ueqsijoxgi) .gt_col_heading {
+:where(#rqxbngkzij) .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -430,7 +470,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   overflow-x: hidden;
 }
 
-:where(#ueqsijoxgi) .gt_column_spanner_outer {
+:where(#rqxbngkzij) .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -442,15 +482,15 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   padding-right: 4px;
 }
 
-:where(#ueqsijoxgi) .gt_column_spanner_outer:first-child {
+:where(#rqxbngkzij) .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-:where(#ueqsijoxgi) .gt_column_spanner_outer:last-child {
+:where(#rqxbngkzij) .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-:where(#ueqsijoxgi) .gt_column_spanner {
+:where(#rqxbngkzij) .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -462,7 +502,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   width: 100%;
 }
 
-:where(#ueqsijoxgi) .gt_group_heading {
+:where(#rqxbngkzij) .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -488,7 +528,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   text-align: left;
 }
 
-:where(#ueqsijoxgi) .gt_empty_group_heading {
+:where(#rqxbngkzij) .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -503,15 +543,15 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   vertical-align: middle;
 }
 
-:where(#ueqsijoxgi) .gt_from_md > :first-child {
+:where(#rqxbngkzij) .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-:where(#ueqsijoxgi) .gt_from_md > :last-child {
+:where(#rqxbngkzij) .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-:where(#ueqsijoxgi) .gt_row {
+:where(#rqxbngkzij) .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -530,7 +570,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   overflow-x: hidden;
 }
 
-:where(#ueqsijoxgi) .gt_stub {
+:where(#rqxbngkzij) .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -543,7 +583,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   padding-right: 5px;
 }
 
-:where(#ueqsijoxgi) .gt_stub_row_group {
+:where(#rqxbngkzij) .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -557,11 +597,11 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   vertical-align: top;
 }
 
-:where(#ueqsijoxgi) .gt_row_group_first td {
+:where(#rqxbngkzij) .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-:where(#ueqsijoxgi) .gt_summary_row {
+:where(#rqxbngkzij) .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -571,16 +611,16 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   padding-right: 5px;
 }
 
-:where(#ueqsijoxgi) .gt_first_summary_row {
+:where(#rqxbngkzij) .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-:where(#ueqsijoxgi) .gt_first_summary_row.thick {
+:where(#rqxbngkzij) .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-:where(#ueqsijoxgi) .gt_last_summary_row {
+:where(#rqxbngkzij) .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -590,7 +630,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-bottom-color: #D3D3D3;
 }
 
-:where(#ueqsijoxgi) .gt_grand_summary_row {
+:where(#rqxbngkzij) .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -600,7 +640,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   padding-right: 5px;
 }
 
-:where(#ueqsijoxgi) .gt_first_grand_summary_row {
+:where(#rqxbngkzij) .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -610,11 +650,11 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-top-color: #D3D3D3;
 }
 
-:where(#ueqsijoxgi) .gt_striped {
+:where(#rqxbngkzij) .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-:where(#ueqsijoxgi) .gt_table_body {
+:where(#rqxbngkzij) .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -623,7 +663,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-bottom-color: #D3D3D3;
 }
 
-:where(#ueqsijoxgi) .gt_footnotes {
+:where(#rqxbngkzij) .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -637,7 +677,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-right-color: #D3D3D3;
 }
 
-:where(#ueqsijoxgi) .gt_footnote {
+:where(#rqxbngkzij) .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -646,7 +686,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   padding-right: 5px;
 }
 
-:where(#ueqsijoxgi) .gt_sourcenotes {
+:where(#rqxbngkzij) .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -660,7 +700,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   border-right-color: #D3D3D3;
 }
 
-:where(#ueqsijoxgi) .gt_sourcenote {
+:where(#rqxbngkzij) .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -668,64 +708,64 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   padding-right: 5px;
 }
 
-:where(#ueqsijoxgi) .gt_left {
+:where(#rqxbngkzij) .gt_left {
   text-align: left;
 }
 
-:where(#ueqsijoxgi) .gt_center {
+:where(#rqxbngkzij) .gt_center {
   text-align: center;
 }
 
-:where(#ueqsijoxgi) .gt_right {
+:where(#rqxbngkzij) .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-:where(#ueqsijoxgi) .gt_font_normal {
+:where(#rqxbngkzij) .gt_font_normal {
   font-weight: normal;
 }
 
-:where(#ueqsijoxgi) .gt_font_bold {
+:where(#rqxbngkzij) .gt_font_bold {
   font-weight: bold;
 }
 
-:where(#ueqsijoxgi) .gt_font_italic {
+:where(#rqxbngkzij) .gt_font_italic {
   font-style: italic;
 }
 
-:where(#ueqsijoxgi) .gt_super {
+:where(#rqxbngkzij) .gt_super {
   font-size: 65%;
 }
 
-:where(#ueqsijoxgi) .gt_footnote_marks {
+:where(#rqxbngkzij) .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-:where(#ueqsijoxgi) .gt_asterisk {
+:where(#rqxbngkzij) .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-:where(#ueqsijoxgi) .gt_indent_1 {
+:where(#rqxbngkzij) .gt_indent_1 {
   text-indent: 5px;
 }
 
-:where(#ueqsijoxgi) .gt_indent_2 {
+:where(#rqxbngkzij) .gt_indent_2 {
   text-indent: 10px;
 }
 
-:where(#ueqsijoxgi) .gt_indent_3 {
+:where(#rqxbngkzij) .gt_indent_3 {
   text-indent: 15px;
 }
 
-:where(#ueqsijoxgi) .gt_indent_4 {
+:where(#rqxbngkzij) .gt_indent_4 {
   text-indent: 20px;
 }
 
-:where(#ueqsijoxgi) .gt_indent_5 {
+:where(#rqxbngkzij) .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -736,6 +776,14 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
       <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="race">race</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="informal_support">informal_support</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="IPV">IPV</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="informal_support_prop">informal_support_prop</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="informal_support_max">informal_support_max</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="informal_support_binary">informal_support_binary</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="informal_support_ordinal">informal_support_ordinal</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="IPV_prop">IPV_prop</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="IPV_max">IPV_max</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="IPV_binary">IPV_binary</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="IPV_ordinal">IPV_ordinal</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="m1natwt">m1natwt</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="m1natwt_rep1">m1natwt_rep1</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="m1natwt_rep2">m1natwt_rep2</th>
@@ -770,20 +818,20 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="m1natwt_rep31">m1natwt_rep31</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="m1natwt_rep32">m1natwt_rep32</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="m1natwt_rep33">m1natwt_rep33</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="informal_support_prop">informal_support_prop</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="informal_support_max">informal_support_max</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="informal_support_binary">informal_support_binary</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="informal_support_ordinal">informal_support_ordinal</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="IPV_prop">IPV_prop</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="IPV_max">IPV_max</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="IPV_binary">IPV_binary</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="IPV_ordinal">IPV_ordinal</th>
     </tr>
   </thead>
   <tbody class="gt_table_body">
     <tr><td headers="race" class="gt_row gt_center">Black</td>
 <td headers="informal_support" class="gt_row gt_right">3</td>
 <td headers="IPV" class="gt_row gt_right">18</td>
+<td headers="informal_support_prop" class="gt_row gt_right">1</td>
+<td headers="informal_support_max" class="gt_row gt_right">3</td>
+<td headers="informal_support_binary" class="gt_row gt_right">1</td>
+<td headers="informal_support_ordinal" class="gt_row gt_center">3</td>
+<td headers="IPV_prop" class="gt_row gt_right">0.75000000</td>
+<td headers="IPV_max" class="gt_row gt_right">25</td>
+<td headers="IPV_binary" class="gt_row gt_right">1</td>
+<td headers="IPV_ordinal" class="gt_row gt_center">18</td>
 <td headers="m1natwt" class="gt_row gt_right">41.13614</td>
 <td headers="m1natwt_rep1" class="gt_row gt_right">37.85516</td>
 <td headers="m1natwt_rep2" class="gt_row gt_right">41.24734</td>
@@ -817,18 +865,18 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <td headers="m1natwt_rep30" class="gt_row gt_right">42.28931</td>
 <td headers="m1natwt_rep31" class="gt_row gt_right">42.82657</td>
 <td headers="m1natwt_rep32" class="gt_row gt_right">43.13633</td>
-<td headers="m1natwt_rep33" class="gt_row gt_right">44.10038</td>
+<td headers="m1natwt_rep33" class="gt_row gt_right">44.10038</td></tr>
+    <tr><td headers="race" class="gt_row gt_center">Black</td>
+<td headers="informal_support" class="gt_row gt_right">3</td>
+<td headers="IPV" class="gt_row gt_right">4</td>
 <td headers="informal_support_prop" class="gt_row gt_right">1</td>
 <td headers="informal_support_max" class="gt_row gt_right">3</td>
 <td headers="informal_support_binary" class="gt_row gt_right">1</td>
 <td headers="informal_support_ordinal" class="gt_row gt_center">3</td>
-<td headers="IPV_prop" class="gt_row gt_right">0.75000000</td>
+<td headers="IPV_prop" class="gt_row gt_right">0.16666667</td>
 <td headers="IPV_max" class="gt_row gt_right">25</td>
 <td headers="IPV_binary" class="gt_row gt_right">1</td>
-<td headers="IPV_ordinal" class="gt_row gt_center">18</td></tr>
-    <tr><td headers="race" class="gt_row gt_center">Black</td>
-<td headers="informal_support" class="gt_row gt_right">3</td>
-<td headers="IPV" class="gt_row gt_right">4</td>
+<td headers="IPV_ordinal" class="gt_row gt_center">4</td>
 <td headers="m1natwt" class="gt_row gt_right">19.97570</td>
 <td headers="m1natwt_rep1" class="gt_row gt_right">22.96839</td>
 <td headers="m1natwt_rep2" class="gt_row gt_right">20.49259</td>
@@ -862,18 +910,18 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <td headers="m1natwt_rep30" class="gt_row gt_right">20.91533</td>
 <td headers="m1natwt_rep31" class="gt_row gt_right">20.08396</td>
 <td headers="m1natwt_rep32" class="gt_row gt_right">20.84812</td>
-<td headers="m1natwt_rep33" class="gt_row gt_right">20.38860</td>
+<td headers="m1natwt_rep33" class="gt_row gt_right">20.38860</td></tr>
+    <tr><td headers="race" class="gt_row gt_center">Black</td>
+<td headers="informal_support" class="gt_row gt_right">3</td>
+<td headers="IPV" class="gt_row gt_right">0</td>
 <td headers="informal_support_prop" class="gt_row gt_right">1</td>
 <td headers="informal_support_max" class="gt_row gt_right">3</td>
 <td headers="informal_support_binary" class="gt_row gt_right">1</td>
 <td headers="informal_support_ordinal" class="gt_row gt_center">3</td>
-<td headers="IPV_prop" class="gt_row gt_right">0.16666667</td>
+<td headers="IPV_prop" class="gt_row gt_right">0.00000000</td>
 <td headers="IPV_max" class="gt_row gt_right">25</td>
-<td headers="IPV_binary" class="gt_row gt_right">1</td>
-<td headers="IPV_ordinal" class="gt_row gt_center">4</td></tr>
-    <tr><td headers="race" class="gt_row gt_center">Black</td>
-<td headers="informal_support" class="gt_row gt_right">3</td>
-<td headers="IPV" class="gt_row gt_right">0</td>
+<td headers="IPV_binary" class="gt_row gt_right">0</td>
+<td headers="IPV_ordinal" class="gt_row gt_center">0</td>
 <td headers="m1natwt" class="gt_row gt_right">12.24003</td>
 <td headers="m1natwt_rep1" class="gt_row gt_right">12.68406</td>
 <td headers="m1natwt_rep2" class="gt_row gt_right">11.59396</td>
@@ -907,7 +955,10 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <td headers="m1natwt_rep30" class="gt_row gt_right">12.33747</td>
 <td headers="m1natwt_rep31" class="gt_row gt_right">11.22335</td>
 <td headers="m1natwt_rep32" class="gt_row gt_right">12.79405</td>
-<td headers="m1natwt_rep33" class="gt_row gt_right">13.22079</td>
+<td headers="m1natwt_rep33" class="gt_row gt_right">13.22079</td></tr>
+    <tr><td headers="race" class="gt_row gt_center">Black</td>
+<td headers="informal_support" class="gt_row gt_right">3</td>
+<td headers="IPV" class="gt_row gt_right">0</td>
 <td headers="informal_support_prop" class="gt_row gt_right">1</td>
 <td headers="informal_support_max" class="gt_row gt_right">3</td>
 <td headers="informal_support_binary" class="gt_row gt_right">1</td>
@@ -915,10 +966,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <td headers="IPV_prop" class="gt_row gt_right">0.00000000</td>
 <td headers="IPV_max" class="gt_row gt_right">25</td>
 <td headers="IPV_binary" class="gt_row gt_right">0</td>
-<td headers="IPV_ordinal" class="gt_row gt_center">0</td></tr>
-    <tr><td headers="race" class="gt_row gt_center">Black</td>
-<td headers="informal_support" class="gt_row gt_right">3</td>
-<td headers="IPV" class="gt_row gt_right">0</td>
+<td headers="IPV_ordinal" class="gt_row gt_center">0</td>
 <td headers="m1natwt" class="gt_row gt_right">121.76894</td>
 <td headers="m1natwt_rep1" class="gt_row gt_right">129.03618</td>
 <td headers="m1natwt_rep2" class="gt_row gt_right">131.50407</td>
@@ -952,18 +1000,18 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <td headers="m1natwt_rep30" class="gt_row gt_right">135.33669</td>
 <td headers="m1natwt_rep31" class="gt_row gt_right">126.14429</td>
 <td headers="m1natwt_rep32" class="gt_row gt_right">131.47270</td>
-<td headers="m1natwt_rep33" class="gt_row gt_right">125.73920</td>
+<td headers="m1natwt_rep33" class="gt_row gt_right">125.73920</td></tr>
+    <tr><td headers="race" class="gt_row gt_center">White</td>
+<td headers="informal_support" class="gt_row gt_right">3</td>
+<td headers="IPV" class="gt_row gt_right">11</td>
 <td headers="informal_support_prop" class="gt_row gt_right">1</td>
 <td headers="informal_support_max" class="gt_row gt_right">3</td>
 <td headers="informal_support_binary" class="gt_row gt_right">1</td>
 <td headers="informal_support_ordinal" class="gt_row gt_center">3</td>
-<td headers="IPV_prop" class="gt_row gt_right">0.00000000</td>
+<td headers="IPV_prop" class="gt_row gt_right">0.45833333</td>
 <td headers="IPV_max" class="gt_row gt_right">25</td>
-<td headers="IPV_binary" class="gt_row gt_right">0</td>
-<td headers="IPV_ordinal" class="gt_row gt_center">0</td></tr>
-    <tr><td headers="race" class="gt_row gt_center">White</td>
-<td headers="informal_support" class="gt_row gt_right">3</td>
-<td headers="IPV" class="gt_row gt_right">11</td>
+<td headers="IPV_binary" class="gt_row gt_right">1</td>
+<td headers="IPV_ordinal" class="gt_row gt_center">11</td>
 <td headers="m1natwt" class="gt_row gt_right">85.96230</td>
 <td headers="m1natwt_rep1" class="gt_row gt_right">87.22457</td>
 <td headers="m1natwt_rep2" class="gt_row gt_right">83.79171</td>
@@ -997,18 +1045,18 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <td headers="m1natwt_rep30" class="gt_row gt_right">97.44034</td>
 <td headers="m1natwt_rep31" class="gt_row gt_right">91.89236</td>
 <td headers="m1natwt_rep32" class="gt_row gt_right">94.17548</td>
-<td headers="m1natwt_rep33" class="gt_row gt_right">0.00000</td>
+<td headers="m1natwt_rep33" class="gt_row gt_right">0.00000</td></tr>
+    <tr><td headers="race" class="gt_row gt_center">Black</td>
+<td headers="informal_support" class="gt_row gt_right">3</td>
+<td headers="IPV" class="gt_row gt_right">2</td>
 <td headers="informal_support_prop" class="gt_row gt_right">1</td>
 <td headers="informal_support_max" class="gt_row gt_right">3</td>
 <td headers="informal_support_binary" class="gt_row gt_right">1</td>
 <td headers="informal_support_ordinal" class="gt_row gt_center">3</td>
-<td headers="IPV_prop" class="gt_row gt_right">0.45833333</td>
+<td headers="IPV_prop" class="gt_row gt_right">0.08333333</td>
 <td headers="IPV_max" class="gt_row gt_right">25</td>
 <td headers="IPV_binary" class="gt_row gt_right">1</td>
-<td headers="IPV_ordinal" class="gt_row gt_center">11</td></tr>
-    <tr><td headers="race" class="gt_row gt_center">Black</td>
-<td headers="informal_support" class="gt_row gt_right">3</td>
-<td headers="IPV" class="gt_row gt_right">2</td>
+<td headers="IPV_ordinal" class="gt_row gt_center">2</td>
 <td headers="m1natwt" class="gt_row gt_right">98.04827</td>
 <td headers="m1natwt_rep1" class="gt_row gt_right">101.53748</td>
 <td headers="m1natwt_rep2" class="gt_row gt_right">0.00000</td>
@@ -1042,15 +1090,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <td headers="m1natwt_rep30" class="gt_row gt_right">0.00000</td>
 <td headers="m1natwt_rep31" class="gt_row gt_right">105.47424</td>
 <td headers="m1natwt_rep32" class="gt_row gt_right">96.22710</td>
-<td headers="m1natwt_rep33" class="gt_row gt_right">95.11009</td>
-<td headers="informal_support_prop" class="gt_row gt_right">1</td>
-<td headers="informal_support_max" class="gt_row gt_right">3</td>
-<td headers="informal_support_binary" class="gt_row gt_right">1</td>
-<td headers="informal_support_ordinal" class="gt_row gt_center">3</td>
-<td headers="IPV_prop" class="gt_row gt_right">0.08333333</td>
-<td headers="IPV_max" class="gt_row gt_right">25</td>
-<td headers="IPV_binary" class="gt_row gt_right">1</td>
-<td headers="IPV_ordinal" class="gt_row gt_center">2</td></tr>
+<td headers="m1natwt_rep33" class="gt_row gt_right">95.11009</td></tr>
   </tbody>
   
   
@@ -1131,7 +1171,7 @@ Number of Fisher Scoring iterations: 6</code></pre>
 <p>We get the following warning many times:</p>
 <pre><code>Warning: non-integer #successes in a binomial glm!</code></pre>
 <p>This is <code>survey</code>’s way of asking us to specify the family as “quasibinomial” instead of “binomial”, since our outcome is a proportion (weighted by the number of trials) and not binary. However, if we do that, <code>mediation</code> will not work with our models.</p>
-<p>Our IPV variable is the sum of twelve items for which each mother could get a score of 0, 1, or 2 (indicating how often she experienced a given form of violence from her partner). As such, it also seems sensible to model it as a binomial outcome — each mother has a certain number of “successes” out of 24 possible “trials”.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<p>Our IPV variable is the sum of twelve items for which each mother could get a score of 0, 1, or 2 (indicating how often she experienced a given form of violence from her partner). As such, it also seems sensible to model it as a binomial outcome — each mother has a certain number of “successes” out of 24 possible “trials”.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
 <div class="cell">
 <details open="">
 <summary>Code</summary>
@@ -1198,16 +1238,16 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                          Estimate 95% CI Lower 95% CI Upper p-value   
-ACME (control)            0.00938      0.00108         0.02    0.01 **
-ACME (treated)            0.00999      0.00122         0.03    0.01 **
-ADE (control)             0.01062     -0.02048         0.04    0.50   
-ADE (treated)             0.01123     -0.02186         0.04    0.50   
-Total Effect              0.02061     -0.01070         0.05    0.20   
-Prop. Mediated (control)  0.33912     -3.62170         3.72    0.21   
-Prop. Mediated (treated)  0.38715     -3.38640         3.41    0.21   
-ACME (average)            0.00969      0.00114         0.03    0.01 **
-ADE (average)             0.01092     -0.02124         0.04    0.50   
-Prop. Mediated (average)  0.36313     -3.49597         3.54    0.21   
+ACME (control)            0.00943      0.00134         0.02    0.01 **
+ACME (treated)            0.01006      0.00152         0.02    0.01 **
+ADE (control)             0.01063     -0.01989         0.04    0.50   
+ADE (treated)             0.01126     -0.02190         0.04    0.50   
+Total Effect              0.02069     -0.01077         0.05    0.19   
+Prop. Mediated (control)  0.34142     -2.60458         4.57    0.20   
+Prop. Mediated (treated)  0.38814     -2.33485         4.30    0.20   
+ACME (average)            0.00975      0.00142         0.02    0.01 **
+ADE (average)             0.01095     -0.02108         0.04    0.50   
+Prop. Mediated (average)  0.36478     -2.46972         4.43    0.20   
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1283,16 +1323,16 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                          Estimate 95% CI Lower 95% CI Upper p-value    
-ACME (control)            0.00303      0.00163         0.00  &lt;2e-16 ***
-ACME (treated)            0.00334      0.00181         0.01  &lt;2e-16 ***
-ADE (control)             0.01296      0.00723         0.02  &lt;2e-16 ***
-ADE (treated)             0.01327      0.00739         0.02  &lt;2e-16 ***
-Total Effect              0.01630      0.01048         0.02  &lt;2e-16 ***
-Prop. Mediated (control)  0.18553      0.09806         0.34  &lt;2e-16 ***
-Prop. Mediated (treated)  0.20474      0.10918         0.35  &lt;2e-16 ***
-ACME (average)            0.00319      0.00173         0.00  &lt;2e-16 ***
-ADE (average)             0.01312      0.00732         0.02  &lt;2e-16 ***
-Prop. Mediated (average)  0.19513      0.10342         0.35  &lt;2e-16 ***
+ACME (control)            0.00300      0.00158         0.00  &lt;2e-16 ***
+ACME (treated)            0.00330      0.00177         0.01  &lt;2e-16 ***
+ADE (control)             0.01295      0.00766         0.02  &lt;2e-16 ***
+ADE (treated)             0.01325      0.00781         0.02  &lt;2e-16 ***
+Total Effect              0.01625      0.01073         0.02  &lt;2e-16 ***
+Prop. Mediated (control)  0.18287      0.10220         0.32  &lt;2e-16 ***
+Prop. Mediated (treated)  0.20130      0.11420         0.34  &lt;2e-16 ***
+ACME (average)            0.00315      0.00167         0.00  &lt;2e-16 ***
+ADE (average)             0.01310      0.00775         0.02  &lt;2e-16 ***
+Prop. Mediated (average)  0.19208      0.10780         0.33  &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1340,10 +1380,10 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                Estimate 95% CI Lower 95% CI Upper p-value    
-ACME            0.00318      0.00155         0.01  &lt;2e-16 ***
-ADE             0.01376      0.00209         0.03   0.024 *  
-Total Effect    0.01694      0.00502         0.03   0.006 ** 
-Prop. Mediated  0.18625      0.07521         0.63   0.006 ** 
+ACME           0.003173     0.001456         0.01  &lt;2e-16 ***
+ADE            0.013384     0.000487         0.03   0.040 *  
+Total Effect   0.016557     0.003600         0.03   0.008 ** 
+Prop. Mediated 0.190543     0.068757         0.82   0.008 ** 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1390,16 +1430,16 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                          Estimate 95% CI Lower 95% CI Upper p-value    
-ACME (control)           0.001154     0.000572         0.00  &lt;2e-16 ***
-ACME (treated)           0.001265     0.000635         0.00  &lt;2e-16 ***
-ADE (control)            0.017330     0.009599         0.02  &lt;2e-16 ***
-ADE (treated)            0.017441     0.009655         0.02  &lt;2e-16 ***
-Total Effect             0.018595     0.010865         0.03  &lt;2e-16 ***
-Prop. Mediated (control) 0.062094     0.029240         0.12  &lt;2e-16 ***
-Prop. Mediated (treated) 0.067743     0.032533         0.13  &lt;2e-16 ***
-ACME (average)           0.001209     0.000606         0.00  &lt;2e-16 ***
-ADE (average)            0.017386     0.009627         0.02  &lt;2e-16 ***
-Prop. Mediated (average) 0.064918     0.030932         0.13  &lt;2e-16 ***
+ACME (control)           0.001136     0.000583         0.00  &lt;2e-16 ***
+ACME (treated)           0.001245     0.000652         0.00  &lt;2e-16 ***
+ADE (control)            0.017250     0.010016         0.02  &lt;2e-16 ***
+ADE (treated)            0.017358     0.010085         0.02  &lt;2e-16 ***
+Total Effect             0.018494     0.011187         0.03  &lt;2e-16 ***
+Prop. Mediated (control) 0.060274     0.029872         0.12  &lt;2e-16 ***
+Prop. Mediated (treated) 0.066315     0.032896         0.13  &lt;2e-16 ***
+ACME (average)           0.001190     0.000617         0.00  &lt;2e-16 ***
+ADE (average)            0.017304     0.010053         0.02  &lt;2e-16 ***
+Prop. Mediated (average) 0.063294     0.031348         0.12  &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1410,7 +1450,7 @@ Simulations: 1000 </code></pre>
 </div>
 </div>
 <p>Looking at the last three rows (Average Causal Mediated Effect (average), Average Direct Effect (average), and Proportion Mediated (average)), the results seem different than the ones estimated in <code>med_2.1</code> (which used <code>informal_support_prop</code> as mediator) and <code>med.2.2</code> (which used linear proability models). But looking closer, you’ll notice that the estimates related to the mediator, namely of the Average Causal Mediated Effect and the Proportion Mediated just seem to be divided by three!</p>
-<p>My assumption about how that came to be: When we use <code>informal_support_prop</code>, which can only take values on the <span class="math inline">\((0, 1)\)</span> interval, the ACME estimates correspond to the change in probability of IPV associated with going from 0 to 1 on the mediator and thus span the full range of the mediator. When we use <code>informal_support</code>, which takes values in the set <span class="math inline">\(\{0, 1, 2, 3\}\)</span>, the estimates also correspond to the increase in probability of IPV associated with an increase of 1 on the mediator (e.g., from 0 to 1), but this is only <span class="math inline">\(\frac{1}{3}\)</span> of the total possible way. Thus, applying this effect three times would be equivalent to moving from 0 to 3 on the mediator scale, the same as moving from 0 to 1 when the mediator is a proportion.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+<p>My assumption about how that came to be: When we use <code>informal_support_prop</code>, which can only take values on the <span class="math inline">\((0, 1)\)</span> interval, the ACME estimates correspond to the change in probability of IPV associated with going from 0 to 1 on the mediator and thus span the full range of the mediator. When we use <code>informal_support</code>, which takes values in the set <span class="math inline">\(\{0, 1, 2, 3\}\)</span>, the estimates also correspond to the increase in probability of IPV associated with an increase of 1 on the mediator (e.g., from 0 to 1), but this is only <span class="math inline">\(\frac{1}{3}\)</span> of the total possible way. Thus, applying this effect three times would be equivalent to moving from 0 to 3 on the mediator scale, the same as moving from 0 to 1 when the mediator is a proportion.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
 </section>
 </section>
 <section id="issue-3-using-a-binary-mediator-and-a-binomial-outcome-works-with-cbindsuccesses-failures-but-not-with-proportion-as-outcome-and-weights-argument-specified" class="level2">
@@ -1471,16 +1511,16 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                          Estimate 95% CI Lower 95% CI Upper p-value    
-ACME (control)            0.00347      0.00148         0.01  &lt;2e-16 ***
-ACME (treated)            0.00382      0.00165         0.01  &lt;2e-16 ***
-ADE (control)             0.01230      0.00689         0.02  &lt;2e-16 ***
-ADE (treated)             0.01265      0.00713         0.02  &lt;2e-16 ***
-Total Effect              0.01612      0.01022         0.02  &lt;2e-16 ***
-Prop. Mediated (control)  0.21348      0.09638         0.37  &lt;2e-16 ***
-Prop. Mediated (treated)  0.23682      0.10663         0.40  &lt;2e-16 ***
-ACME (average)            0.00364      0.00157         0.01  &lt;2e-16 ***
-ADE (average)             0.01247      0.00702         0.02  &lt;2e-16 ***
-Prop. Mediated (average)  0.22515      0.10153         0.38  &lt;2e-16 ***
+ACME (control)            0.00341      0.00145         0.01  &lt;2e-16 ***
+ACME (treated)            0.00375      0.00160         0.01  &lt;2e-16 ***
+ADE (control)             0.01225      0.00660         0.02  &lt;2e-16 ***
+ADE (treated)             0.01259      0.00682         0.02  &lt;2e-16 ***
+Total Effect              0.01600      0.00975         0.02  &lt;2e-16 ***
+Prop. Mediated (control)  0.21173      0.09966         0.37  &lt;2e-16 ***
+Prop. Mediated (treated)  0.23361      0.11244         0.39  &lt;2e-16 ***
+ACME (average)            0.00358      0.00152         0.01  &lt;2e-16 ***
+ADE (average)             0.01242      0.00670         0.02  &lt;2e-16 ***
+Prop. Mediated (average)  0.22267      0.10676         0.38  &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1492,8 +1532,8 @@ Simulations: 1000 </code></pre>
 </div>
 <p>This approach runs, but we are still left wondering whether we can trust the estimates.</p>
 </section>
-<section id="issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together." class="level2">
-<h2 class="anchored" data-anchor-id="issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together.">Issue 4: Ordinal mediator and binomial outcome don’t work together.</h2>
+<section id="issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together" class="level2">
+<h2 class="anchored" data-anchor-id="issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together">Issue 4: Ordinal mediator and binomial outcome don’t work together</h2>
 <p>Because we would prefer not to binarize the social support variable in order to keep all the information that we can, we also explored using an ordinal mediator model. <code>mediate()</code> works with ordinal models fit with <code>MASS::polr</code>, so we attempted that.</p>
 <div class="cell">
 <details open="">
@@ -1594,19 +1634,17 @@ Causal Mediation Analysis
 
 Nonparametric Bootstrap Confidence Intervals with the Percentile Method
 
-                          Estimate 95% CI Lower 95% CI Upper p-value  
-ACME (control)            0.003754    -0.000532         0.01   0.080 .
-ACME (treated)            0.003648    -0.000537         0.01   0.084 .
-ADE (control)             0.012588    -0.031049         0.06   0.558  
-ADE (treated)             0.012482    -0.030895         0.06   0.558  
-Total Effect              0.016236    -0.025388         0.06   0.456  
-Prop. Mediated (control)  0.231212    -1.600398         1.73   0.480  
-Prop. Mediated (treated)  0.224694    -1.624927         1.74   0.484  
-ACME (average)            0.003701    -0.000532         0.01   0.082 .
-ADE (average)             0.012535    -0.030972         0.06   0.558  
-Prop. Mediated (average)  0.227953    -1.610809         1.73   0.482  
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+                          Estimate 95% CI Lower 95% CI Upper p-value
+ACME (control)            0.004254    -0.000807         0.01    0.11
+ACME (treated)            0.004133    -0.000843         0.01    0.12
+ADE (control)             0.012614    -0.028090         0.06    0.54
+ADE (treated)             0.012493    -0.028002         0.06    0.54
+Total Effect              0.016747    -0.025355         0.06    0.43
+Prop. Mediated (control)  0.254006    -1.540048         1.85    0.48
+Prop. Mediated (treated)  0.246814    -1.589415         1.86    0.49
+ACME (average)            0.004194    -0.000811         0.01    0.12
+ADE (average)             0.012553    -0.028046         0.06    0.54
+Prop. Mediated (average)  0.250410    -1.562177         1.86    0.49
 
 Sample Size Used: 1955 
 
@@ -1616,8 +1654,8 @@ Simulations: 1000 </code></pre>
 </div>
 <p>This runs, although the bootstrap adds significantly to computing time and we had to binarize IPV to achieve it.</p>
 </section>
-<section id="issue-5-reconciling-svyglm-and-svyolr-models" class="level2">
-<h2 class="anchored" data-anchor-id="issue-5-reconciling-svyglm-and-svyolr-models">Issue 5: Reconciling svyglm() and svyolr() models</h2>
+<section id="issue-5-mediate-is-not-compatible-with-svyolr-models" class="level2">
+<h2 class="anchored" data-anchor-id="issue-5-mediate-is-not-compatible-with-svyolr-models">Issue 5: mediate() is not compatible with svyolr() models</h2>
 <p>With this partial success, we checked to see if we could also run this latest mediation on the weighted data.</p>
 <div class="cell">
 <details open="">
@@ -1883,16 +1921,16 @@ Causal Mediation Analysis
 Nonparametric Bootstrap Confidence Intervals with the Percentile Method
 
                           Estimate 95% CI Lower 95% CI Upper p-value  
-ACME (control)            4.26e-03    -1.03e-04         0.01   0.058 .
-ACME (treated)            4.17e-03    -9.62e-05         0.01   0.058 .
-ADE (control)             1.07e-02    -3.14e-02         0.05   0.624  
-ADE (treated)             1.06e-02    -3.11e-02         0.05   0.624  
-Total Effect              1.49e-02    -2.76e-02         0.06   0.491  
-Prop. Mediated (control)  2.86e-01    -2.09e+00         2.67   0.519  
-Prop. Mediated (treated)  2.80e-01    -2.12e+00         2.69   0.519  
-ACME (average)            4.22e-03    -9.96e-05         0.01   0.058 .
-ADE (average)             1.07e-02    -3.13e-02         0.05   0.624  
-Prop. Mediated (average)  2.83e-01    -2.10e+00         2.68   0.519  
+ACME (control)            4.26e-03    -3.86e-05         0.01   0.051 .
+ACME (treated)            4.17e-03    -3.50e-05         0.01   0.051 .
+ADE (control)             1.07e-02    -2.88e-02         0.05   0.645  
+ADE (treated)             1.06e-02    -2.85e-02         0.05   0.645  
+Total Effect              1.49e-02    -2.46e-02         0.06   0.515  
+Prop. Mediated (control)  2.86e-01    -2.45e+00         2.54   0.541  
+Prop. Mediated (treated)  2.80e-01    -2.47e+00         2.57   0.541  
+ACME (average)            4.22e-03    -3.68e-05         0.01   0.051 .
+ADE (average)             1.07e-02    -2.85e-02         0.05   0.645  
+Prop. Mediated (average)  2.83e-01    -2.46e+00         2.56   0.541  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1912,16 +1950,16 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                           Estimate 95% CI Lower 95% CI Upper p-value  
-ACME (control)            0.004033    -0.000136         0.01   0.055 .
-ACME (treated)            0.003953    -0.000126         0.01   0.055 .
-ADE (control)             0.010844    -0.030717         0.05   0.599  
-ADE (treated)             0.010763    -0.030663         0.05   0.599  
-Total Effect              0.014797    -0.026951         0.06   0.469  
-Prop. Mediated (control)  0.132980    -2.067129         2.95   0.495  
-Prop. Mediated (treated)  0.124956    -2.081693         2.97   0.495  
-ACME (average)            0.003993    -0.000131         0.01   0.055 .
-ADE (average)             0.010804    -0.030690         0.05   0.599  
-Prop. Mediated (average)  0.128968    -2.075434         2.96   0.495  
+ACME (control)            4.10e-03    -3.72e-05         0.01   0.051 .
+ACME (treated)            4.02e-03    -3.59e-05         0.01   0.051 .
+ADE (control)             1.04e-02    -3.07e-02         0.05   0.627  
+ADE (treated)             1.03e-02    -3.04e-02         0.05   0.627  
+Total Effect              1.44e-02    -2.68e-02         0.06   0.506  
+Prop. Mediated (control)  1.26e-01    -2.43e+00         2.56   0.536  
+Prop. Mediated (treated)  1.20e-01    -2.45e+00         2.57   0.536  
+ACME (average)            4.06e-03    -3.65e-05         0.01   0.051 .
+ADE (average)             1.03e-02    -3.05e-02         0.05   0.627  
+Prop. Mediated (average)  1.23e-01    -2.44e+00         2.57   0.536  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1941,16 +1979,16 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                           Estimate 95% CI Lower 95% CI Upper p-value  
-ACME (control)            0.004049    -0.000285         0.01   0.065 .
-ACME (treated)            0.003965    -0.000274         0.01   0.065 .
-ADE (control)             0.011725    -0.029570         0.05   0.587  
-ADE (treated)             0.011641    -0.029372         0.05   0.587  
-Total Effect              0.015690    -0.024297         0.06   0.450  
-Prop. Mediated (control)  0.129482    -2.343357         2.62   0.479  
-Prop. Mediated (treated)  0.121884    -2.368626         2.64   0.479  
-ACME (average)            0.004007    -0.000279         0.01   0.065 .
-ADE (average)             0.011683    -0.029461         0.05   0.587  
-Prop. Mediated (average)  0.125683    -2.351094         2.63   0.479  
+ACME (control)            0.004040    -0.000299         0.01   0.071 .
+ACME (treated)            0.003967    -0.000293         0.01   0.071 .
+ADE (control)             0.010080    -0.030357         0.05   0.643  
+ADE (treated)             0.010006    -0.030131         0.05   0.643  
+Total Effect              0.014046    -0.025226         0.05   0.512  
+Prop. Mediated (control)  0.127462    -2.935704         2.62   0.549  
+Prop. Mediated (treated)  0.120777    -2.984962         2.64   0.549  
+ACME (average)            0.004003    -0.000299         0.01   0.071 .
+ADE (average)             0.010043    -0.030260         0.05   0.643  
+Prop. Mediated (average)  0.124119    -2.954850         2.63   0.549  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -2013,16 +2051,16 @@ Causal Mediation Analysis
 Nonparametric Bootstrap Confidence Intervals with the Percentile Method
 
                          Estimate 95% CI Lower 95% CI Upper p-value    
-ACME (control)            0.01439      0.00993         0.02  &lt;2e-16 ***
-ACME (treated)            0.01344      0.00927         0.02  &lt;2e-16 ***
-ADE (control)             0.02845      0.02822         0.03  &lt;2e-16 ***
-ADE (treated)             0.02750      0.02711         0.03  &lt;2e-16 ***
-Total Effect              0.04189      0.03761         0.05  &lt;2e-16 ***
-Prop. Mediated (control)  0.34350      0.26424         0.43  &lt;2e-16 ***
-Prop. Mediated (treated)  0.32093      0.24687         0.40  &lt;2e-16 ***
-ACME (average)            0.01392      0.00960         0.02  &lt;2e-16 ***
-ADE (average)             0.02798      0.02773         0.03  &lt;2e-16 ***
-Prop. Mediated (average)  0.33221      0.25555         0.41  &lt;2e-16 ***
+ACME (control)            0.01714      0.01014         0.02  &lt;2e-16 ***
+ACME (treated)            0.01601      0.00947         0.02  &lt;2e-16 ***
+ADE (control)             0.02840      0.02823         0.03  &lt;2e-16 ***
+ADE (treated)             0.02728      0.02710         0.03  &lt;2e-16 ***
+Total Effect              0.04441      0.03780         0.05  &lt;2e-16 ***
+Prop. Mediated (control)  0.38582      0.26805         0.43  &lt;2e-16 ***
+Prop. Mediated (treated)  0.36046      0.25043         0.40  &lt;2e-16 ***
+ACME (average)            0.01657      0.00981         0.02  &lt;2e-16 ***
+ADE (average)             0.02784      0.02774         0.03  &lt;2e-16 ***
+Prop. Mediated (average)  0.37314      0.25924         0.42  &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -2042,16 +2080,16 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                          Estimate 95% CI Lower 95% CI Upper p-value    
-ACME (control)            0.01508      0.00994         0.02  &lt;2e-16 ***
-ACME (treated)            0.01410      0.00929         0.02  &lt;2e-16 ***
-ADE (control)             0.02826      0.01438         0.04  0.0013 ** 
-ADE (treated)             0.02727      0.01390         0.04  0.0013 ** 
-Total Effect              0.04236      0.02760         0.06  &lt;2e-16 ***
-Prop. Mediated (control)  0.35565      0.23977         0.53  &lt;2e-16 ***
-Prop. Mediated (treated)  0.33217      0.21900         0.51  &lt;2e-16 ***
-ACME (average)            0.01459      0.00962         0.02  &lt;2e-16 ***
-ADE (average)             0.02776      0.01414         0.04  0.0013 ** 
-Prop. Mediated (average)  0.34391      0.22950         0.52  &lt;2e-16 ***
+ACME (control)            0.01500      0.00983         0.02  &lt;2e-16 ***
+ACME (treated)            0.01401      0.00919         0.02  &lt;2e-16 ***
+ADE (control)             0.02837      0.01486         0.04  &lt;2e-16 ***
+ADE (treated)             0.02738      0.01436         0.04  &lt;2e-16 ***
+Total Effect              0.04238      0.02787         0.06  &lt;2e-16 ***
+Prop. Mediated (control)  0.35362      0.24308         0.52  &lt;2e-16 ***
+Prop. Mediated (treated)  0.32947      0.22232         0.50  &lt;2e-16 ***
+ACME (average)            0.01451      0.00952         0.02  &lt;2e-16 ***
+ADE (average)             0.02788      0.01462         0.04  &lt;2e-16 ***
+Prop. Mediated (average)  0.34154      0.23356         0.51  &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -2071,16 +2109,16 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                          Estimate 95% CI Lower 95% CI Upper p-value
-ACME (control)            0.01477     -0.00647         0.04    0.17
-ACME (treated)            0.01402     -0.00621         0.04    0.17
-ADE (control)             0.02857     -0.08888         0.15    0.66
-ADE (treated)             0.02782     -0.08453         0.14    0.66
-Total Effect              0.04259     -0.07338         0.16    0.48
-Prop. Mediated (control)  0.15913     -2.46718         2.69    0.56
-Prop. Mediated (treated)  0.12961     -2.62920         2.78    0.56
-ACME (average)            0.01440     -0.00627         0.04    0.17
-ADE (average)             0.02820     -0.08676         0.14    0.66
-Prop. Mediated (average)  0.14437     -2.55170         2.76    0.56
+ACME (control)            0.01437     -0.00657         0.04    0.17
+ACME (treated)            0.01374     -0.00604         0.04    0.17
+ADE (control)             0.02615     -0.09404         0.14    0.66
+ADE (treated)             0.02551     -0.09102         0.14    0.66
+Total Effect              0.03989     -0.07950         0.15    0.49
+Prop. Mediated (control)  0.14616     -3.01393         3.19    0.59
+Prop. Mediated (treated)  0.12193     -3.14578         3.36    0.59
+ACME (average)            0.01406     -0.00629         0.04    0.17
+ADE (average)             0.02583     -0.09256         0.14    0.66
+Prop. Mediated (average)  0.13404     -3.09737         3.28    0.59
 
 Sample Size Used: 1955 
 
@@ -2089,8 +2127,933 @@ Simulations: 3000 </code></pre>
 </div>
 </div>
 <p>While the estimates are similar, the confidence intervals are <em>much</em> tighter when <code>boot</code> or <code>robustSE</code> are set to <code>TRUE</code>, and suddenly all estimates are significant! What gives?</p>
-<p>First, an <a href="https://stackoverflow.com/a/75128332/12296038">answer by Thomas Lumley</a> (maintainer of the <code>survey</code> package) on Stack Overflow suggests that bootstrapping doesn’t work well with these survey-weighted models, although his answer does not fully map to our situation. In <a href="https://stackoverflow.com/a/56317510/12296038">another answer</a>, this time about applying robust standard errors with the <code>sandwich</code> package<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>, Lumley is clearer: “For <code>svyglm</code> models, <code>vcov()</code> already produces the appropriate sandwich estimator, and I don’t think the”sandwich” package knows enough about the internals of the object to get it right.” A few years prior, Achim Zeileis, maintainer of the <code>sandwich</code> package, had given <a href="https://stackoverflow.com/a/28840854/12296038">a different perspective</a> which also boils down to <strong>do not use <code>sandwich</code></strong> <strong>on models fit with <code>survey</code></strong>.</p>
+<p>First, an <a href="https://stackoverflow.com/a/75128332/12296038">answer by Thomas Lumley</a> (maintainer of the <code>survey</code> package) on Stack Overflow suggests that bootstrapping doesn’t work well with these survey-weighted models, although his answer does not fully map to our situation. In <a href="https://stackoverflow.com/a/56317510/12296038">another answer</a>, this time about applying robust standard errors with the <code>sandwich</code> package<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>, Lumley is clearer: “For <code>svyglm</code> models, <code>vcov()</code> already produces the appropriate sandwich estimator, and I don’t think the”sandwich” package knows enough about the internals of the object to get it right.” A few years prior, Achim Zeileis, maintainer of the <code>sandwich</code> package, had given <a href="https://stackoverflow.com/a/28840854/12296038">a different perspective</a> which also boils down to <strong>do not use <code>sandwich</code></strong> <strong>on models fit with <code>survey</code></strong>.</p>
 <p>There you have it, <code>boot = FALSE</code> and <code>robustSE = FALSE</code> is the way to go.</p>
+<section id="bonus-this-goes-for-using-marginaleffects-as-well" class="level3">
+<h3 class="anchored" data-anchor-id="bonus-this-goes-for-using-marginaleffects-as-well">Bonus: this goes for using <code>marginaleffects</code> as well</h3>
+<p>Often we are not interested in mediation, but rather would like a clean and interpretable way to report results from our GLMs. One could not be faulted for preferring to do this on the predicted probabilities scale rather than dealing with odds-ratios and other headaches. For this, the <code>marginaleffects</code> package can be of enormous help.</p>
+<p>For example, we can examine the predicted probability of experiencing IPV for Black and White women:</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> model_y_6<span class="fl">.1</span>,</span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"race"</span></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  race Estimate Std. Error    z Pr(&gt;|z|) 2.5 % 97.5 %
+ White    0.699     0.0399 17.5   &lt;0.001 0.620  0.777
+ Black    0.726     0.0444 16.4   &lt;0.001 0.639  0.813
+
+Columns: race, estimate, std.error, statistic, p.value, conf.low, conf.high </code></pre>
+</div>
+</div>
+<p>And then compare the probabilities themselves, for which we again have the option of “correcting” the standard errors via the <code>vcov</code> argument. Look at the difference in the confidence intervals and p-values spit out when we don’t or do specify <code>vcov = "HC"</code>:</p>
+<div class="cell">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> model_y_6<span class="fl">.1</span>,</span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"race"</span></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> gt<span class="sc">::</span><span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+
+<div id="ylgbzxlykx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+:where(#ylgbzxlykx) .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+:where(#ylgbzxlykx) .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#ylgbzxlykx) .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+:where(#ylgbzxlykx) .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+:where(#ylgbzxlykx) .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+:where(#ylgbzxlykx) .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+:where(#ylgbzxlykx) .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#ylgbzxlykx) .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+:where(#ylgbzxlykx) .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+:where(#ylgbzxlykx) .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+:where(#ylgbzxlykx) .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+:where(#ylgbzxlykx) .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+:where(#ylgbzxlykx) .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+:where(#ylgbzxlykx) .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+:where(#ylgbzxlykx) .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+:where(#ylgbzxlykx) .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+:where(#ylgbzxlykx) .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+:where(#ylgbzxlykx) .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#ylgbzxlykx) .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+:where(#ylgbzxlykx) .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+:where(#ylgbzxlykx) .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#ylgbzxlykx) .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+:where(#ylgbzxlykx) .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+:where(#ylgbzxlykx) .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+:where(#ylgbzxlykx) .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#ylgbzxlykx) .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+:where(#ylgbzxlykx) .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+:where(#ylgbzxlykx) .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+:where(#ylgbzxlykx) .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#ylgbzxlykx) .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#ylgbzxlykx) .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#ylgbzxlykx) .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#ylgbzxlykx) .gt_left {
+  text-align: left;
+}
+
+:where(#ylgbzxlykx) .gt_center {
+  text-align: center;
+}
+
+:where(#ylgbzxlykx) .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+:where(#ylgbzxlykx) .gt_font_normal {
+  font-weight: normal;
+}
+
+:where(#ylgbzxlykx) .gt_font_bold {
+  font-weight: bold;
+}
+
+:where(#ylgbzxlykx) .gt_font_italic {
+  font-style: italic;
+}
+
+:where(#ylgbzxlykx) .gt_super {
+  font-size: 65%;
+}
+
+:where(#ylgbzxlykx) .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em;
+}
+
+:where(#ylgbzxlykx) .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+:where(#ylgbzxlykx) .gt_indent_1 {
+  text-indent: 5px;
+}
+
+:where(#ylgbzxlykx) .gt_indent_2 {
+  text-indent: 10px;
+}
+
+:where(#ylgbzxlykx) .gt_indent_3 {
+  text-indent: 15px;
+}
+
+:where(#ylgbzxlykx) .gt_indent_4 {
+  text-indent: 20px;
+}
+
+:where(#ylgbzxlykx) .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table">
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="term">term</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="contrast">contrast</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="estimate">estimate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="std.error">std.error</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="statistic">statistic</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="p.value">p.value</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="conf.low">conf.low</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="conf.high">conf.high</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="term" class="gt_row gt_left">race</td>
+<td headers="contrast" class="gt_row gt_left">Black - White</td>
+<td headers="estimate" class="gt_row gt_right">0.02783414</td>
+<td headers="std.error" class="gt_row gt_right">0.06101841</td>
+<td headers="statistic" class="gt_row gt_right">0.4561596</td>
+<td headers="p.value" class="gt_row gt_right">0.6482752</td>
+<td headers="conf.low" class="gt_row gt_right">-0.09175976</td>
+<td headers="conf.high" class="gt_row gt_right">0.147428</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> model_y_6<span class="fl">.1</span>,</span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"race"</span>,</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">vcov =</span> <span class="st">"HC"</span></span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> gt<span class="sc">::</span><span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+
+<div id="rgeierqpdt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+:where(#rgeierqpdt) .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+:where(#rgeierqpdt) .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#rgeierqpdt) .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+:where(#rgeierqpdt) .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+:where(#rgeierqpdt) .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+:where(#rgeierqpdt) .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+:where(#rgeierqpdt) .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#rgeierqpdt) .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+:where(#rgeierqpdt) .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+:where(#rgeierqpdt) .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+:where(#rgeierqpdt) .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+:where(#rgeierqpdt) .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+:where(#rgeierqpdt) .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+:where(#rgeierqpdt) .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+:where(#rgeierqpdt) .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+:where(#rgeierqpdt) .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+:where(#rgeierqpdt) .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+:where(#rgeierqpdt) .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#rgeierqpdt) .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+:where(#rgeierqpdt) .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+:where(#rgeierqpdt) .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#rgeierqpdt) .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+:where(#rgeierqpdt) .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+:where(#rgeierqpdt) .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+:where(#rgeierqpdt) .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#rgeierqpdt) .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+:where(#rgeierqpdt) .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+:where(#rgeierqpdt) .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+:where(#rgeierqpdt) .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#rgeierqpdt) .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#rgeierqpdt) .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#rgeierqpdt) .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#rgeierqpdt) .gt_left {
+  text-align: left;
+}
+
+:where(#rgeierqpdt) .gt_center {
+  text-align: center;
+}
+
+:where(#rgeierqpdt) .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+:where(#rgeierqpdt) .gt_font_normal {
+  font-weight: normal;
+}
+
+:where(#rgeierqpdt) .gt_font_bold {
+  font-weight: bold;
+}
+
+:where(#rgeierqpdt) .gt_font_italic {
+  font-style: italic;
+}
+
+:where(#rgeierqpdt) .gt_super {
+  font-size: 65%;
+}
+
+:where(#rgeierqpdt) .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em;
+}
+
+:where(#rgeierqpdt) .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+:where(#rgeierqpdt) .gt_indent_1 {
+  text-indent: 5px;
+}
+
+:where(#rgeierqpdt) .gt_indent_2 {
+  text-indent: 10px;
+}
+
+:where(#rgeierqpdt) .gt_indent_3 {
+  text-indent: 15px;
+}
+
+:where(#rgeierqpdt) .gt_indent_4 {
+  text-indent: 20px;
+}
+
+:where(#rgeierqpdt) .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table">
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="term">term</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="contrast">contrast</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="estimate">estimate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="std.error">std.error</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="statistic">statistic</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="p.value">p.value</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="conf.low">conf.low</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="conf.high">conf.high</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="term" class="gt_row gt_left">race</td>
+<td headers="contrast" class="gt_row gt_left">Black - White</td>
+<td headers="estimate" class="gt_row gt_right">0.02783414</td>
+<td headers="std.error" class="gt_row gt_right">0.006864551</td>
+<td headers="statistic" class="gt_row gt_right">4.054765</td>
+<td headers="p.value" class="gt_row gt_right">5.018481e-05</td>
+<td headers="conf.low" class="gt_row gt_right">0.01437986</td>
+<td headers="conf.high" class="gt_row gt_right">0.04128841</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+<p>The estimates are the same, but the standard error (wrongly) becomes minuscule if we apply the “correction” for heteroskedasticity without realizing that <code>sandwich</code> does not work properly on models fit with <code>survey</code>.</p>
+</section>
 </section>
 <section id="issue-7-boundaries-of-the-confidence-intervals-are-rounded-differently" class="level2">
 <h2 class="anchored" data-anchor-id="issue-7-boundaries-of-the-confidence-intervals-are-rounded-differently">Issue 7: Boundaries of the confidence intervals are rounded differently</h2>
@@ -2098,24 +3061,24 @@ Simulations: 3000 </code></pre>
 <div class="cell">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">trace</span>(mediation<span class="sc">:::</span>print.summary.mediate, </span>
-<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">at =</span> <span class="dv">11</span>,</span>
-<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">tracer =</span> <span class="fu">quote</span>({</span>
-<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>        printCoefmat <span class="ot">&lt;-</span> <span class="cf">function</span>(x, digits) {</span>
-<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>          p <span class="ot">&lt;-</span> x[, <span class="dv">4</span>]</span>
-<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a>          x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"%.6f"</span>, x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>])</span>
-<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a>          x[, <span class="dv">4</span>] <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"%.2f"</span>, p)</span>
-<span id="cb69-8"><a href="#cb69-8" aria-hidden="true" tabindex="-1"></a>          <span class="fu">print</span>(x, <span class="at">quote =</span> <span class="cn">FALSE</span>, <span class="at">right =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb69-9"><a href="#cb69-9" aria-hidden="true" tabindex="-1"></a>        } </span>
-<span id="cb69-10"><a href="#cb69-10" aria-hidden="true" tabindex="-1"></a>      }),</span>
-<span id="cb69-11"><a href="#cb69-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">print =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="fu">trace</span>(mediation<span class="sc">:::</span>print.summary.mediate, </span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">at =</span> <span class="dv">11</span>,</span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">tracer =</span> <span class="fu">quote</span>({</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>        printCoefmat <span class="ot">&lt;-</span> <span class="cf">function</span>(x, digits) {</span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a>          p <span class="ot">&lt;-</span> x[, <span class="dv">4</span>]</span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a>          x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"%.6f"</span>, x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>])</span>
+<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a>          x[, <span class="dv">4</span>] <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"%.2f"</span>, p)</span>
+<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a>          <span class="fu">print</span>(x, <span class="at">quote =</span> <span class="cn">FALSE</span>, <span class="at">right =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a>        } </span>
+<span id="cb73-10"><a href="#cb73-10" aria-hidden="true" tabindex="-1"></a>      }),</span>
+<span id="cb73-11"><a href="#cb73-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">print =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "print.summary.mediate"</code></pre>
 </div>
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>mediation<span class="sc">:::</span><span class="fu">print.summary.mediate</span>(<span class="fu">summary</span>(med_6<span class="fl">.6</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>mediation<span class="sc">:::</span><span class="fu">print.summary.mediate</span>(<span class="fu">summary</span>(med_6<span class="fl">.6</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -2124,16 +3087,16 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                          Estimate 95% CI Lower 95% CI Upper p-value
-ACME (control)           0.014773    -0.006472     0.042114    0.17
-ACME (treated)           0.014018    -0.006213     0.041395    0.17
-ADE (control)            0.028573    -0.088876     0.147886    0.66
-ADE (treated)            0.027818    -0.084531     0.143331    0.66
-Total Effect             0.042591    -0.073380     0.159502    0.48
-Prop. Mediated (control) 0.159133    -2.467185     2.688134    0.56
-Prop. Mediated (treated) 0.129613    -2.629199     2.783534    0.56
-ACME (average)           0.014396    -0.006275     0.041930    0.17
-ADE (average)            0.028196    -0.086757     0.144740    0.66
-Prop. Mediated (average) 0.144373    -2.551698     2.761620    0.56
+ACME (control)           0.014373    -0.006565     0.041344    0.17
+ACME (treated)           0.013742    -0.006045     0.040415    0.17
+ADE (control)            0.026145    -0.094040     0.144596    0.66
+ADE (treated)            0.025514    -0.091018     0.138792    0.66
+Total Effect             0.039887    -0.079497     0.152341    0.49
+Prop. Mediated (control) 0.146155    -3.013931     3.188480    0.59
+Prop. Mediated (treated) 0.121932    -3.145777     3.362464    0.59
+ACME (average)           0.014057    -0.006286     0.041002    0.17
+ADE (average)            0.025830    -0.092561     0.141364    0.66
+Prop. Mediated (average) 0.134043    -3.097373     3.275472    0.59
 
 Sample Size Used: 1955 
 
@@ -2142,31 +3105,31 @@ Simulations: 3000 </code></pre>
 </div>
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="fu">untrace</span>(mediation<span class="sc">:::</span>print.summary.mediate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">untrace</span>(mediation<span class="sc">:::</span>print.summary.mediate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Unfortunately, this solution also changes the way p-values are presented. Look again at the results from <code>med_6.5</code> and compare with the following:</p>
 <div class="cell">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">trace</span>(mediation<span class="sc">:::</span>print.summary.mediate, </span>
-<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">at =</span> <span class="dv">11</span>,</span>
-<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">tracer =</span> <span class="fu">quote</span>({</span>
-<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>        printCoefmat <span class="ot">&lt;-</span> <span class="cf">function</span>(x, digits) {</span>
-<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>          p <span class="ot">&lt;-</span> x[, <span class="dv">4</span>]</span>
-<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>          x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"%.6f"</span>, x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>])</span>
-<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>          x[, <span class="dv">4</span>] <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"%.2f"</span>, p)</span>
-<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a>          <span class="fu">print</span>(x, <span class="at">quote =</span> <span class="cn">FALSE</span>, <span class="at">right =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a>        } </span>
-<span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a>      }),</span>
-<span id="cb74-11"><a href="#cb74-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">print =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">trace</span>(mediation<span class="sc">:::</span>print.summary.mediate, </span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">at =</span> <span class="dv">11</span>,</span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">tracer =</span> <span class="fu">quote</span>({</span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>        printCoefmat <span class="ot">&lt;-</span> <span class="cf">function</span>(x, digits) {</span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a>          p <span class="ot">&lt;-</span> x[, <span class="dv">4</span>]</span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>          x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"%.6f"</span>, x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>])</span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a>          x[, <span class="dv">4</span>] <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"%.2f"</span>, p)</span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a>          <span class="fu">print</span>(x, <span class="at">quote =</span> <span class="cn">FALSE</span>, <span class="at">right =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a>        } </span>
+<span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a>      }),</span>
+<span id="cb78-11"><a href="#cb78-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">print =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "print.summary.mediate"</code></pre>
 </div>
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>mediation<span class="sc">:::</span><span class="fu">print.summary.mediate</span>(<span class="fu">summary</span>(med_6<span class="fl">.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>mediation<span class="sc">:::</span><span class="fu">print.summary.mediate</span>(<span class="fu">summary</span>(med_6<span class="fl">.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -2175,16 +3138,16 @@ Causal Mediation Analysis
 Quasi-Bayesian Confidence Intervals
 
                          Estimate 95% CI Lower 95% CI Upper p-value
-ACME (control)           0.015085     0.009936     0.020444    0.00
-ACME (treated)           0.014097     0.009293     0.019127    0.00
-ADE (control)            0.028259     0.014381     0.041851    0.00
-ADE (treated)            0.027271     0.013905     0.040362    0.00
-Total Effect             0.042356     0.027597     0.056765    0.00
-Prop. Mediated (control) 0.355651     0.239774     0.526115    0.00
-Prop. Mediated (treated) 0.332167     0.219000     0.507581    0.00
-ACME (average)           0.014591     0.009622     0.019745    0.00
-ADE (average)            0.027765     0.014143     0.041141    0.00
-Prop. Mediated (average) 0.343909     0.229502     0.518043    0.00
+ACME (control)           0.015000     0.009828     0.020297    0.00
+ACME (treated)           0.014014     0.009188     0.018891    0.00
+ADE (control)            0.028369     0.014861     0.041631    0.00
+ADE (treated)            0.027384     0.014359     0.040247    0.00
+Total Effect             0.042383     0.027869     0.056726    0.00
+Prop. Mediated (control) 0.353616     0.243076     0.517594    0.00
+Prop. Mediated (treated) 0.329468     0.222324     0.495835    0.00
+ACME (average)           0.014507     0.009520     0.019553    0.00
+ADE (average)            0.027876     0.014622     0.040982    0.00
+Prop. Mediated (average) 0.341542     0.233562     0.507357    0.00
 
 Sample Size Used: 1955 
 
@@ -2193,10 +3156,10 @@ Simulations: 3000 </code></pre>
 </div>
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">untrace</span>(mediation<span class="sc">:::</span>print.summary.mediate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">untrace</span>(mediation<span class="sc">:::</span>print.summary.mediate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>The interim solution is to print the summary twice, once with the original function for expected p-value behavior, and another time with the edited function for confidence-interval consistency. Someone more well-versed might want to take a shot at adapting the code so that the behavior is maintained for the p-values<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> and fixed for the confidence intervals.</p>
+<p>The interim solution is to print the summary twice, once with the original function for expected p-value behavior, and another time with the edited function for confidence-interval consistency. Someone more well-versed might want to take a shot at adapting the code so that the behavior is maintained for the p-values<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> and fixed for the confidence intervals.</p>
 
 
 </section>
@@ -2206,11 +3169,12 @@ Simulations: 3000 </code></pre>
 <div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
-<li id="fn1"><p>Previously called the “Fragile Families and Child Wellbeing Study”<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>Another option, which we won’t go into, would be to take the responses to the items themselves and use a multi-level ordinal model with item as the random grouping factor.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3"><p>Of course, the effects mentioned here are not really the effects of moving from X to Y on the mediator, but the mediated effect that changing from Race = “White” to Race = “Black” has on the probability of IPV <em>through its effect on the mediator</em>.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4"><p>Which Lumley apparently has also worked on!<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5"><p>Perhaps taking into account user2554330’s <a href="https://stackoverflow.com/a/64830084">insight in another answer</a> about how p-values are stored and printed.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>Previously called the “Fragile Families and Child Wellbeing Study”.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>For more information about the weights, have a look at the <a href="https://ffcws.princeton.edu/sites/g/files/toruqf4356/files/ff_const_wgts.pdf">methodology document linked here</a>.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>Another option, which we won’t go into, would be to take the responses to the items themselves and use a multi-level ordinal model with item as the random grouping factor.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>Of course, the effects mentioned here are not really the effects of moving from X to Y on the mediator, but the mediated effect that changing from Race = “White” to Race = “Black” has on the probability of IPV <em>through its effect on the mediator</em>.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>Which Lumley apparently has also worked on!<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>Perhaps taking into account user2554330’s <a href="https://stackoverflow.com/a/64830084">insight in another answer</a> about how p-values are stored and printed.<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">https://creativecommons.org/licenses/by-nc/4.0/</a></div></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{brazão2023,
   author = {Vasco Brazão and Vasco Brazão, Priya Devendran},
