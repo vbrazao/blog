@@ -4,7 +4,7 @@ subtitle: "Issues (and some solutions) when working with R packages {mediation} 
 author: 
  - name: Vasco Brazão
  - name: Priya Devendran
-date: "2023-20-12"
+date: "2023-12-20"
 categories: [statistics, mediation, survey, glm]
 draft: true
 execute: 
