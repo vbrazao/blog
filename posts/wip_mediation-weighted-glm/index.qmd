@@ -35,19 +35,19 @@ This blogpost documents the challenges we faced when attempting to run a mediati
 
 **Solution**: As in Issue 2, the issue is solved by using the `cbind(successes, failures)` specification for the outcome model.
 
-[Issue 4: Ordinal mediator and binomial outcome don't work together]
+[Issue 4: Ordinal mediator and binomial outcome don't work together](#issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together)
 
 **Description**: When the mediator model is ordinal (fit with `MASS::polr()`, `mediate()` will not work with a binomial outcome model either way it's specified.
 
 **Solution**: No solution was found, other than using an ordinal mediator model with a binary outcome model.
 
-[Issue 5: mediate() is not compatible with svyolr() models]
+[Issue 5: mediate() is not compatible with svyolr() models](#issue-5-mediate-is-not-compatible-with-svyolr-models)
 
 **Description**: It seems that `mediate()` simply won't work with models fit with `survey::svyolr()`.
 
 **Solution**: No solution was found.
 
-[Issue 6: Options and choices to boot --- To robustSE or not to robustSE?]
+[Issue 6: Options and choices to boot --- To robustSE or not to robustSE?](#issue-6-options-and-choices-to-boot-to-robustse-or-not-to-robustse)
 
 **Description**: `mediate()` can work via boostrap or quasi-Bayesian approximation, and has an option to calculate "robust standard errors" for the latter. Which options work with survey-weighted GLMs?
 
@@ -394,7 +394,7 @@ summary(med_3.1)
 
 This approach runs, but we are still left wondering whether we can trust the estimates.
 
-## Issue 4: Ordinal mediator and binomial outcome don't work together
+## Issue 4: Ordinal mediator and binomial outcome don't work together {#issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together}
 
 Because we would prefer not to binarize the social support variable in order to keep all the information that we can, we also explored using an ordinal mediator model. `mediate()` works with ordinal models fit with `MASS::polr`, so we attempted that.
 
@@ -486,7 +486,7 @@ summary(med_4)
 
 This runs, although the bootstrap adds significantly to computing time and we had to binarize IPV to achieve it.
 
-## Issue 5: mediate() is not compatible with svyolr() models
+## Issue 5: mediate() is not compatible with svyolr() models {#issue-5-mediate-is-not-compatible-with-svyolr-models}
 
 With this partial success, we checked to see if we could also run this latest mediation on the weighted data.
 
@@ -636,7 +636,7 @@ med_5 <- mediation::mediate(
 
 Ok, we give up here.
 
-## Issue 6: Options and choices to boot --- To robustSE or not to robustSE?
+## Issue 6: Options and choices to boot --- To robustSE or not to robustSE? {#issue-6-options-and-choices-to-boot-to-robustse-or-not-to-robustse}
 
 IDEA: Make function that retrieves some quantities (like total effect + ci + p-value) from the mediation models as well as the boot and robustSE options and outputs a table that makes it easy to see the differences. helper function get_results() can be looped over however many models there are.
 
@@ -749,7 +749,7 @@ summary(med_6.6)
 
 While the estimates are similar, the confidence intervals are *much* tighter when `boot` or `robustSE` are set to `TRUE`, and suddenly all estimates are significant! What gives?
 
-First, an [answer by Thomas Lumley](https://stackoverflow.com/a/75128332/12296038) (maintainer of the `survey` package) on Stack Overflow suggests that bootstrapping doesn't work well with these survey-weighted models, although his answer does not fully map to our situation. In [another answer](https://stackoverflow.com/a/56317510/12296038), this time about applying robust standard errors with the `sandwich` package[^5], Lumley is clearer: "For `svyglm` models, `vcov()` already produces the appropriate sandwich estimator, and I don't think the "sandwich" package knows enough about the internals of the object to get it right." A few years prior, Achim Zeileis, maintainer of the `sandwich` package, had given [a different perspective](https://stackoverflow.com/a/28840854/12296038) which also boils down to **do not use `sandwich`** **on models fit with `survey`**.
+First, an [answer by Thomas Lumley](https://stackoverflow.com/a/75128332/12296038) (maintainer of the `survey` package) on Stack Overflow suggests that bootstrapping doesn't work well with these survey-weighted models, although his answer does not fully map to our situation. In [another answer](https://stackoverflow.com/a/56317510/12296038), this time about applying robust standard errors with the `sandwich` package[^5], Lumley is clearer: "For `svyglm` models, `vcov()` already produces the appropriate sandwich estimator, and I don't think the"sandwich" package knows enough about the internals of the object to get it right." A few years prior, Achim Zeileis, maintainer of the `sandwich` package, had given [a different perspective](https://stackoverflow.com/a/28840854/12296038) which also boils down to **do not use `sandwich`** **on models fit with `survey`**.
 
 [^5]: Which Lumley apparently has also worked on!
 
