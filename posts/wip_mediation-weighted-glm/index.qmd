@@ -1,8 +1,10 @@
 ---
-title: "Adventures in mediation analysis with weighted GLMs (temporary title)"
-subtitle: "subtitle TBD"
-author: Vasco Brazão, Priya Devendran
-date: "2023"
+title: "Adventures in mediation analysis with weighted GLMs"
+subtitle: "Issues (and some solutions) when working with R packages {mediation} and {survey}"
+author: 
+ - name: Vasco Brazão
+ - name: Priya Devendran
+date: "2023-20-12"
 categories: [statistics, mediation, survey, glm]
 draft: true
 execute: 
@@ -108,6 +110,7 @@ dat <- readRDS(here::here("posts", post_folder, "data_reduced_synth.RDS")) |>
       forcats::fct_expand("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24") |> 
       forcats::fct_relevel("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24")
   ) |> 
+  # move all the non-weight variables to the beginning
   dplyr::relocate(
     !dplyr::starts_with("m1"),
     .before = "m1natwt"
@@ -558,7 +561,7 @@ Would you look at that! The ratio seems to be constant. We can check the entire 
 weight_comparison |> dplyr::count(weight_quotient)
 ```
 
-There seem to be three different values that all look the same --- perhaps this will make more sense once we learn more about floating point arithmetic, but for now we'll say the ratio between the weights is always the same. On Stack Overflow, Thomas Lumley, maintainer of the `survey` package, explains in a reply to my post:
+There seem to be three different values that all look the same --- perhaps this will make more sense once we learn more about floating point arithmetic, but for now we'll say the ratio between the weights is always the same. On Stack Overflow, Thomas Lumley, maintainer of the `survey` package, explains in a [reply to my post](https://stackoverflow.com/a/76902559):
 
 > Some functions in the survey package rescale the weights to have unit mean because the large weights (thousands or tens of thousands) in some national surveys can cause convergence problems.
 >
@@ -596,7 +599,7 @@ model_y_5.1 <- survey::svyglm(
 rm(list = "pwts")
 ```
 
-However, we can't be sure if this correctly solves the problem or introduces new errors. To ask the package maintainer (or anyone else who might know) more directly, Vasco posed this problem in a new Stack Overflow post. XXX LINK MISSING
+However, we can't be sure if this correctly solves the problem or introduces new errors.
 
 Now we try to run the mediation.
 
@@ -650,6 +653,62 @@ And we know that, when chosen, the heteroskedasticity-consistent standard errors
 
 According to the `mediation` package [vignettes](https://cran.r-project.org/web/packages/mediation/vignettes/mediation.pdf), the authors recommend setting `boot = TRUE`: "In general, as long as computing power is not an issue, analysts should estimate confidence intervals via the bootstrap with more than 1000 resamples, which is the default number of simulations." So we could do that. Unfortunately, computing power *is* an issue, as we wanted to run a multiverse analysis that meant we would use the `mediate()` function a bunch of times. To figure out whether to set `robustSE` to `TRUE` or `FALSE`, it could be useful to see which option gives use results that are closer to the bootstrap option. Let's use a binary mediator and outcome, just so we are sure there aren't other issues at play.
 
+For convenience, we'll create a function called `compare_meds()` that takes in different mediation models and outputs a table.
+
+```{r}
+get_meds <- function(med_model){
+  
+  boot <- as.character(med_model[["boot"]])
+  
+  robustSE <- as.character(med_model[["robustSE"]])
+  
+  results_te <- tibble::tibble(
+    effect = "total_effect",
+    estimate = med_model[["tau.coef"]],
+    ci.low = med_model[["tau.ci"]][[1]],
+    ci.high = med_model[["tau.ci"]][[2]],
+    p.value = med_model[["tau.p"]]
+  )
+  
+  results_de <- tibble::tibble(
+    effect = "direct_effect",
+    estimate = med_model[["z.avg"]],
+    ci.low = med_model[["z.avg.ci"]][[1]],
+    ci.high = med_model[["z.avg.ci"]][[2]],
+    p.value = med_model[["z.avg.p"]]
+  )
+  
+  results_ie <- tibble::tibble(
+    effect = "indirect_effect",
+    estimate = med_model[["d.avg"]],
+    ci.low = med_model[["d.avg.ci"]][[1]],
+    ci.high = med_model[["d.avg.ci"]][[2]],
+    p.value = med_model[["d.avg.p"]]
+  )
+  
+  results <- dplyr::bind_rows(results_te, results_de, results_ie)
+  
+  output <- results |> 
+    dplyr::mutate(boot = boot, robustSE = robustSE) |> 
+    dplyr::relocate(boot, robustSE)
+  
+  return(output)
+}
+
+compare_meds <- function(med_models, effect){
+  if (class(med_models) != "list") {
+    stop("Argument should be a list of models")
+  }
+  
+  med_models_df <- med_models  |> 
+    purrr::map(.f = ~ get_meds(.x)) |> 
+    purrr::list_rbind() |> 
+    dplyr::filter(effect == !!effect)
+  
+  return(med_models_df)
+}
+```
+
 First, we compare unweighted models. To reduce simulation-dependent variability, we set `sims = 3000`.
 
 ```{r}
@@ -692,9 +751,11 @@ med_6.3 <- mediation::mediate(
   mediator = "informal_support_binary"
 )
 
-summary(med_6.1)
-summary(med_6.2)
-summary(med_6.3)
+mod_list <- list(med_6.1, med_6.2, med_6.3)
+
+compare_meds(mod_list, effect = "total_effect") |> gt::gt()
+compare_meds(mod_list, effect = "direct_effect") |> gt::gt()
+compare_meds(mod_list, effect = "indirect_effect") |> gt::gt()
 ```
 
 We can see that the results are very similar, and in fact running the mediations several times reveals that the difference seems to be due to simulation variability. Given this, Vasco would personally rather specify `robustSE = FALSE`, since it does not make sense to correct for heteroskedasticity in a logistic regression model which *cannot suffer from* heteroskedasticity in the first place.
@@ -742,9 +803,11 @@ med_6.6 <- mediation::mediate(
   mediator = "informal_support_binary"
 )
 
-summary(med_6.4)
-summary(med_6.5)
-summary(med_6.6)
+mod_list <- list(med_6.4, med_6.5, med_6.6)
+
+compare_meds(mod_list, effect = "total_effect") |> gt::gt()
+compare_meds(mod_list, effect = "direct_effect") |> gt::gt()
+compare_meds(mod_list, effect = "indirect_effect") |> gt::gt()
 ```
 
 While the estimates are similar, the confidence intervals are *much* tighter when `boot` or `robustSE` are set to `TRUE`, and suddenly all estimates are significant! What gives?
@@ -787,7 +850,7 @@ The estimates are the same, but the standard error (wrongly) becomes minuscule i
 
 ## Issue 7: Boundaries of the confidence intervals are rounded differently
 
-Did you notice? Each time we use `summary()` on a `mediate()` object, the lower boundary of the 95% CI is reported with 5 decimal places, while the upper boundary is reported with 2 decimal places. This also bothered Stack Overflow user sateayam over 4 years ago, and luckily user Roland [answered with a fix](https://stackoverflow.com/a/53852254):
+Did you notice? Each time we use `summary()` on a `mediate()` object, the lower bound of the 95% CI is reported with 5 decimal places, while the upper bound is reported with 2 decimal places. This also bothered Stack Overflow user sateayam over 4 years ago, and luckily user Roland [answered with a fix](https://stackoverflow.com/a/53852254):
 
 ```{r}
 trace(mediation:::print.summary.mediate, 
@@ -830,3 +893,15 @@ untrace(mediation:::print.summary.mediate)
 The interim solution is to print the summary twice, once with the original function for expected p-value behavior, and another time with the edited function for confidence-interval consistency. Someone more well-versed might want to take a shot at adapting the code so that the behavior is maintained for the p-values[^6] and fixed for the confidence intervals.
 
 [^6]: Perhaps taking into account user2554330's [insight in another answer](https://stackoverflow.com/a/64830084) about how p-values are stored and printed.
+
+# Conclusion
+
+Mediation analysis is *always* tricky business[^7], but it feels especially discouraging when the software you doesn't seem to want to cooperate. We hope this post will at least shorten someone else's journey into getting their `mediation` and/or `survey` models to behave.
+
+[^7]: See, e.g., [That\'s a Lot to Process! Pitfalls of Popular Path Models](https://journals.sagepub.com/doi/10.1177/25152459221095827) by Rohrer and colleagues.
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
