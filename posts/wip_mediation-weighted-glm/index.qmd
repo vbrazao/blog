@@ -1,10 +1,10 @@
 ---
-title: "Adventures in mediation analysis with weighted GLMs"
+title: "Mediation analysis with weighted GLMs in R: What could possibly go wrong?"
 subtitle: "Issues (and some solutions) when working with R packages {mediation} and {survey}"
 author: 
  - name: Vasco Brazão
  - name: Priya Devendran
-date: "2023-12-20"
+date: "2023-12-21"
 categories: [statistics, mediation, survey, glm]
 draft: true
 execute: 
@@ -898,7 +898,7 @@ The interim solution is to print the summary twice, once with the original funct
 
 Mediation analysis is *always* tricky business[^7], but it feels especially discouraging when the software you doesn't seem to want to cooperate. We hope this post will at least shorten someone else's journey into getting their `mediation` and/or `survey` models to behave.
 
-[^7]: See, e.g., [That\'s a Lot to Process! Pitfalls of Popular Path Models](https://journals.sagepub.com/doi/10.1177/25152459221095827) by Rohrer and colleagues.
+[^7]: See, e.g., [That's a Lot to Process! Pitfalls of Popular Path Models](https://journals.sagepub.com/doi/10.1177/25152459221095827) by Rohrer and colleagues.
 
 # Session Info
 
