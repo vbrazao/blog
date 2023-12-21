@@ -54,7 +54,7 @@ This blogpost documents the challenges we faced when attempting to run a mediati
 
 **Solution**: Bootstrapping should probably not be used. `robustSE` should be set to `FALSE`. If `marginaleffects` is used for comparisons, `vcov` should be set to `vcov(model)` or `NULL`, as the `sandwich` package does not correctly compute robust standard errors for models fit with `survey`.
 
-\[**Issue 7: Bounds of the confidence intervals are rounded inconsistently**\]
+[**Issue 7: Bounds of the confidence intervals are rounded inconsistently**](#issue-7-bounds-of-the-confidence-intervals-are-rounded-inconsistently)
 
 **Description**: When you apply `summary()` to an object produced by `mediate()`, the upper bound of the confidence intervals is rounded to only two decimal places, whereas there are more decimal places for the lower bound.
 
@@ -847,7 +847,7 @@ marginaleffects::avg_comparisons(
 
 The estimates are the same, but the standard error (wrongly) becomes minuscule if we apply the "correction" for heteroskedasticity without realizing that `sandwich` does not work properly on models fit with `survey`.
 
-## Issue 7: Bounds of the confidence intervals are rounded inconsistently
+## Issue 7: Bounds of the confidence intervals are rounded inconsistently {#issue-7-bounds-of-the-confidence-intervals-are-rounded-inconsistently}
 
 Did you notice? Each time we use `summary()` on a `mediate()` object, the lower bound of the 95% CI is reported with 5 decimal places, while the upper bound is reported with 2 decimal places. This also bothered Stack Overflow user sateayam over 4 years ago, and luckily user Roland [answered with a fix](https://stackoverflow.com/a/53852254):
 
