@@ -6,7 +6,6 @@ author:
  - name: Priya Devendran
 date: "2023-12-21"
 categories: [statistics, mediation, survey, glm, fragile families]
-draft: true
 execute: 
   warning: false
 format:
@@ -79,7 +78,7 @@ library(marginaleffects)
 
 
 # directory for the post (to change once post goes live)
-post_folder <- "wip_mediation-weighted-glm"
+post_folder <- "2023-12-21_mediation-weighted-glm"
 
 # number of simulations for mediation analysis
 n_sims <- 1000
