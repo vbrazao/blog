@@ -502,7 +502,7 @@ model_m_5 <- survey::svyolr(
 )
 ```
 
-This throws an error, which [this StackOverflow post](https://stackoverflow.com/questions/28916377/r-error-with-polr-initial-value-in-vmmin-is-not-finite?rq=2) can help us solve. We can help the function by providing plausible start values for the coefficients and the intercepts/thresholds. We have one coefficient and three thresholds (from 0 to 1, from 1 to 2, and from 2 to 3), and we know they should be relatively close to zero as well as that the thresholds should be in ascending order. With the syntax `start = c(coefficients, thresholds)` we can make it work:
+This throws an error, which [this Stack Overflow post](https://stackoverflow.com/questions/28916377/r-error-with-polr-initial-value-in-vmmin-is-not-finite?rq=2) can help us solve. We can help the function by providing plausible start values for the coefficients and the intercepts/thresholds. We have one coefficient and three thresholds (from 0 to 1, from 1 to 2, and from 2 to 3), and we know they should be relatively close to zero as well as that the thresholds should be in ascending order. With the syntax `start = c(coefficients, thresholds)` we can make it work:
 
 ```{r weighted.olr.success}
 model_m_5 <- survey::svyolr(
@@ -599,7 +599,7 @@ model_y_5.1 <- survey::svyglm(
 rm(list = "pwts")
 ```
 
-However, we can't be sure if this correctly solves the problem or introduces new errors.
+However, we can't be sure if this correctly solves the problem or introduces new errors. Vasco [posted about this issue on Stack Overflow](https://stackoverflow.com/questions/77697864/error-in-survey-package-svyglm-object-pwts-not-found-is-there-a-fix) in the hopes that perhaps Thomas Lumley can clarify this for us.
 
 Now we try to run the mediation.
 
