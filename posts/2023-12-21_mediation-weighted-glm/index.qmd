@@ -18,13 +18,13 @@ This blogpost documents the challenges we faced when attempting to run a mediati
 ::: callout-note
 ## Summary: Issues and Solutions
 
-[**Issue 1: Correctly applying the Fragile Families weights**]
+[**Issue 1: Correctly applying the Fragile Families weights**](#issue-1-correctly-applying-the-fragile-families-weights)
 
 **Description**: We need to specify jackknife estimation of standard errors for `survey` to properly handle our replicate weights.
 
 **Solution**: Besides specifying the `weights` and `repweights` arguments, we also have to specify `combined_weights = TRUE`, `type = "JKn"`, `scales = 1`, `rscales = 1`, and `mse = TRUE`.
 
-[**Issue 2: Mediation with "multiple-trial binomial mediator" runs for weighted but not for unweighted models?**]
+[**Issue 2: Mediation with "multiple-trial binomial mediator" runs for weighted but not for unweighted models?**](#issue-2-mediation-with-multiple-trial-binomial-mediator-runs-for-weighted-but-not-for-unweighted-models)
 
 **Description**: When using multiple-trial binomial GLMs for the mediator and outcome models, `mediate()` complains: "`weights on outcome and mediator models not identical`".
 
@@ -54,7 +54,7 @@ This blogpost documents the challenges we faced when attempting to run a mediati
 
 **Solution**: Bootstrapping should probably not be used. `robustSE` should be set to `FALSE`. If `marginaleffects` is used for comparisons, `vcov` should be set to `vcov(model)` or `NULL`, as the `sandwich` package does not correctly compute robust standard errors for models fit with `survey`.
 
-[**Issue 7: Bounds of the confidence intervals are rounded inconsistently**]
+\[**Issue 7: Bounds of the confidence intervals are rounded inconsistently**\]
 
 **Description**: When you apply `summary()` to an object produced by `mediate()`, the upper bound of the confidence intervals is rounded to only two decimal places, whereas there are more decimal places for the lower bound.
 
@@ -127,7 +127,7 @@ head(dat) |>
 
 We'll need to run two models --- the first predicting the mediator, the second predicting the outcome --- and feed these models into `mediation::mediate()`.
 
-## Issue 1: Correctly applying the Fragile Families weights
+## Issue 1: Correctly applying the Fragile Families weights {#issue-1-correctly-applying-the-fragile-families-weights}
 
 We fit the models using `survey::svyglm()` in order to be able to take the weights into account. First, we need to tell `survey` that our data is weighted, which we do with the help of the `srvyr` package for tidyverse-like convenience. Our first attempt looked like this:
 
@@ -221,7 +221,7 @@ summary(med_1)
 
 A small but statistically significant mediation effect! The warning about weights not being taken as total number of trials makes us nervous, but then again, we did give the models sampling weights, so maybe it's ok?
 
-## Issue 2: Mediation with "multiple-trial binomial mediator" runs for weighted but not for unweighted models?
+## Issue 2: Mediation with "multiple-trial binomial mediator" runs for weighted but not for unweighted models? {#issue-2-mediation-with-multiple-trial-binomial-mediator-runs-for-weighted-but-not-for-unweighted-models}
 
 We knew that we would eventually perform a sensitivity analysis where all models would be run without using the sampling weights. Running the previous steps with the `glm()` command resulted in an issue:
 
