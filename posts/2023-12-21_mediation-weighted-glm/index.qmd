@@ -16,7 +16,7 @@ format:
 This blogpost documents the challenges we faced when attempting to run a mediation analysis using the `mediation` package with a binomial mediator and outcome while incorporating sampling weights into the analysis with the help of the `survey` package. Issues and solutions are summarized below. Click the issue number to jump straight to the relevant section of the post.
 
 ::: callout-note
-## Issues and solutions: summary
+## Summary: Issues and Solutions
 
 [**Issue 1: Correctly applying the Fragile Families weights**]
 
@@ -54,7 +54,7 @@ This blogpost documents the challenges we faced when attempting to run a mediati
 
 **Solution**: Bootstrapping should probably not be used. `robustSE` should be set to `FALSE`. If `marginaleffects` is used for comparisons, `vcov` should be set to `vcov(model)` or `NULL`, as the `sandwich` package does not correctly compute robust standard errors for models fit with `survey`.
 
-[**Issue 7: Boundaries of the confidence intervals are rounded differently**]
+[**Issue 7: Bounds of the confidence intervals are rounded inconsistently**]
 
 **Description**: When you apply `summary()` to an object produced by `mediate()`, the upper bound of the confidence intervals is rounded to only two decimal places, whereas there are more decimal places for the lower bound.
 
@@ -277,7 +277,7 @@ med_2.1 <- mediation::mediate(
 summary(med_2.1)
 ```
 
-Success! But at the cost of suspicion. The [documentation for the `mediate`](https://www.rdocumentation.org/packages/mediation/versions/4.5.0/topics/mediate)`()`[ function](https://www.rdocumentation.org/packages/mediation/versions/4.5.0/topics/mediate) warns us that (emphasis added):
+Success! But at the cost of suspicion. The [documentation for the `mediate`](https://www.rdocumentation.org/packages/mediation/versions/4.5.0/topics/mediate)`()`[function](https://www.rdocumentation.org/packages/mediation/versions/4.5.0/topics/mediate) warns us that (emphasis added):
 
 > As of version 4.0, the mediator model can be of either 'lm', 'glm' (or \`bayesglm'), 'polr' (or \`bayespolr'), 'gam', 'rq', \`survreg', or \`merMod' class, corresponding respectively to the linear regression models, generalized linear models, ordered response models, generalized additive models, quantile regression models, parametric duration models, or multilevel models.. For binary response models, the 'mediator' must be a numeric variable with values 0 or 1 as opposed to a factor. Quasi-likelihood-based inferences are not allowed for the mediator model because the functional form must be exactly specified for the estimation algorithm to work. **The 'binomial' family can only be used for binary response mediators and cannot be used for multiple-trial responses**. This is due to conflicts between how the latter type of models are implemented in [**`glm`**](https://www.rdocumentation.org/link/glm?package=mediation&version=4.5.0) and how 'mediate' is currently written.
 
@@ -847,7 +847,7 @@ marginaleffects::avg_comparisons(
 
 The estimates are the same, but the standard error (wrongly) becomes minuscule if we apply the "correction" for heteroskedasticity without realizing that `sandwich` does not work properly on models fit with `survey`.
 
-## Issue 7: Boundaries of the confidence intervals are rounded differently
+## Issue 7: Bounds of the confidence intervals are rounded inconsistently
 
 Did you notice? Each time we use `summary()` on a `mediate()` object, the lower bound of the 95% CI is reported with 5 decimal places, while the upper bound is reported with 2 decimal places. This also bothered Stack Overflow user sateayam over 4 years ago, and luckily user Roland [answered with a fix](https://stackoverflow.com/a/53852254):
 
