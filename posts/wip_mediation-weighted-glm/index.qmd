@@ -5,7 +5,7 @@ author:
  - name: Vasco Brazão
  - name: Priya Devendran
 date: "2023-12-21"
-categories: [statistics, mediation, survey, glm]
+categories: [statistics, mediation, survey, glm, fragile families]
 draft: true
 execute: 
   warning: false
@@ -19,43 +19,43 @@ This blogpost documents the challenges we faced when attempting to run a mediati
 ::: callout-note
 ## Issues and solutions: summary
 
-[Issue 1: Correctly applying the Fragile Families weights]
+[**Issue 1: Correctly applying the Fragile Families weights**]
 
 **Description**: We need to specify jackknife estimation of standard errors for `survey` to properly handle our replicate weights.
 
 **Solution**: Besides specifying the `weights` and `repweights` arguments, we also have to specify `combined_weights = TRUE`, `type = "JKn"`, `scales = 1`, `rscales = 1`, and `mse = TRUE`.
 
-[Issue 2: Mediation with "multiple-trial binomial mediator" runs for weighted but not for unweighted models?]
+[**Issue 2: Mediation with "multiple-trial binomial mediator" runs for weighted but not for unweighted models?**]
 
 **Description**: When using multiple-trial binomial GLMs for the mediator and outcome models, `mediate()` complains: "`weights on outcome and mediator models not identical`".
 
 **Solution**: The problem occurs when we specify the GLMs with a proportion as the outcome and the total number of trials given in the `weights` argument, if the number of trials is different for both models. We can overcome this by specifying the outcome as `cbind(successes, failures)`. However, according to the package documentation, `mediate()` should not accept multiple-trial binomial mediators in the first place, leaving us with some doubts about whether all the estimates are calculated correctly in this case.
 
-[Issue 3: Using a binary mediator and a binomial outcome --- works with cbind(successes, failures) but not with proportion as outcome and weights argument specified](#issue-3-using-a-binary-mediator-and-a-binomial-outcome-works-with-cbindsuccesses-failures-but-not-with-proportion-as-outcome-and-weights-argument-specified)
+[**Issue 3: Using a binary mediator and a binomial outcome --- works with cbind(successes, failures) but not with proportion as outcome and weights argument specified**](#issue-3-using-a-binary-mediator-and-a-binomial-outcome-works-with-cbindsuccesses-failures-but-not-with-proportion-as-outcome-and-weights-argument-specified)
 
 **Description**: When using a single trial binomial GLM for the mediator model and a multiple-trial binomial GLM for the outcome model, `mediate()` complains: "`weights on outcome and mediator models not identical`".
 
 **Solution**: As in Issue 2, the issue is solved by using the `cbind(successes, failures)` specification for the outcome model.
 
-[Issue 4: Ordinal mediator and binomial outcome don't work together](#issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together)
+[**Issue 4: Ordinal mediator and binomial outcome don't work together**](#issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together)
 
 **Description**: When the mediator model is ordinal (fit with `MASS::polr()`, `mediate()` will not work with a binomial outcome model either way it's specified.
 
 **Solution**: No solution was found, other than using an ordinal mediator model with a binary outcome model.
 
-[Issue 5: mediate() is not compatible with svyolr() models](#issue-5-mediate-is-not-compatible-with-svyolr-models)
+[**Issue 5: mediate() is not compatible with svyolr() models**](#issue-5-mediate-is-not-compatible-with-svyolr-models)
 
 **Description**: It seems that `mediate()` simply won't work with models fit with `survey::svyolr()`.
 
 **Solution**: No solution was found.
 
-[Issue 6: Options and choices to boot --- To robustSE or not to robustSE?](#issue-6-options-and-choices-to-boot-to-robustse-or-not-to-robustse)
+[**Issue 6: Options and choices to boot --- To robustSE or not to robustSE?**](#issue-6-options-and-choices-to-boot-to-robustse-or-not-to-robustse)
 
 **Description**: `mediate()` can work via boostrap or quasi-Bayesian approximation, and has an option to calculate "robust standard errors" for the latter. Which options work with survey-weighted GLMs?
 
 **Solution**: Bootstrapping should probably not be used. `robustSE` should be set to `FALSE`. If `marginaleffects` is used for comparisons, `vcov` should be set to `vcov(model)` or `NULL`, as the `sandwich` package does not correctly compute robust standard errors for models fit with `survey`.
 
-[Issue 7: Boundaries of the confidence intervals are rounded differently]
+[**Issue 7: Boundaries of the confidence intervals are rounded differently**]
 
 **Description**: When you apply `summary()` to an object produced by `mediate()`, the upper bound of the confidence intervals is rounded to only two decimal places, whereas there are more decimal places for the lower bound.
 
@@ -130,7 +130,7 @@ We'll need to run two models --- the first predicting the mediator, the second p
 
 ## Issue 1: Correctly applying the Fragile Families weights
 
-We fit the models using `survey::svyglm` in order to be able to take the weights into account. First, we need to tell `survey` that our data is weighted, which we do with the help of the `srvyr` package for tidyverse-like convenience. Our first attempt looked like this:
+We fit the models using `survey::svyglm()` in order to be able to take the weights into account. First, we need to tell `survey` that our data is weighted, which we do with the help of the `srvyr` package for tidyverse-like convenience. Our first attempt looked like this:
 
 ``` r
 dat_weights <- dat |> 
@@ -141,7 +141,7 @@ dat_weights <- dat |>
   )
 ```
 
-However, coming across this [CrossValidated question](https://stats.stackexchange.com/questions/409463/duplicating-stata-survey-design-using-svrepdesign-from-survey-package-in-r) and confirming with the Fragile Families guide to using the weights showed us that the code above fails to tell `survey` that we want to use jackknife variance estimation. From the [guide (PDF)](https://fragilefamilies.princeton.edu/sites/fragilefamilies/files/using_the_fragile_families_weights_waves_1_6.pdf), p. 2:
+However, coming across this [CrossValidated question](https://stats.stackexchange.com/questions/409463/duplicating-stata-survey-design-using-svrepdesign-from-survey-package-in-r) and confirming with the Fragile Families guide to using the weights showed us that the code above fails to tell `survey` that we want to use jackknife variance estimation. From the [guide](https://fragilefamilies.princeton.edu/sites/fragilefamilies/files/using_the_fragile_families_weights_waves_1_6.pdf), p. 2:
 
 > As described in the weights construction memo, the replicate weights require using jackknife estimation of standard errors.
 
@@ -164,7 +164,7 @@ dat_weights <- dat |>
 
 # Running the weighted models and mediation
 
-With the weighted dataframe in hand, we can use `survey::svyglm` to fit our GLMs predicting `informal_support` and `IPV`.
+With the weighted dataframe in hand, we can use `survey::svyglm()` to fit our GLMs predicting `informal_support` and `IPV`.
 
 Our informal support variable is the sum of three items for which each mother could get a 1 or a 0 (indicating that she did or did not have access to that form of support). As such, it seems sensible to model it as a binomial outcome --- each mother has a certain number of "successes" out of three possible trials.
 
@@ -210,8 +210,8 @@ Finally, our mediation:
 #| warning: true
 
 med_1 <- mediation::mediate(
-  model.m = model_m_1,
-  model.y = model_y_1,
+  model.m = model_m_1, # binomial svyglm, with weights argument
+  model.y = model_y_1, # binomial svyglm, with weights argument
   sims = n_sims,
   treat = "race",
   mediator = "informal_support_prop"
@@ -224,7 +224,7 @@ A small but statistically significant mediation effect! The warning about weight
 
 ## Issue 2: Mediation with "multiple-trial binomial mediator" runs for weighted but not for unweighted models?
 
-We knew that we would eventually perform a sensitivity analysis where all models would be run without using the sampling weights. Running the previous steps with the `glm` command resulted in an issue:
+We knew that we would eventually perform a sensitivity analysis where all models would be run without using the sampling weights. Running the previous steps with the `glm()` command resulted in an issue:
 
 ```{r unweighted.mediation.ideal.fail}
 #| error: true
@@ -244,15 +244,15 @@ model_y_2 <- glm(
 )
 
 med_2 <- mediation::mediate(
-  model.m = model_m_2,
-  model.y = model_y_2,
+  model.m = model_m_2, # binomial glm, with weights argument
+  model.y = model_y_2, # binomial glm, with weights argument
   sims = n_sims,
   treat = "race",
   mediator = "informal_support_prop"
 )
 ```
 
-It seems like `mediation::mediate` is taking the weights we pass to the GLM function (which correspond to total number of trials, not to sampling weights) as sampling weights, and complaining when it notices that these weights are not the same for the mediator and outcome models. Vasco perhaps clumsily posted this as an [issue on the mediation package Github](https://github.com/kosukeimai/mediation/issues/59), but at least for now there has been no answer. We can work around this by using an alternative way of specifying the same GLM model --- instead of using a proportion as an outcome and passing the number of trials through the `weights` argument, we can instead use a vector of "successes" and "failures" (which corresponds to the total number of trials minus the number of successes) as the outcome:
+It seems like `mediation::mediate()` is taking the weights we pass to the GLM function (which correspond to total number of trials, not to sampling weights) as sampling weights, and complaining when it notices that these weights are not the same for the mediator and outcome models. Vasco perhaps clumsily posted this as an [issue on the mediation package Github](https://github.com/kosukeimai/mediation/issues/59), but at least for now there has been no answer. We can work around this by using an alternative way of specifying the same GLM model --- instead of using a proportion as an outcome and passing the number of trials through the `weights` argument, we can instead use a vector of "successes" and "failures" (which corresponds to the total number of trials minus the number of successes) as the outcome:
 
 ```{r unweighted.mediation.ideal.workaround}
 model_m_2.1 <- glm(
@@ -268,8 +268,8 @@ model_y_2.1 <- glm(
 )
 
 med_2.1 <- mediation::mediate(
-  model.m = model_m_2.1,
-  model.y = model_y_2.1,
+  model.m = model_m_2.1, # binomial glm, with cbind() approach
+  model.y = model_y_2.1, # binomial glm, with cbind() approach
   sims = n_sims,
   treat = "race",
   mediator = "informal_support_prop"
@@ -278,7 +278,7 @@ med_2.1 <- mediation::mediate(
 summary(med_2.1)
 ```
 
-Success! But at the cost of suspicion. The [documentation for the `mediate` function](https://www.rdocumentation.org/packages/mediation/versions/4.5.0/topics/mediate) warns us that (emphasis added):
+Success! But at the cost of suspicion. The [documentation for the `mediate`](https://www.rdocumentation.org/packages/mediation/versions/4.5.0/topics/mediate)`()`[ function](https://www.rdocumentation.org/packages/mediation/versions/4.5.0/topics/mediate) warns us that (emphasis added):
 
 > As of version 4.0, the mediator model can be of either 'lm', 'glm' (or \`bayesglm'), 'polr' (or \`bayespolr'), 'gam', 'rq', \`survreg', or \`merMod' class, corresponding respectively to the linear regression models, generalized linear models, ordered response models, generalized additive models, quantile regression models, parametric duration models, or multilevel models.. For binary response models, the 'mediator' must be a numeric variable with values 0 or 1 as opposed to a factor. Quasi-likelihood-based inferences are not allowed for the mediator model because the functional form must be exactly specified for the estimation algorithm to work. **The 'binomial' family can only be used for binary response mediators and cannot be used for multiple-trial responses**. This is due to conflicts between how the latter type of models are implemented in [**`glm`**](https://www.rdocumentation.org/link/glm?package=mediation&version=4.5.0) and how 'mediate' is currently written.
 
@@ -300,8 +300,8 @@ model_y_2.2 <- lm(
 )
 
 med_2.2 <- mediation::mediate(
-  model.m = model_m_2.2,
-  model.y = model_y_2.2,
+  model.m = model_m_2.2, # lm
+  model.y = model_y_2.2, # lm
   sims = n_sims,
   treat = "race",
   mediator = "informal_support_prop"
@@ -314,7 +314,7 @@ The results seem fairly similar, but this provides limited comfort.
 
 ### Bonus finding: you can specify a mediator that is not technically the variable that your mediator model predicts
 
-Note that in the models used for `med_2.1` there is a potential discrepancy. The mediator model is formulated as `formula = cbind(informal_support, informal_support_max - informal_support) ~ race`, while the outcome model is formulated as `formula = cbind(IPV, IPV_max - IPV) ~ race + informal_support_prop`. So the outcome model is using `informal_support_prop` (our intended mediator) as a predictor of IPV, but the mediator model uses the variables `informal_support` and `informal_support_max` to internally generate the proportion of successes. In the call to `mediation::mediate` we can then specify `mediator = "informal_support_prop"`, and all seems to work as intended. What if we used `informal_support` as predictor in the outcome model instead? We can then specify `mediator = "informal_support"` and end up with something like this:
+Note that in the models used for `med_2.1` there is a potential discrepancy. The mediator model is formulated as `formula = cbind(informal_support, informal_support_max - informal_support) ~ race`, while the outcome model is formulated as `formula = cbind(IPV, IPV_max - IPV) ~ race + informal_support_prop`. So the outcome model is using `informal_support_prop` (our intended mediator) as a predictor of IPV, but the mediator model uses the variables `informal_support` and `informal_support_max` to internally generate the proportion of successes. In the call to `mediation::mediate()` we can then specify `mediator = "informal_support_prop"`, and all seems to work as intended. What if we used `informal_support` as predictor in the outcome model instead? We can then specify `mediator = "informal_support"` and end up with something like this:
 
 ```{r unweighted.mediation.ideal.bonus}
 model_m_2.3 <- glm(
@@ -330,8 +330,8 @@ model_y_2.3 <- glm(
 )
 
 med_2.3 <- mediation::mediate(
-  model.m = model_m_2.3,
-  model.y = model_y_2.3,
+  model.m = model_m_2.3, # binomial glm, with cbind() approach
+  model.y = model_y_2.3, # binomial glm, with cbind() approach
   sims = n_sims,
   treat = "race",
   mediator = "informal_support"
@@ -367,15 +367,15 @@ model_y_3 <- glm(
 )
 
 med_3 <- mediation::mediate(
-  model.m = model_m_3,
-  model.y = model_y_3,
+  model.m = model_m_3, # binary glm
+  model.y = model_y_3, # binomial glm, with weights argument
   sims = n_sims,
   treat = "race",
   mediator = "informal_support_binary"
 )
 ```
 
-Once again we find that `mediate` complains about different weights on mediator and outcome models, even though, according to the documentation, it works with a binary mediator and a binomial outcome. We then try using the vector of successes and failures specification for the outcome model:
+Once again we find that `mediate()` complains about different weights on mediator and outcome models, even though, according to the documentation, it works with a binary mediator and a binomial outcome. We then try using the vector of successes and failures specification for the outcome model:
 
 ```{r unweighted.binary.mediator.success}
 model_y_3.1 <- glm(
@@ -385,8 +385,8 @@ model_y_3.1 <- glm(
 )
 
 med_3.1 <- mediation::mediate(
-  model.m = model_m_3,
-  model.y = model_y_3.1,
+  model.m = model_m_3,   # binary glm 
+  model.y = model_y_3.1, # binomial glm, with cbind() approach
   sims = n_sims,
   treat = "race",
   mediator = "informal_support_binary"
@@ -399,7 +399,7 @@ This approach runs, but we are still left wondering whether we can trust the est
 
 ## Issue 4: Ordinal mediator and binomial outcome don't work together {#issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together}
 
-Because we would prefer not to binarize the social support variable in order to keep all the information that we can, we also explored using an ordinal mediator model. `mediate()` works with ordinal models fit with `MASS::polr`, so we attempted that.
+Because we would prefer not to binarize the social support variable in order to keep all the information that we can, we also explored using an ordinal mediator model. `mediate()` works with ordinal models fit with `MASS::polr()`, so we attempted that.
 
 ```{r unweighted.mediation.polr}
 #| error: true
@@ -417,8 +417,8 @@ model_y_4 <- glm(
 )
 
 med_4 <- mediation::mediate(
-  model.m = model_m_4,
-  model.y = model_y_4,
+  model.m = model_m_4, # ordinal polr
+  model.y = model_y_4, # binomial glm, with cbind() approach
   sims = n_sims,
   treat = "race",
   mediator = "informal_support_ordinal"
@@ -435,8 +435,8 @@ We can get around this by setting the argument `boot` to `TRUE`.
 #| error: true
 
 med_4 <- mediation::mediate(
-  model.m = model_m_4,
-  model.y = model_y_4,
+  model.m = model_m_4, # ordinal polr
+  model.y = model_y_4, # binomial glm, with cbind() approach
   sims = n_sims,
   treat = "race",
   mediator = "informal_support_ordinal",
@@ -457,8 +457,8 @@ model_y_4.1 <- glm(
 )
 
 med_4 <- mediation::mediate(
-  model.m = model_m_4,
-  model.y = model_y_4.1,
+  model.m = model_m_4,   # ordinal polr
+  model.y = model_y_4.1, # binomial glm, with weights argument
   sims = n_sims,
   treat = "race",
   mediator = "informal_support_ordinal",
@@ -466,7 +466,7 @@ med_4 <- mediation::mediate(
 )
 ```
 
-Finally, we reach a dead-end. It seems once again the `mediate` function is taking the prior weights we fed into our `glm` as sample weight and complaining that our ordinal model doesn't have the same sample weights. If we are willing to throw away some information, we can make it all work with a binary outcome, thusly:
+Finally, we reach a dead-end. It seems once again the `mediate()` function is taking the prior weights we fed into our `glm()` as sampling weights and complaining that our ordinal model doesn't have the same sampling weights. If we are willing to throw away some information, we can make it all work with a binary outcome, thusly:
 
 ```{r unweighted.mediation.polr.binary}
 model_y_4.2 <- glm(
@@ -476,8 +476,8 @@ model_y_4.2 <- glm(
 )
 
 med_4 <- mediation::mediate(
-  model.m = model_m_4,
-  model.y = model_y_4.2,
+  model.m = model_m_4,   # ordinal polr
+  model.y = model_y_4.2, # binary glm
   sims = n_sims,
   treat = "race",
   mediator = "informal_support_ordinal",
