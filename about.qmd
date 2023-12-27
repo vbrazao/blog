@@ -13,8 +13,8 @@ about:
     - icon: github
       text: Github
       href: https://github.com/vbrazao
+    - text: "{{< iconify icon-park-solid butterfly height=18 width=18 >}} Bluesky"
+      href: https://bsky.app/profile/vascobrazao.bsky.social
 ---
 
-One day this will say something about me and/or this blog!
-
-For now, feel free to use the clickity things below to click away!
+Hi! I'm Vasco, an applied statistician from Lisbon. My academic background and specialest interest is psychology, but there's lots more I enjoy learning, thinking, and writing (about) --- poetry, neurodiversity, science, social justice, and, of course, stats and math. Some of that will appear on this blog, so stick around if you like :)
