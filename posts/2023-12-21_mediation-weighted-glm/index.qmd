@@ -129,18 +129,25 @@ We'll need to run two models --- the first predicting the mediator, the second p
 
 ## Issue 1: Correctly applying the Fragile Families weights {#issue-1-correctly-applying-the-fragile-families-weights}
 
-TEST
+We fit the models using `survey::svyglm()` in order to be able to take the weights into account. However, `svyglm()` will not work with our dataframe directly --- we need to create a "survey design" object by telling `survey` specifically how to handle the weights in our data. To do this correctly, we refer to the FFCW's [brief guide](https://fragilefamilies.princeton.edu/sites/fragilefamilies/files/using_the_fragile_families_weights_waves_1_6.pdf) as well as other resources, like this [CrossValidated question](https://stats.stackexchange.com/questions/409463/duplicating-stata-survey-design-using-svrepdesign-from-survey-package-in-r) and the answers to it. Let's build up the code step by step.
 
-We fit the models using `survey::svyglm()` in order to be able to take the weights into account. First, we need to tell `survey` that our data is weighted, which we do with the help of the `srvyr` package for tidyverse-like convenience. Our first attempt looked like this:
+First, we pick the function that will create our survey design object. As we are dealing we replicate weights, we use the `survey::svrepdesign()`. We ignore the `variables` argument, as we will want all the variables that are already in our data to be included.
 
-``` r
-dat_weights <- dat |> 
-  srvyr::as_survey_rep(
-    repweights = dplyr::contains("_rep"),
-    weights = m1natwt,
-    combined_weights = TRUE
-  )
-```
+Next, we see the `repweights` and `weights` arguments, which ask use to specify the replicate weights and the sampling weights, respectively. Our FFCW guide says:
+
+> When setting the weights in your statistical package, you will need to indicate the name of the basic weight, as well as the replicate weights.
+>
+> ...
+>
+> As an example, to weight the baseline mother data to be representative of births in the 77 cities, you would apply the weight m1natwt (and replicate weights m1natwt_rep1- m1natwt_rep33).
+
+To do this in `survey::svrepdesign()`, we specify `weights = ~m1natwt` and `repweights = "m1natwt.rep[1-9]+"`.
+
+The `data` argument is straightforward, we just need to specify the dataframe we wish to use, `dat`.
+
+The FFCW guide is made for Stata users, and shows the following general command for specifying the survey design.:
+
+> svyset \[pweight=BASICWEIGHT\], jkrw(REPLICATES, multiplier(1)) vce(jack) mse  
 
 However, coming across this [CrossValidated question](https://stats.stackexchange.com/questions/409463/duplicating-stata-survey-design-using-svrepdesign-from-survey-package-in-r) and confirming with the Fragile Families guide to using the weights showed us that the code above fails to tell `survey` that we want to use jackknife variance estimation. From the [guide](https://fragilefamilies.princeton.edu/sites/fragilefamilies/files/using_the_fragile_families_weights_waves_1_6.pdf), p. 2:
 
@@ -160,6 +167,17 @@ dat_weights <- dat |>
     scales = 1,
     rscales = 1,
     mse = TRUE
+)
+
+dat_weights2 <- survey::svrepdesign(
+  data = dat,
+  weights = ~m1natwt,
+  repweights = "m1natwt.rep[1-9]+",
+  combined.weights = FALSE,
+  type = "JKn",
+  scales = 1,
+  rscales = 1,
+  mse = TRUE
 )
 ```
 
