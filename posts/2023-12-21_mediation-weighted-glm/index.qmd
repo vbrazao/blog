@@ -131,45 +131,38 @@ We'll need to run two models --- the first predicting the mediator, the second p
 
 We fit the models using `survey::svyglm()` in order to be able to take the weights into account. However, `svyglm()` will not work with our dataframe directly --- we need to create a "survey design" object by telling `survey` specifically how to handle the weights in our data. To do this correctly, we refer to the FFCW's [brief guide](https://fragilefamilies.princeton.edu/sites/fragilefamilies/files/using_the_fragile_families_weights_waves_1_6.pdf) as well as other resources, like this [CrossValidated question](https://stats.stackexchange.com/questions/409463/duplicating-stata-survey-design-using-svrepdesign-from-survey-package-in-r) and the answers to it. Let's build up the code step by step.
 
-First, we pick the function that will create our survey design object. As we are dealing we replicate weights, we use the `survey::svrepdesign()`. We ignore the `variables` argument, as we will want all the variables that are already in our data to be included.
+First, we pick the function that will create our survey design object. As we are dealing we replicate weights, we use the `survey::svrepdesign()` function and look at its [documentation](https://www.rdocumentation.org/packages/survey/versions/4.2-1/topics/svrepdesign). We ignore the `variables` argument, as we will want all the variables that are already in our data to be included.
 
-Next, we see the `repweights` and `weights` arguments, which ask use to specify the replicate weights and the sampling weights, respectively. Our FFCW guide says:
+Next, we see the `repweights` and `weights` arguments, which ask us to specify the replicate weights and the sampling weights, respectively. Our FFCW guide says (emphasis in the original):
 
 > When setting the weights in your statistical package, you will need to indicate the name of the basic weight, as well as the replicate weights.
 >
 > ...
 >
-> As an example, to weight the baseline mother data to be representative of births in the 77 cities, you would apply the weight m1natwt (and replicate weights m1natwt_rep1- m1natwt_rep33).
+> As an example, to weight the baseline mother data to be representative of births in the 77 cities, you would apply the weight **m1natwt** (and replicate weights **m1natwt_rep1- m1natwt_rep33**).
 
 To do this in `survey::svrepdesign()`, we specify `weights = ~m1natwt` and `repweights = "m1natwt.rep[1-9]+"`.
 
 The `data` argument is straightforward, we just need to specify the dataframe we wish to use, `dat`.
 
-The FFCW guide is made for Stata users, and shows the following general command for specifying the survey design.:
+Now the fun begins. How do we set the `type` argument, and do we need anything else? The FFCW guide is made for Stata users, and shows the following general command for specifying the survey design:
 
 > svyset \[pweight=BASICWEIGHT\], jkrw(REPLICATES, multiplier(1)) vce(jack) mse  
 
-However, coming across this [CrossValidated question](https://stats.stackexchange.com/questions/409463/duplicating-stata-survey-design-using-svrepdesign-from-survey-package-in-r) and confirming with the Fragile Families guide to using the weights showed us that the code above fails to tell `survey` that we want to use jackknife variance estimation. From the [guide](https://fragilefamilies.princeton.edu/sites/fragilefamilies/files/using_the_fragile_families_weights_waves_1_6.pdf), p. 2:
+So far we've incorporated the "pweight=BASICWEIGHT" and the "REPLICATES" part, but the Stata code reveals some more intricacies. We can see based on "vce(jack)" and "jkrw" that Jackknife variance estimation is used, and that corresponds to setting `type = "JKn"`.
 
-> As described in the weights construction memo, the replicate weights require using jackknife estimation of standard errors.
+Next we set `combined.weights = TRUE`, which does not seem to have an equivalent in the Stata code, but seems to be correct approach according to the function documentation.[^3]
 
-Woops.
+[^3]: To be 100% sure, Vasco also [posted this question to StackOverflow](https://stackoverflow.com/questions/77808902/survey-package-what-does-the-combined-weights-argument-really-mean), hoping for clarification.
 
-So, to properly apply the weights, we run this code block instead:
+Stata's "multiplier(1)" means we need to set `scales = 1` as well as `rscales = 1`, as explained by Lumley in [this answer](https://stats.stackexchange.com/a/416541/281913).
 
-```{r data.weights}
-dat_weights <- dat |> 
-  srvyr::as_survey_rep(
-    repweights = dplyr::contains("_rep"),
-    weights = m1natwt,
-    combined_weights = TRUE,
-    type = "JKn",
-    scales = 1,
-    rscales = 1,
-    mse = TRUE
-)
+And finally, "mse" has its `survey` equivalent in the argument `mse = TRUE`.
 
-dat_weights2 <- survey::svrepdesign(
+Putting it all together yields:
+
+``` R
+survey::svrepdesign(
   data = dat,
   weights = ~m1natwt,
   repweights = "m1natwt.rep[1-9]+",
@@ -178,6 +171,21 @@ dat_weights2 <- survey::svrepdesign(
   scales = 1,
   rscales = 1,
   mse = TRUE
+)
+```
+
+Because we like to stay close to the tidyverse, the code we actually run uses the `srvyr` package instead. This way we get to avoid specifying our sampling weight as a formula (recall "\~m1natwt") and our replicate weights as a regular expression:
+
+```{r data.weights}
+dat_weights <- dat |> 
+  srvyr::as_survey_rep(
+    repweights = dplyr::contains("_rep"),
+    weights = m1natwt,
+    combined_weights = FALSE,
+    type = "JKn",
+    scales = 1,
+    rscales = 1,
+    mse = TRUE
 )
 ```
 
@@ -206,9 +214,9 @@ Warning: non-integer #successes in a binomial glm!
 
 This is `survey`'s way of asking us to specify the family as "quasibinomial" instead of "binomial", since our outcome is a proportion (weighted by the number of trials) and not binary. However, if we do that, `mediation` will not work with our models.
 
-Our IPV variable is the sum of twelve items for which each mother could get a score of 0, 1, or 2 (indicating how often she experienced a given form of violence from her partner). As such, it also seems sensible to model it as a binomial outcome --- each mother has a certain number of "successes" out of 24 possible "trials".[^3]
+Our IPV variable is the sum of twelve items for which each mother could get a score of 0, 1, or 2 (indicating how often she experienced a given form of violence from her partner). As such, it also seems sensible to model it as a binomial outcome --- each mother has a certain number of "successes" out of 24 possible "trials".[^4]
 
-[^3]: Another option, which we won't go into, would be to take the responses to the items themselves and use a multi-level ordinal model with item as the random grouping factor.
+[^4]: Another option, which we won't go into, would be to take the responses to the items themselves and use a multi-level ordinal model with item as the random grouping factor.
 
 ```{r model.y.ideal}
 model_y_1 <- survey::svyglm(
@@ -361,9 +369,9 @@ summary(med_2.3)
 
 Looking at the last three rows (Average Causal Mediated Effect (average), Average Direct Effect (average), and Proportion Mediated (average)), the results seem different than the ones estimated in `med_2.1` (which used `informal_support_prop` as mediator) and `med.2.2` (which used linear proability models). But looking closer, you'll notice that the estimates related to the mediator, namely of the Average Causal Mediated Effect and the Proportion Mediated just seem to be divided by three!
 
-My assumption about how that came to be: When we use `informal_support_prop`, which can only take values on the $(0, 1)$ interval, the ACME estimates correspond to the change in probability of IPV associated with going from 0 to 1 on the mediator and thus span the full range of the mediator. When we use `informal_support`, which takes values in the set $\{0, 1, 2, 3\}$, the estimates also correspond to the increase in probability of IPV associated with an increase of 1 on the mediator (e.g., from 0 to 1), but this is only $\frac{1}{3}$ of the total possible way. Thus, applying this effect three times would be equivalent to moving from 0 to 3 on the mediator scale, the same as moving from 0 to 1 when the mediator is a proportion.[^4]
+My assumption about how that came to be: When we use `informal_support_prop`, which can only take values on the $(0, 1)$ interval, the ACME estimates correspond to the change in probability of IPV associated with going from 0 to 1 on the mediator and thus span the full range of the mediator. When we use `informal_support`, which takes values in the set $\{0, 1, 2, 3\}$, the estimates also correspond to the increase in probability of IPV associated with an increase of 1 on the mediator (e.g., from 0 to 1), but this is only $\frac{1}{3}$ of the total possible way. Thus, applying this effect three times would be equivalent to moving from 0 to 3 on the mediator scale, the same as moving from 0 to 1 when the mediator is a proportion.[^5]
 
-[^4]: Of course, the effects mentioned here are not really the effects of moving from X to Y on the mediator, but the mediated effect that changing from Race = "White" to Race = "Black" has on the probability of IPV *through its effect on the mediator*.
+[^5]: Of course, the effects mentioned here are not really the effects of moving from X to Y on the mediator, but the mediated effect that changing from Race = "White" to Race = "Black" has on the probability of IPV *through its effect on the mediator*.
 
 ## Issue 3: Using a binary mediator and a binomial outcome --- works with cbind(successes, failures) but not with proportion as outcome and weights argument specified {#issue-3-using-a-binary-mediator-and-a-binomial-outcome-works-with-cbindsuccesses-failures-but-not-with-proportion-as-outcome-and-weights-argument-specified}
 
@@ -829,9 +837,9 @@ compare_meds(mod_list, effect = "indirect_effect") |> gt::gt()
 
 While the estimates are similar, the confidence intervals are *much* tighter when `boot` or `robustSE` are set to `TRUE`, and suddenly all estimates are significant! What gives?
 
-First, an [answer by Thomas Lumley](https://stackoverflow.com/a/75128332/12296038) (maintainer of the `survey` package) on Stack Overflow suggests that bootstrapping doesn't work well with these survey-weighted models, although his answer does not fully map to our situation. In [another answer](https://stackoverflow.com/a/56317510/12296038), this time about applying robust standard errors with the `sandwich` package[^5], Lumley is clearer: "For `svyglm` models, `vcov()` already produces the appropriate sandwich estimator, and I don't think the"sandwich" package knows enough about the internals of the object to get it right." A few years prior, Achim Zeileis, maintainer of the `sandwich` package, had given [a different perspective](https://stackoverflow.com/a/28840854/12296038) which also boils down to **do not use `sandwich`** **on models fit with `survey`**.
+First, an [answer by Thomas Lumley](https://stackoverflow.com/a/75128332/12296038) (maintainer of the `survey` package) on Stack Overflow suggests that bootstrapping doesn't work well with these survey-weighted models, although his answer does not fully map to our situation. In [another answer](https://stackoverflow.com/a/56317510/12296038), this time about applying robust standard errors with the `sandwich` package[^6], Lumley is clearer: "For `svyglm` models, `vcov()` already produces the appropriate sandwich estimator, and I don't think the"sandwich" package knows enough about the internals of the object to get it right." A few years prior, Achim Zeileis, maintainer of the `sandwich` package, had given [a different perspective](https://stackoverflow.com/a/28840854/12296038) which also boils down to **do not use `sandwich`** **on models fit with `survey`**.
 
-[^5]: Which Lumley apparently has also worked on!
+[^6]: Which Lumley apparently has also worked on!
 
 There you have it, `boot = FALSE` and `robustSE = FALSE` is the way to go.
 
@@ -907,15 +915,15 @@ mediation:::print.summary.mediate(summary(med_6.5))
 untrace(mediation:::print.summary.mediate)
 ```
 
-The interim solution is to print the summary twice, once with the original function for expected p-value behavior, and another time with the edited function for confidence-interval consistency. Someone more well-versed might want to take a shot at adapting the code so that the behavior is maintained for the p-values[^6] and fixed for the confidence intervals.
+The interim solution is to print the summary twice, once with the original function for expected p-value behavior, and another time with the edited function for confidence-interval consistency. Someone more well-versed might want to take a shot at adapting the code so that the behavior is maintained for the p-values[^7] and fixed for the confidence intervals.
 
-[^6]: Perhaps taking into account user2554330's [insight in another answer](https://stackoverflow.com/a/64830084) about how p-values are stored and printed.
+[^7]: Perhaps taking into account user2554330's [insight in another answer](https://stackoverflow.com/a/64830084) about how p-values are stored and printed.
 
 # Conclusion
 
-Mediation analysis is *always* tricky business[^7], but it feels especially discouraging when the software you need doesn't seem to want to cooperate. We hope this post will at least shorten someone else's journey into getting their `mediation` and/or `survey` models to behave.
+Mediation analysis is *always* tricky business[^8], but it feels especially discouraging when the software you need doesn't seem to want to cooperate. We hope this post will at least shorten someone else's journey into getting their `mediation` and/or `survey` models to behave.
 
-[^7]: See, e.g., [That's a Lot to Process! Pitfalls of Popular Path Models](https://journals.sagepub.com/doi/10.1177/25152459221095827) by Rohrer and colleagues.
+[^8]: See, e.g., [That's a Lot to Process! Pitfalls of Popular Path Models](https://journals.sagepub.com/doi/10.1177/25152459221095827) by Rohrer and colleagues.
 
 # Session Info
 
