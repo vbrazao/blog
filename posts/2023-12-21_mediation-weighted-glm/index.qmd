@@ -129,6 +129,8 @@ We'll need to run two models --- the first predicting the mediator, the second p
 
 ## Issue 1: Correctly applying the Fragile Families weights {#issue-1-correctly-applying-the-fragile-families-weights}
 
+TEST
+
 We fit the models using `survey::svyglm()` in order to be able to take the weights into account. First, we need to tell `survey` that our data is weighted, which we do with the help of the `srvyr` package for tidyverse-like convenience. Our first attempt looked like this:
 
 ``` r
