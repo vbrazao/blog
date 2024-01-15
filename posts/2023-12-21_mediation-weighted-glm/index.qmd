@@ -161,7 +161,7 @@ And finally, "mse" has its `survey` equivalent in the argument `mse = TRUE`.
 
 Putting it all together yields:
 
-``` R
+``` r
 survey::svrepdesign(
   data = dat,
   weights = ~m1natwt,
