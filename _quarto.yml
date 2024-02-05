@@ -26,3 +26,8 @@ format:
 
 editor: visual
 
+# define the citation style for all posts that have bibliography
+# this style was downloaded feb 5 2024 from 
+# https://github.com/citation-style-language/styles/blob/master/apa.csl
+csl: apa.csl
+
