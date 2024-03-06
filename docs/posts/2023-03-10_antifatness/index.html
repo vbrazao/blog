@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.280">
+<meta name="generator" content="quarto-1.4.550">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -19,7 +19,7 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
 </style>
@@ -48,7 +48,13 @@ ul.task-list li input[type="checkbox"] {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -57,8 +63,10 @@ ul.task-list li input[type="checkbox"] {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-2XK3PRN887"></script>
@@ -75,53 +83,55 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <link rel="stylesheet" href="../../styles.css">
 </head>
 
-<body class="floating nav-fixed">
+<body class="floating nav-fixed slimcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Vasco Brazão</span>
     </a>
   </div>
+            <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../about.html">
- <span class="menu-text">About</span></a>
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/vbrazao"><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/vbrazao"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://twitter.com/vascobrazao"><i class="bi bi-twitter" role="img">
+    <a class="nav-link" href="https://twitter.com/vascobrazao"> <i class="bi bi-twitter" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://tech.lgbt/@vascobrazao"><i class="bi bi-mastodon" role="img">
+    <a class="nav-link" href="https://tech.lgbt/@vascobrazao"> <i class="bi bi-mastodon" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://www.linkedin.com/in/vascobrazao/"><i class="bi bi-linkedin" role="img">
+    <a class="nav-link" href="https://www.linkedin.com/in/vascobrazao/"> <i class="bi bi-linkedin" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="https://bsky.app/profile/vascobrazao.bsky.social">
- <span class="menu-text"><iconify-icon inline="" icon="icon-park-solid:butterfly" width="25" height="25"></iconify-icon></span></a>
+    <a class="nav-link" href="https://bsky.app/profile/vascobrazao.bsky.social"> 
+<span class="menu-text"><iconify-icon inline="" icon="icon-park-solid:butterfly" width="25" height="25"></iconify-icon></span></a>
   </li>  
 </ul>
-              <div id="quarto-search" class="" title="Search"></div>
           </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -163,7 +173,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   
   </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
@@ -201,23 +211,25 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   </ul>
 </nav>
 </nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
     </div>
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content">
+<main class="content quarto-banner-title-block page-columns page-full" id="quarto-document-content">
+
 
 
 
 
 <p>I used to think fat bodies were inherently less healthy than thin bodies. I believed that fighting “obesity” at a societal and individual level was important. I also felt superior to fat people for having a thin body. Now, this makes me feel ashamed.</p>
 <p>My mind was changed by listening to fat people<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> who have done extensive research, and then going into the literature myself for hours. What I found was deeply troubling and compelled me to share it with you. Perhaps this will help you, as it has helped me, overcome the anti-fatness we’ve inherited and start working to dismantle it. If you don’t care about some thin guy’s thoughts on anti-fatness and “obesity” research, consider skipping straight to the <a href="#resources">Resources</a> section and use the suggestions as a springboard for further education.</p>
-<div class="callout-warning callout callout-style-default callout-captioned">
+<div class="no-row-height column-margin column-container"><p><sup>1</sup>&nbsp;You will notice that I write “fat people” instead of, for example, “obese people”, “people with obesity”, or another descriptor that might seem more palatable. There are several reasons for this. Here’s the simplest one: fat activists and fat liberationists consistently self-identify as “fat”, and ask that other people do it too. This is a way to reclaim a word that has so often been used as an insult; a way to destigmatize fatness itself by not shying away from describing it for what it is; and a way to counter the medical term “obesity”, which is arguably both harmful and useless. For just one of many voices on this topic, you can <a href="https://www.glamourmagazine.co.uk/article/you-just-need-to-lose-weight-and-19-other-myths-about-fat-people-by-aubrey-gordon-extract">read Aubrey Gordon’s recent interview with Glamour Magazine</a>.</p></div><div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
-<div class="callout-caption-container flex-fill">
+<div class="callout-title-container flex-fill">
 Disclaimer
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
@@ -228,7 +240,7 @@ Disclaimer
 </div>
 </div>
 </div>
-<section id="part-1-weve-been-duped" class="level1">
+<section id="part-1-weve-been-duped" class="level1 page-columns page-full">
 <h1>Part 1: We’ve been duped</h1>
 <p>Somehow, we’ve been convinced of these three things:</p>
 <ol type="1">
@@ -238,10 +250,10 @@ Disclaimer
 </ol>
 <p>Even spelling them out seems weird. Aren’t they obvious? If they are not, why do we spend so much time worrying about the size of our bodies, policing each other’s food choices, encouraging our friends to stick to their diets, congratulating celebrities who lose weight? They may seem obvious, but they are not true.</p>
 <p>OK, you might already be thinking, “Come on. Of course they’re true.” This is exactly what I saw in the scientific literature, too: entire papers premised on the assumption that these myths are true and don’t require questioning, eager to find slivers of evidence for them and ignore anything that might speak against them. Let’s examine the myths more closely.</p>
-<section id="myth-1-it-is-proven-that-having-a-fat-body-is-inherently-unhealthy." class="level2">
+<section id="myth-1-it-is-proven-that-having-a-fat-body-is-inherently-unhealthy." class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="myth-1-it-is-proven-that-having-a-fat-body-is-inherently-unhealthy.">Myth 1: It is proven that having a fat body is inherently unhealthy.</h2>
 <p>This is simply imagined. There is no consensus at all in the literature, even though they’ve been trying for decades. Large studies find a protection against mortality for those who are slightly “overweight”, and a rise in mortality for those who are very thin or very fat<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. Others say “no, that can’t be!!” and adjust analyses until they find what they are looking for. Check this, from a recent critique of meta-analyses of cohort studies<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>, emphasis mine:</p>
-<blockquote class="blockquote">
+<div class="no-row-height column-margin column-container"><p><sup>2</sup>&nbsp;Example: <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4718249/" class="uri">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4718249/</a></p><p><sup>3</sup>&nbsp;Source: <a href="https://academic.oup.com/ije/article/46/2/547/2739040" class="uri">https://academic.oup.com/ije/article/46/2/547/2739040</a></p></div><blockquote class="blockquote">
 <p>Karahalios and colleagues’ meta-analysis is the first to show that <strong>weight loss and weight gain in midlife are associated with increased risk of all-cause and cardiovascular disease mortality</strong>, and weakly associated with cancer mortality. They discussed weight loss intention, effect modification, reverse causation, bias and confounding, and stated that ‘this is the highest level of evidence possible’ and ‘these observational data suggest weight stability from middle age [is beneficial], however, further research investigating effect modification by obesity status is warranted.’</p>
 <p>Although the authors did not recommend weight stability regardless of health and weight status, the results based on observational data could be easily misinterpreted, with adverse public health implications. <strong>Our interpretation is that their result that weight gain showed higher risk than weight stability is plausible and confirms that increased adiposity is harmful</strong>. Such increased risk can be more easily observed when obesity has been rapidly increasing globally during the follow-up period of the cohorts, and we would expect more unhealthy weight gain and related harms than healthy weight reduction and related benefits in many cohort studies. <strong>However, their finding that weight reduction is associated with high mortality risk is unexpected and more problematic. It is most likely due to reverse causation, as the adverse effects of unintentional weight loss due to ill health and ageing in many participants would overwhelm any benefits of weight loss in the few attempting it intentionally</strong>.</p>
 </blockquote>
@@ -260,18 +272,18 @@ Disclaimer
 <p>By the way, these are MEDICALLY SUPERVISED DIETS. Randomized studies, where some people received a diet and others didn’t; or some received a drug and others a placebo. This is not based on people randomly going “hmm, guess I’ll try intermittent fasting” and switching back to their normal patterns after a few weeks. But we do kind of have data on that, too!</p>
 <p>One study took data from around 170,000 “obese” people and followed them for several years. They received no intervention for this study, they were just observed to see how many achieved a weight considered “normal” for their height. Of those classified as “Class 1 obese”, the annual probability of achieving a “normal” weight was 1 in 210 for men and 1 in 124 for women. 0.4 and 0.8 percent, respectively. And for those in the “Class 3 obesity” category: 1 in 1,290 for men and 1 in 677 for women. Do you realize how low that is? Do you believe this is because none of those people wanted to and tried (probably multiple times) to lose weight? Do you think no doctor ever told them “you just need to lose some weight” when they came in with unrelated complaints? That no friend ever suggested that they order the salad instead of whatever they ordered?</p>
 </section>
-<section id="myth-3-when-you-have-a-fat-body-and-lose-a-significant-amount-of-weight-there-is-a-clear-benefit-to-your-health." class="level2">
+<section id="myth-3-when-you-have-a-fat-body-and-lose-a-significant-amount-of-weight-there-is-a-clear-benefit-to-your-health." class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="myth-3-when-you-have-a-fat-body-and-lose-a-significant-amount-of-weight-there-is-a-clear-benefit-to-your-health.">Myth 3: When you have a fat body and lose a significant amount of weight, there is a clear benefit to your health.</h2>
 <p>This would be easier to study if it were possible to get many people to lose a significant amount of weight and keep it off, of course. Then we could know if it actually had a positive health impact, independent of health markers such as the lipid profile. But we can’t, so we don’t really know.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
-<p>And yet we act as if this is simply established fact. <em>Of COURSE you should diet and try to lose weight if you’re above your “ideal weight”. Even if you then gain the weight back, who cares! It was good for you to have it off for a couple of months.</em> Ugghhhhh.</p>
+<div class="no-row-height column-margin column-container"><p><sup>4</sup>&nbsp;If you find a high quality study examining this, send it my way!</p></div><p>And yet we act as if this is simply established fact. <em>Of COURSE you should diet and try to lose weight if you’re above your “ideal weight”. Even if you then gain the weight back, who cares! It was good for you to have it off for a couple of months.</em> Ugghhhhh.</p>
 <p>And it gets worse! I have tried to find studies that show weight loss maintenance after 2 years, and the literature seems pretty sure that it generally doesn’t happen. However, it is true that some people manage to lose weight before gaining it back. When this happens, sometimes researchers try to test whether this weight loss led to some meaningful outcome (e.g., fewer people becoming diabetic) despite the fact that people regain the weight eventually. If so, jackpot! No need to test for the obvious confounder—whether people ate better and exercised more in this period and whether THAT is associated with a protective effect—since we already showed what we came here for (any weight loss, even if short lived, protects you against disease!). It’s almost as if there are enormous amounts of money to be made from people pursuing weight loss all their lives… but we don’t want to be conspiracy theorists. Of course it could also be due to medical researchers’ profound lack of statistical and causal inference education. But we don’t want to go around proposing obvious confounders unnecessarily, right?</p>
 <p>FUUUUCK. MEE.</p>
-<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
-<div class="callout-caption-container flex-fill">
+<div class="callout-title-container flex-fill">
 Bonus myth: You can judge a person's health by looking at their current size.
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
@@ -284,7 +296,7 @@ Bonus myth: You can judge a person's health by looking at their current size.
 </div>
 </section>
 </section>
-<section id="part-2-now-what" class="level1">
+<section id="part-2-now-what" class="level1 page-columns page-full">
 <h1>Part 2: Now what?</h1>
 <p>So. There is no high-quality evidence that any of the myths above are true, and not for lack of trying. And yet, we act as if they are true. We’re so focused on reducing “obesity” that we sideline what we, presumably, really want: to increase health and quality of life. Perhaps we can start by acknowledging some truths:</p>
 <ol type="1">
@@ -294,15 +306,15 @@ Bonus myth: You can judge a person's health by looking at their current size.
 </ol>
 <p>To me, this is harrowing. “Just try to lose weight”, as a medical intervention, has a pathetic track record: it’s often excruciatingly hard and psychologically taxing; it almost never works at its direct outcome (long-term weight loss); we’re not even sure it could lead to benefits in its real, long-term intended outcome (improved health); and we’re pretty sure it contributes directly to physical and psychological harm.</p>
 <p>I would feel ashamed if I consistently proposed an intervention that sucks this bad to an oppressed population. So should doctors. I hope that, one day, the medical motto “First, do no harm” will be extended to fat people. Today, the reality is quite different. As Ragen Chastain tells Dr.&nbsp;Asher Larmie<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>:</p>
-<blockquote class="blockquote">
+<div class="no-row-height column-margin column-container"><p><sup>5</sup>&nbsp;Around minute 41:42, The Fat Doctor Podcast, July 2021, Episode titled “What is Weight Stigma (with Ragen Chastain)” (<a href="https://open.spotify.com/episode/0YQFOJo3cAxaagmvris7ro?si=63a520a7a8544519">click to listen on Spotify</a>)</p></div><blockquote class="blockquote">
 <p>The way that healthcare is right now, it’s based on the idea that fat people’s bodies are less valuable and more riskable. Right? So if a thin person has high blood sugar, they’re given evidence-based interventions to lower blood sugar; if a fat person has high blood sugar, they wanna amputate your stomach. Right, because it’s considered reasonable to kill a fat person in an effort to make them thin.</p>
 </blockquote>
-<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
-<div class="callout-caption-container flex-fill">
+<div class="callout-title-container flex-fill">
 Bonus abstract
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
@@ -315,11 +327,11 @@ Bonus abstract
 </div>
 </div>
 </section>
-<section id="part-3-no-really-what-do-i-do" class="level1">
+<section id="part-3-no-really-what-do-i-do" class="level1 page-columns page-full">
 <h1>Part 3: No, really, what do I do?</h1>
-<blockquote class="blockquote">
+<div class="page-columns page-full"><blockquote class="blockquote">
 <p>Too often, we read or hear about critical issues of social justice, decry their injustice, and then fail to take meaningful action to stop that injustice. We stop short because those issues can seem overwhelming, next steps feel unclear, or the path forward is simply exhausting, more work than we’re prepared to take on. Remember that awareness can lay a foundation for change, but learning more about anti-fatness does not, in itself, change the conditions that fat people deal with every day.<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a></p>
-</blockquote>
+</blockquote><div class="no-row-height column-margin column-container"><p><sup>6</sup>&nbsp;Excerpt From <a href="https://www.aubreygordon.net/myths">“You Just Need to Lose Weight” and 19 Other Myths About Fat People</a> by Aubrey Gordon</p></div></div>
 <p>Some ideas on what you can start doing <em>right now</em>.</p>
 <section id="lay-a-foundation-for-change" class="level2">
 <h2 class="anchored" data-anchor-id="lay-a-foundation-for-change">Lay a foundation for change</h2>
@@ -330,12 +342,12 @@ Bonus abstract
 <li><p>Get angry. Or don’t. What I mean to say is: anger is an appropriate reaction to this injustice. Once you pull back the curtain and see what’s underneath the “fight against ‘obesity’”, once you see the harm it causes to everyone, once you see yourself, your loved ones, your enemies through this new lens—well I’d be surprised if you didn’t feel at least a little bit angry. I’m fucking pissed.</p></li>
 </ul>
 </section>
-<section id="beyond-awarenesshelp-stem-the-tide-of-anti-fatness" class="level2">
+<section id="beyond-awarenesshelp-stem-the-tide-of-anti-fatness" class="level2 page-columns page-full">
 <h2 class="anchored" data-anchor-id="beyond-awarenesshelp-stem-the-tide-of-anti-fatness">Beyond awareness—help stem the tide of anti-fatness</h2>
 <ul>
 <li>Stop congratulating weight loss. It’s so pervasive, so unconscious, we don’t even consider it, but spontaneously congratulating someone for looking thinner is perpetuating harm. This harm comes in many forms, but let me quote you something that really touched me recently<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>:</li>
 </ul>
-<blockquote class="blockquote">
+<div class="no-row-height column-margin column-container"><p><sup>7</sup>&nbsp;Around minute 26 of the first episode of The Fat Doctor Podcast (<a href="https://open.spotify.com/episode/3kAfHpB6MulMpa3MMUAXh1?si=6c40915f044245b7">click to listen on Spotify</a>).</p></div><blockquote class="blockquote">
 <p>The thing for me, in terms of my weight and my mental health, is that, when I’ve been smallest (…) it’s usually when I’ve been the most unwell, and ironically when everyone’s been the most happy and pleased with me. (…) I remember one time (…) a vicar, actually, came up to me and he said, “Tanya you look <em>marvelous</em>! Tell me, what is your secret?” And I said, “Severe depression and staying in bed for two weeks.”</p>
 </blockquote>
 <ul>
@@ -345,19 +357,19 @@ Bonus abstract
 <li><p>Stop equating health to body size, and start actually caring about the health of your loved ones. To participate in their health, ask: <em>How are you feeling? Are you stressed? Do you sleep well? Do you manage to move, at least a bit each day? Do you manage to eat fruits and vegetables every day? If not, can I help you with any of these things? Do you have pain that you’re finding hard to manage?</em> OK, maybe not everything at once, chill out.</p></li>
 <li><p>Start realizing that fast weight loss is a cause for concern. Let me quote you from The Fat Doctor Podcast again, to drive this point home. Dr Asher Larmie<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>:</p></li>
 </ul>
-<blockquote class="blockquote">
+<div class="no-row-height column-margin column-container"><p><sup>8</sup>&nbsp;First episode, starting around minute 28:57 (<a href="https://open.spotify.com/episode/3kAfHpB6MulMpa3MMUAXh1?si=6c40915f044245b7">click to listen on Spotify</a>).</p></div><blockquote class="blockquote">
 <p>And during that time, mum was (...) going to salsa classes and enjoying herself and having the time of her life and she was so happy because she was finally losing weight. And she was just, she was rejoicing about it (…) Do you remember that time when she was like, “Girls, girls, look!” And she pulled her trousers down and she didn’t have to unbutton her jeans anymore, they just slid down because she had lost so much weight around her bottom. I remember very distinctly that she had mentioned around Christmas time (...) that she was getting some stomach pains and, you know, “that’s really weird isn’t it?” And I said, “Oh it is a bit weird, mum, why don’t you try some indigestion medication and if it doesn’t get any better, you know, let me know,” and then stuff happened (...) And then we got to February and I came over with the kids and (…) I walked into the house, Junior was with me (...) and mum didn’t look like herself, and I couldn’t quite put my finger on it, and all of a sudden, Junior sort of pulled me to one side and said, “Babes, look at your mum.” And I said, “What about her?” And he said, “Look at you mum, she’s jaundiced! She’s yellow!” And then I looked over at mum and I suddenly thought, “Oh. Yeah. She’s yellow. That’s not good.” And that was mid February, and by March we’d had the diagnosis of pancreatic cancer, and she died in July, and I… I guess she was so happy about the fact that she lost weight, that her own daughter, a GP, a doctor, (...) did not put two and two together and think “weight loss and abdominal pain in a woman in her 60s is never a good thing, she NEEDS to see a doctor”.</p>
 </blockquote>
 <ul>
 <li>Start looking out for fat oppression around you, and considering ways that you personally could help end it. The resources below will help with this. One last (promise!) inspirational quote for you:</li>
 </ul>
-<blockquote class="blockquote">
+<div class="page-columns page-full"><blockquote class="blockquote">
 <p>Sometimes, too, our power may not be clear to us. Each of us may forget the influence that we have over those we know and love. We may also forget that we’ve developed a sharp skill set for shifting the thinking and actions of those closest to us. Those working or learning in schools may not realize they can request more accessible seating options for fat and disabled students and faculty. Those in workplaces with human resources departments can advocate for the end of anti-fat “workplace wellness” programs, or workplace “biggest loser” weight-loss competitions. Health-care providers and administrators can make sure that medical equipment like blood pressure cuffs and exam tables are built for fat bodies, and start difficult, vital conversations about tackling anti-fat bias in health care. And nearly all of us can do more to interrupt vicious anti-fatness when it rears its head in public. None of these actions in and of themselves will end anti-fatness, but they can help stem the tide of anti-fatness that fat people contend with every day. Take these opportunities for action as footholds, options for next steps in your work to support fat people[…].<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a></p>
-</blockquote>
+</blockquote><div class="no-row-height column-margin column-container"><p><sup>9</sup>&nbsp;Excerpt From <a href="https://www.aubreygordon.net/myths">“You Just Need to Lose Weight” and 19 Other Myths About Fat People</a> by Aubrey Gordon</p></div></div>
 <p>I used to think we should fight “obesity”. Maybe you did too. I am now convinced that we’ll all be better off if we focus on health, not weight, and on fighting anti-fatness, not “obesity”. And you?</p>
 </section>
 </section>
-<section id="resources" class="level1">
+<section id="resources" class="level1 page-columns page-full">
 <h1>Resources</h1>
 <p>This was only the beginning. There’s lots to learn, and lots to do. You have a say in whether fat people continue being oppressed. To learn more about the topic, understand why I reached the conclusions I did, and come to your own conclusions, check out some of the resources below:</p>
 <section id="podcasts" class="level3">
@@ -386,12 +398,12 @@ Bonus abstract
 <li><p><a href="https://blogs.scientificamerican.com/observations/fat-is-not-the-problem-fat-stigma-is/">Fat Is Not the Problem—Fat Stigma Is</a> by Lindo Bacon and Amee Severson</p></li>
 </ul>
 </section>
-<section id="haes-health-sheets" class="level3">
+<section id="haes-health-sheets" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="haes-health-sheets">💎 HAES Health Sheets</h3>
 <ul>
 <li>I wanted to bring special focus to the <a href="https://haeshealthsheets.com/">HAES</a><a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a><a href="https://haeshealthsheets.com/">Health Sheets project</a>, where you can find a <a href="library">Health Sheet Library</a> with different sheets summarizing weight-inclusive medical information on different diseases (e.g., heart disease or diabetes) as well as several other <a href="https://haeshealthsheets.com/resources/">Resources</a> including scientific papers.</li>
 </ul>
-</section>
+<div class="no-row-height column-margin column-container"><p><sup>10</sup>&nbsp;Health At Every Size</p></div></section>
 <section id="tiktok" class="level3">
 <h3 class="anchored" data-anchor-id="tiktok">📹 TikTok</h3>
 <ul>
@@ -429,7 +441,7 @@ Bonus abstract
 <section id="i-still-want-to-lose-some-weight" class="level3">
 <h3 class="anchored" data-anchor-id="i-still-want-to-lose-some-weight">I still want to lose some weight!</h3>
 <p>More of a comment than a question, isn’t it. Go for it, do what you want. But maybe ask people if they want to talk about weight loss before sharing your journey with them or recommending that they, too, try your new diet. And accept from the start that you will likely regain the weight, and that you can improve your health by focusing on health behaviors (nutrition, exercise, sleep, the boring stuff), but your scale will not tell you whether your health is improving.</p>
-<div class="callout-note callout callout-style-simple no-icon">
+<div class="callout callout-style-simple callout-note no-icon">
 <div class="callout-body d-flex">
 <div class="callout-icon-container">
 <i class="callout-icon no-icon"></i>
@@ -445,28 +457,14 @@ Bonus abstract
 </section>
 
 
-<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
-
-<ol>
-<li id="fn1"><p>You will notice that I write “fat people” instead of, for example, “obese people”, “people with obesity”, or another descriptor that might seem more palatable. There are several reasons for this. Here’s the simplest one: fat activists and fat liberationists consistently self-identify as “fat”, and ask that other people do it too. This is a way to reclaim a word that has so often been used as an insult; a way to destigmatize fatness itself by not shying away from describing it for what it is; and a way to counter the medical term “obesity”, which is arguably both harmful and useless. For just one of many voices on this topic, you can <a href="https://www.glamourmagazine.co.uk/article/you-just-need-to-lose-weight-and-19-other-myths-about-fat-people-by-aubrey-gordon-extract">read Aubrey Gordon’s recent interview with Glamour Magazine</a>.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>Example: <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4718249/" class="uri">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4718249/</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3"><p>Source: <a href="https://academic.oup.com/ije/article/46/2/547/2739040" class="uri">https://academic.oup.com/ije/article/46/2/547/2739040</a><a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4"><p>If you find a high quality study examining this, send it my way!<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5"><p>Around minute 41:42, The Fat Doctor Podcast, July 2021, Episode titled “What is Weight Stigma (with Ragen Chastain)” (<a href="https://open.spotify.com/episode/0YQFOJo3cAxaagmvris7ro?si=63a520a7a8544519">click to listen on Spotify</a>)<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn6"><p>Excerpt From <a href="https://www.aubreygordon.net/myths">“You Just Need to Lose Weight” and 19 Other Myths About Fat People</a> by Aubrey Gordon<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn7"><p>Around minute 26 of the first episode of The Fat Doctor Podcast (<a href="https://open.spotify.com/episode/3kAfHpB6MulMpa3MMUAXh1?si=6c40915f044245b7">click to listen on Spotify</a>).<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn8"><p>First episode, starting around minute 28:57 (<a href="https://open.spotify.com/episode/3kAfHpB6MulMpa3MMUAXh1?si=6c40915f044245b7">click to listen on Spotify</a>).<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn9"><p>Excerpt From <a href="https://www.aubreygordon.net/myths">“You Just Need to Lose Weight” and 19 Other Myths About Fat People</a> by Aubrey Gordon<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn10"><p>Health At Every Size<a href="#fnref10" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol>
-</section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">https://creativecommons.org/licenses/by-nc/4.0/</a></div></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{brazão2023,
-  author = {Vasco Brazão},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-reuse"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div class="quarto-appendix-contents"><div><a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a></div></div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{brazão2023,
+  author = {Brazão, Vasco},
   title = {Anti-Fat Bias, Not “Obesity”, Is a Problem Worth Fighting},
   date = {2023-03-10},
   langid = {en}
 }
-</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-brazão2023" class="csl-entry quarto-appendix-citeas" role="doc-biblioentry">
-Vasco Brazão. (2023, March 10). <em>Anti-fat bias, not
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-brazão2023" class="csl-entry quarto-appendix-citeas" role="listitem">
+Brazão, V. (2023, March 10). <em>Anti-fat bias, not
 <span>“obesity,”</span> is a problem worth fighting</em>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -496,9 +494,23 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
   const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
     }
   });
   clipboard.on('success', function(e) {
@@ -534,10 +546,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -547,8 +558,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -563,6 +583,238 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return note.innerHTML;
     });
   }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
   const findCites = (el) => {
     const parentEl = el.parentElement;
     if (parentEl) {
@@ -603,6 +855,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 

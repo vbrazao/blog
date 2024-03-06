@@ -21,8 +21,11 @@ website:
 
 format:
   html:
-    theme: litera
+    theme: 
+      - litera
+      - deseo.scss
     css: styles.css
+    toc: true
 
 editor: visual
 

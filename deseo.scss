@@ -1,0 +1,14 @@
+/*-- scss:defaults --*/
+
+$primary: #9B4F96;
+$secondary: #D60270;
+$tertiary: #0038A8;
+$navbar-bg: #FFFFFF;
+$callout-color-note: #9B4F96;
+$grid-body-width: 900px !default;
+
+/*-- scss:rules --*/
+
+#title-block-header.quarto-title-block.default .quarto-title .title {
+    color: #9B4F96;
+}

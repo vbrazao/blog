@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.280">
+<meta name="generator" content="quarto-1.4.550">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -19,7 +19,7 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
 </style>
@@ -48,7 +48,13 @@ ul.task-list li input[type="checkbox"] {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -57,8 +63,10 @@ ul.task-list li input[type="checkbox"] {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-2XK3PRN887"></script>
@@ -78,50 +86,52 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 <body class="floating nav-fixed slimcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Vasco Brazão</span>
     </a>
   </div>
+            <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../about.html">
- <span class="menu-text">About</span></a>
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/vbrazao"><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/vbrazao"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://twitter.com/vascobrazao"><i class="bi bi-twitter" role="img">
+    <a class="nav-link" href="https://twitter.com/vascobrazao"> <i class="bi bi-twitter" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://tech.lgbt/@vascobrazao"><i class="bi bi-mastodon" role="img">
+    <a class="nav-link" href="https://tech.lgbt/@vascobrazao"> <i class="bi bi-mastodon" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://www.linkedin.com/in/vascobrazao/"><i class="bi bi-linkedin" role="img">
+    <a class="nav-link" href="https://www.linkedin.com/in/vascobrazao/"> <i class="bi bi-linkedin" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="https://bsky.app/profile/vascobrazao.bsky.social">
- <span class="menu-text"><iconify-icon inline="" icon="icon-park-solid:butterfly" width="25" height="25"></iconify-icon></span></a>
+    <a class="nav-link" href="https://bsky.app/profile/vascobrazao.bsky.social"> 
+<span class="menu-text"><iconify-icon inline="" icon="icon-park-solid:butterfly" width="25" height="25"></iconify-icon></span></a>
   </li>  
 </ul>
-              <div id="quarto-search" class="" title="Search"></div>
           </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -161,7 +171,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   
   </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
@@ -171,6 +181,7 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
   </ul>
 </nav>
 </nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
     </div>
@@ -180,11 +191,12 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 
 
 
+
 <p><img src="office.png" class="img-fluid" alt="Bird's eye view of messy office. Different piles of papers, boxes, etc. in various corners of the floor, some on the desk as well"></p>
 <p>I’ve always struggled with tidying. Making my bed, gathering all the dirty clothes from the floor, loading the dishwasher and sanitizing the countertops—I struggle with all this to this day. But I feel better about it, and much more hopeful of finding a balance that works for me. Let me tell you why:</p>
 <p>I used to think tidying was a moral thing. Good people kept their spaces tidy, and the ones who didn’t were, by extension, bad people.</p>
 <p>It was never spelled out like that. Instead, this dichotomy was enforced very effectively through shame and societal expectations. I felt ashamed of my messy spaces, and I felt like that shame was justified.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Regardless of whether I wanted my room to be clean, it was clear that I should want it and that it should be clean. Jokes about Einstein having a messy desk were of limited help, because we all knew that in the real world people made their beds <em>and why won’t you just do this one thing?</em><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
-<p>The choices were few. I could ignore the issue, pretend I didn’t care. This was easy up to a point, because I often really don’t care. I will walk over piles of things to get to where I need to be and it won’t phase me in the least. I will make space just for my laptop on my messy desk and work just like that. But this state is never too long lasting, because things keep piling up, and with them so does the shame. So I pull out my next card, the “try” option. I try to organize. To clean. To put everything in its place and have a pristine space. Here I can either fail, only complete some partial cleaning, and feel bad; or I can succeed, maintain a clean state for a few hours or days, and then start to feel bad as it deteriorates again. Everyone wins!</p>
+<div class="no-row-height column-margin column-container"><p><sup>1</sup>&nbsp;Longtime fans will recognize this as a form of introjected regulation, a kind of external regulation within Self-Determination Theory that I <a href="https://medium.com/@vascobrazao/how-to-motivate-a-human-94a45f65659d">described in a past life</a>.</p><p><sup>2</sup>&nbsp;Of course, it’s never just one thing, but that’s a minor detail.</p></div><p>The choices were few. I could ignore the issue, pretend I didn’t care. This was easy up to a point, because I often really don’t care. I will walk over piles of things to get to where I need to be and it won’t phase me in the least. I will make space just for my laptop on my messy desk and work just like that. But this state is never too long lasting, because things keep piling up, and with them so does the shame. So I pull out my next card, the “try” option. I try to organize. To clean. To put everything in its place and have a pristine space. Here I can either fail, only complete some partial cleaning, and feel bad; or I can succeed, maintain a clean state for a few hours or days, and then start to feel bad as it deteriorates again. Everyone wins!</p>
 <p>KC Davis changed the game. KC is the person behind <a href="http://StruggleCare.com">StruggleCare.com</a>, the TikTok channel <a href="https://www.tiktok.com/@domesticblisters?lang=en">DomesticBlisters</a>, and much more. And this is what she has to say:</p>
 <blockquote class="blockquote">
 <p>My first advice is to hear this sentence: <strong>Care tasks are morally neutral.</strong> They have nothing to do with being a good or bad person. We’re gonna stop thinking about whether something is good enough and we’re gonna start thinking about whether something functions in your home. <strong>And you are a person who deserves to function, even if you don’t like yourself.</strong></p>
@@ -192,14 +204,14 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 
 <div class="no-row-height column-margin column-container"><div class="">
 <p>Quote from KC Davis on the <a href="https://infinitequestpodcast.com/">Infinite Quest Podcast</a>’s March 2022 episode entitled <a href="https://open.spotify.com/episode/3ZVNkiKu76CLkspKBsPDQ2?si=38c1361aa5e44c8f">How to Keep House While Drowning With DomesticBlisters</a></p>
-</div></div><p>Right off the bat, she does away with the word “chores”. Chores are boring things that you need to do just because you’re expected to. Let’s forget about chores and focus on <strong>care tasks</strong> instead. Care tasks are entirely functional. You do them because doing them is required to make the spaces you inhabit function for you. You do them to care for yourself and your loved ones. And if doing them is not functional for you, if they don’t add anything you value to your life—you don’t need to do them!<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+</div><p><sup>3</sup>&nbsp;Pro-tip from Catieosaurus: If you hate folding laundry. If you just <strong>can’t stand it</strong>. Maybe consider… <strong>not.</strong> (Apply generously over all infected areas.)</p></div><p>Right off the bat, she does away with the word “chores”. Chores are boring things that you need to do just because you’re expected to. Let’s forget about chores and focus on <strong>care tasks</strong> instead. Care tasks are entirely functional. You do them because doing them is required to make the spaces you inhabit function for you. You do them to care for yourself and your loved ones. And if doing them is not functional for you, if they don’t add anything you value to your life—you don’t need to do them!<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
 <p>An example: If you have kids (and, let’s face it, even if you don’t), it can be difficult to have a pristine kitchen at any point. Dishes might pile up; counters may get soiled chaotically from little baking projects and snacks and spillages; fruit may be partially rotting somewhere; and when’s the last time you dusted in between that cupboard and the other thing? Well, perhaps the goal of completely cleaning your kitchen and keeping it that way forever is a tad unrealistic, dearie.</p>
 <p>Perhaps you just internalized that a good mother, husband, carer, however-you-identify <em>should</em> maintain a clean kitchen at all times, otherwise you are failing your family, your gender—heck—your nation<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>.</p>
-<p>Poppycock.</p>
+<div class="no-row-height column-margin column-container"><p><sup>4</sup>&nbsp;*gasp*</p></div><p>Poppycock.</p>
 <p>What matters is if the kitchen <em>functions for you and your household</em>. Are important surfaces sanitized or potentially contaminated? Is there some space in the sink in case someone needs to wash something? Is fresh fruit visible and easy to access for those seeking a healthy snack? Forget what someone whose opinion is irrelevant might think you should be doing to your kitchen. <em>What do <strong>you</strong> need for it to be functional?</em></p>
 <p>This is step 0. The most important step comes next: approaching all this without judgment. Without assuming that the way you take care of your spaces defines your value as a person. Without feeling shame for liberating yourself from what is, in fact, not important to you. Without beating yourself up for not completing care tasks that <strong>are</strong> important, even though you meant to. Because if the whole point is caring, shaming yourself for failing is going to accomplish what, exactly? Instead, try to talk to yourself as you would to a dear friend in distress. Console yourself, remind yourself that you are doing what you can and it’s ok, consider reaching out for help—all those things that are easier said than done, and nevertheless worth practicing.</p>
 <p>Of course, figuring out what is functional for you and letting go of the shame is neither easy nor does it solve everything. If you still struggle to do tasks that are important to you, don’t despair. So do I. There are dozens of us, DOZENS!<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> Perhaps one of KC’s many videos will be helpful to you, or you can consult her very accessible book. Oh, look, a resources list right below. How convenient!</p>
-<section id="resources" class="level1">
+<div class="no-row-height column-margin column-container"><p><sup>5</sup>&nbsp;This is a reference to <em>Arrested Development</em>, not a trustworthy figure. I’d count on there being billions of us, actually. Those of you who’ve reached care task–Nirvana, I salute you. Now get out. Or help me?</p></div><section id="resources" class="level1">
 <h1>Resources</h1>
 <ul>
 <li><p>Listen to KC on Infinite Quest (Spotify link): <a href="https://open.spotify.com/episode/3ZVNkiKu76CLkspKBsPDQ2?si=38c1361aa5e44c8f">How to Keep House While Drowning With DomesticBlisters</a></p></li>
@@ -218,23 +230,14 @@ gtag('config', 'G-2XK3PRN887', { 'anonymize_ip': true});
 </section>
 
 
-<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
-
-<ol>
-<li id="fn1"><p>Longtime fans will recognize this as a form of introjected regulation, a kind of external regulation within Self-Determination Theory that I <a href="https://medium.com/@vascobrazao/how-to-motivate-a-human-94a45f65659d">described in a past life</a>.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>Of course, it’s never just one thing, but that’s a minor detail.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3"><p>Pro-tip from Catieosaurus: If you hate folding laundry. If you just <strong>can’t stand it</strong>. Maybe consider… <strong>not.</strong> (Apply generously over all infected areas.)<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4"><p>*gasp*<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5"><p>This is a reference to <em>Arrested Development</em>, not a trustworthy figure. I’d count on there being billions of us, actually. Those of you who’ve reached care task–Nirvana, I salute you. Now get out. Or help me?<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol>
-</section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">https://creativecommons.org/licenses/by-nc/4.0/</a></div></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{brazão2023,
-  author = {Vasco Brazão},
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-reuse"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div class="quarto-appendix-contents"><div><a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a></div></div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{brazão2023,
+  author = {Brazão, Vasco},
   title = {I Used to Think Tidying Was Moral},
   date = {2023-02-10},
   langid = {en}
 }
-</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-brazão2023" class="csl-entry quarto-appendix-citeas" role="doc-biblioentry">
-Vasco Brazão. (2023, February 10). <em>I used to think tidying was
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-brazão2023" class="csl-entry quarto-appendix-citeas" role="listitem">
+Brazão, V. (2023, February 10). <em>I used to think tidying was
 moral</em>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -264,9 +267,23 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
   const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
     }
   });
   clipboard.on('success', function(e) {
@@ -302,10 +319,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -315,8 +331,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -331,6 +356,238 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return note.innerHTML;
     });
   }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
   const findCites = (el) => {
     const parentEl = el.parentElement;
     if (parentEl) {
@@ -371,6 +628,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 
