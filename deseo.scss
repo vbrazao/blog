@@ -1,14 +1,17 @@
 /*-- scss:defaults --*/
 
-$primary: #9B4F96;
-$secondary: #D60270;
+$primary: #4C0043;
+$secondary: #DF5FCA;
 $tertiary: #0038A8;
-$navbar-bg: #FFFFFF;
-$callout-color-note: #9B4F96;
+$navbar-bg: #EFEFDC;
+$callout-color-note: #AE6DAB;
 $grid-body-width: 900px !default;
+
+// https://mycolor.space/?hex=%234C0043&sub=1 
+// (NSFW) https://themalemuse.com/wp-content/uploads/2023/05/Kevin-Poster-Boy-02.jpg
 
 /*-- scss:rules --*/
 
 #title-block-header.quarto-title-block.default .quarto-title .title {
-    color: #9B4F96;
+    color: #4C0043;
 }

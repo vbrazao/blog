@@ -9,8 +9,6 @@ website:
       - about.qmd
       - icon: github
         href: https://github.com/vbrazao
-      - icon: twitter
-        href: https://twitter.com/vascobrazao
       - icon: mastodon
         href: https://tech.lgbt/@vascobrazao
       - icon: linkedin
