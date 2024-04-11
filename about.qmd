@@ -4,9 +4,6 @@ image: vasco_profile-pic_2022.jpeg
 about:
   template: jolla
   links:
-    - icon: twitter
-      text: Twitter
-      href: https://twitter.com/vascobrazao
     - icon: linkedin
       text: LinkedIn
       href: https://www.linkedin.com/in/vascobrazao/
