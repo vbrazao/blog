@@ -8,6 +8,8 @@ website:
     left:
       - text: "Home"
         href: https://vbrazao.github.io/website/
+      - text: "Blog"
+        href: https://vbrazao.github.io/blog/
     right:
       - about.qmd
       - icon: github

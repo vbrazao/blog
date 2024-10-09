@@ -168,6 +168,10 @@ window.Quarto = {
     <a class="nav-link" href="https://vbrazao.github.io/website/"> 
 <span class="menu-text">Home</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://vbrazao.github.io/blog/"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
@@ -236,7 +240,34 @@ window.Quarto = {
   </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
-    
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#background" id="toc-background" class="nav-link active" data-scroll-target="#background">Background</a>
+  <ul class="collapse">
+  <li><a href="#issue-1-correctly-applying-the-fragile-families-weights" id="toc-issue-1-correctly-applying-the-fragile-families-weights" class="nav-link" data-scroll-target="#issue-1-correctly-applying-the-fragile-families-weights">Issue 1: Correctly applying the Fragile Families weights</a></li>
+  </ul></li>
+  <li><a href="#running-the-weighted-models-and-mediation" id="toc-running-the-weighted-models-and-mediation" class="nav-link" data-scroll-target="#running-the-weighted-models-and-mediation">Running the weighted models and mediation</a>
+  <ul class="collapse">
+  <li><a href="#issue-2-mediation-with-multiple-trial-binomial-mediator-runs-for-weighted-but-not-for-unweighted-models" id="toc-issue-2-mediation-with-multiple-trial-binomial-mediator-runs-for-weighted-but-not-for-unweighted-models" class="nav-link" data-scroll-target="#issue-2-mediation-with-multiple-trial-binomial-mediator-runs-for-weighted-but-not-for-unweighted-models">Issue 2: Mediation with “multiple-trial binomial mediator” runs for weighted but not for unweighted models?</a>
+  <ul class="collapse">
+  <li><a href="#sanity-check-comparing-results-with-linear-probability-models" id="toc-sanity-check-comparing-results-with-linear-probability-models" class="nav-link" data-scroll-target="#sanity-check-comparing-results-with-linear-probability-models">Sanity check: comparing results with linear probability models</a></li>
+  <li><a href="#bonus-finding-you-can-specify-a-mediator-that-is-not-technically-the-variable-that-your-mediator-model-predicts" id="toc-bonus-finding-you-can-specify-a-mediator-that-is-not-technically-the-variable-that-your-mediator-model-predicts" class="nav-link" data-scroll-target="#bonus-finding-you-can-specify-a-mediator-that-is-not-technically-the-variable-that-your-mediator-model-predicts">Bonus finding: you can specify a mediator that is not technically the variable that your mediator model predicts</a></li>
+  </ul></li>
+  <li><a href="#issue-3-using-a-binary-mediator-and-a-binomial-outcome-works-with-cbindsuccesses-failures-but-not-with-proportion-as-outcome-and-weights-argument-specified" id="toc-issue-3-using-a-binary-mediator-and-a-binomial-outcome-works-with-cbindsuccesses-failures-but-not-with-proportion-as-outcome-and-weights-argument-specified" class="nav-link" data-scroll-target="#issue-3-using-a-binary-mediator-and-a-binomial-outcome-works-with-cbindsuccesses-failures-but-not-with-proportion-as-outcome-and-weights-argument-specified">Issue 3: Using a binary mediator and a binomial outcome — works with cbind(successes, failures) but not with proportion as outcome and weights argument specified</a></li>
+  <li><a href="#issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together" id="toc-issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together" class="nav-link" data-scroll-target="#issue-4-ordinal-mediator-and-binomial-outcome-dont-work-together">Issue 4: Ordinal mediator and binomial outcome don’t work together</a></li>
+  <li><a href="#issue-5-mediate-is-not-compatible-with-svyolr-models" id="toc-issue-5-mediate-is-not-compatible-with-svyolr-models" class="nav-link" data-scroll-target="#issue-5-mediate-is-not-compatible-with-svyolr-models">Issue 5: mediate() is not compatible with svyolr() models</a></li>
+  <li><a href="#issue-6-options-and-choices-to-boot-to-robustse-or-not-to-robustse" id="toc-issue-6-options-and-choices-to-boot-to-robustse-or-not-to-robustse" class="nav-link" data-scroll-target="#issue-6-options-and-choices-to-boot-to-robustse-or-not-to-robustse">Issue 6: Options and choices to boot — To robustSE or not to robustSE?</a>
+  <ul class="collapse">
+  <li><a href="#bonus-this-goes-for-using-marginaleffects-as-well" id="toc-bonus-this-goes-for-using-marginaleffects-as-well" class="nav-link" data-scroll-target="#bonus-this-goes-for-using-marginaleffects-as-well">Bonus: this goes for using <code>marginaleffects</code> as well</a></li>
+  </ul></li>
+  <li><a href="#issue-7-bounds-of-the-confidence-intervals-are-rounded-inconsistently" id="toc-issue-7-bounds-of-the-confidence-intervals-are-rounded-inconsistently" class="nav-link" data-scroll-target="#issue-7-bounds-of-the-confidence-intervals-are-rounded-inconsistently">Issue 7: Bounds of the confidence intervals are rounded inconsistently</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#session-info" id="toc-session-info" class="nav-link" data-scroll-target="#session-info">Session Info</a></li>
+  </ul>
+</nav>
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->

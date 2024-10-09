@@ -19,4 +19,5 @@ license: "CC BY-NC"
 # Default fields for citation
 citation: true
 
+toc: true
 toc-location: left
