@@ -1,6 +1,7 @@
 ---
 title: "*qual era a madrugada que esperavas?*"
 format: html
+date: "2026-02-09"
 categories: [portuguese, poetry]
 ---
 
